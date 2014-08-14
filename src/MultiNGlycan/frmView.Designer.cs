@@ -45,12 +45,13 @@
             this.dgvPeakList = new System.Windows.Forms.DataGridView();
             this.ctxMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.mergeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.deleteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.splitContainer5 = new System.Windows.Forms.SplitContainer();
             this.chkAdductPeak = new System.Windows.Forms.CheckBox();
             this.btnUpdate = new System.Windows.Forms.Button();
             this.chkboxlstPeak = new System.Windows.Forms.CheckedListBox();
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
-            this.deleteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.chkGetAbundance = new System.Windows.Forms.CheckBox();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
             this.splitContainer1.SuspendLayout();
@@ -90,6 +91,7 @@
             // 
             // splitContainer1.Panel1
             // 
+            this.splitContainer1.Panel1.Controls.Add(this.chkGetAbundance);
             this.splitContainer1.Panel1.Controls.Add(this.chkMergeCharge);
             this.splitContainer1.Panel1.Controls.Add(this.btnSaveWholeProfile);
             this.splitContainer1.Panel1.Controls.Add(this.rdoSingle);
@@ -270,14 +272,21 @@
             this.mergeToolStripMenuItem,
             this.deleteToolStripMenuItem});
             this.ctxMenuStrip.Name = "ctxMenuStrip";
-            this.ctxMenuStrip.Size = new System.Drawing.Size(153, 70);
+            this.ctxMenuStrip.Size = new System.Drawing.Size(109, 48);
             // 
             // mergeToolStripMenuItem
             // 
             this.mergeToolStripMenuItem.Name = "mergeToolStripMenuItem";
-            this.mergeToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.mergeToolStripMenuItem.Size = new System.Drawing.Size(108, 22);
             this.mergeToolStripMenuItem.Text = "Merge";
             this.mergeToolStripMenuItem.Click += new System.EventHandler(this.mergeToolStripMenuItem_Click);
+            // 
+            // deleteToolStripMenuItem
+            // 
+            this.deleteToolStripMenuItem.Name = "deleteToolStripMenuItem";
+            this.deleteToolStripMenuItem.Size = new System.Drawing.Size(108, 22);
+            this.deleteToolStripMenuItem.Text = "Delete";
+            this.deleteToolStripMenuItem.Click += new System.EventHandler(this.deleteToolStripMenuItem_Click);
             // 
             // splitContainer5
             // 
@@ -337,12 +346,16 @@
             // 
             this.openFileDialog1.FileName = "openFileDialog1";
             // 
-            // deleteToolStripMenuItem
+            // chkGetAbundance
             // 
-            this.deleteToolStripMenuItem.Name = "deleteToolStripMenuItem";
-            this.deleteToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-            this.deleteToolStripMenuItem.Text = "Delete";
-            this.deleteToolStripMenuItem.Click += new System.EventHandler(this.deleteToolStripMenuItem_Click);
+            this.chkGetAbundance.AutoSize = true;
+            this.chkGetAbundance.Location = new System.Drawing.Point(579, 6);
+            this.chkGetAbundance.Name = "chkGetAbundance";
+            this.chkGetAbundance.Size = new System.Drawing.Size(101, 17);
+            this.chkGetAbundance.TabIndex = 5;
+            this.chkGetAbundance.Text = "Get Abundance";
+            this.chkGetAbundance.UseVisualStyleBackColor = true;
+            this.chkGetAbundance.CheckedChanged += new System.EventHandler(this.chkGetAbundance_CheckedChanged);
             // 
             // frmView
             // 
@@ -399,5 +412,6 @@
         private System.Windows.Forms.ContextMenuStrip ctxMenuStrip;
         private System.Windows.Forms.ToolStripMenuItem mergeToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem deleteToolStripMenuItem;
+        private System.Windows.Forms.CheckBox chkGetAbundance;
     }
 }

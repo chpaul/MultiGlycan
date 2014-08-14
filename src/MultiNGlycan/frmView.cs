@@ -136,7 +136,7 @@ namespace COL.MultiGlycan
                     {
                         dictValue[Key].Add(mz, new List<string>());
                     }
-                    dictValue[Key][mz].Add( tmp[dictTitle["Time"]] + "-" + tmp[dictTitle["Abuntance"]]); // scan time - abuntance
+                    dictValue[Key][mz].Add( tmp[dictTitle["Time"]] + "-" + tmp[dictTitle["Abundance"]]); // scan time - abuntance
                     if (!mz2GlycanAdductCharge.ContainsKey(mz))
                     {
                         mz2GlycanAdductCharge.Add(mz, new List<string>());
@@ -890,6 +890,11 @@ namespace COL.MultiGlycan
                 dgvPeakList.Rows.Remove(dgvPeakList.SelectedRows[0]);
             } while (dgvPeakList.SelectedRows.Count != 0);
             btnUpdate_Click(sender, e);
+        }
+
+        private void chkGetAbundance_CheckedChanged(object sender, EventArgs e)
+        {
+            eluctionViewer1.UseMousrGetAbundance = chkGetAbundance.Checked;
         }
     }
 }

@@ -698,7 +698,7 @@ namespace COL.MultiGlycan
                     //With LC Order Result
                     FullFilename = _ExportFilePath + "\\" + Path.GetFileName(_ExportFilePath) + "_wLCorder.csv";
                     sw = new StreamWriter(FullFilename);
-                    sw.WriteLine("Start Time,End Time,Start Scan Num,End Scan Num,Abuntance(All Isotoped Clustered),Abundance(Most Intense Peak),HexNac-Hex-deHex-Sia,Composition mono");
+                    sw.WriteLine("Start Time,End Time,Start Scan Num,End Scan Num,Abundance(All Isotoped Clustered),Abundance(Most Intense Peak),HexNac-Hex-deHex-Sia,Composition mono");
                     foreach (ClusteredPeak cls in _MergedResultListAfterApplyLCOrder)
                     {
                         string export = cls.StartTime + ",";
@@ -744,7 +744,7 @@ namespace COL.MultiGlycan
             {
                 FullFilename = _ExportFilePath + "\\" + Path.GetFileName(_ExportFilePath) + "_FullList.csv";
                 sw = new StreamWriter(FullFilename);
-                sw.WriteLine("Time,Scan Num,Abuntance,m/z,HexNac-Hex-deHex-Sia,Adduct,Composition mono");
+                sw.WriteLine("Time,Scan Num,Abundance,m/z,HexNac-Hex-deHex-Sia,Adduct,Composition mono");
  
 
                 //Sort by Glycan than Time
