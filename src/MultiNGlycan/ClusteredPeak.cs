@@ -41,6 +41,20 @@ namespace COL.MultiGlycan
             get { return _LCPeak; }
             set { _LCPeak = value; }
         }
+        public enumPermethyLabeling PermethyLabel
+        {
+            get
+            {
+                if (_MatchedPeaksInScan.Count > 0)
+                {
+                    return _MatchedPeaksInScan[0].GlycanComposition.PermethyLabelingTag;
+                }
+                else
+                {
+                    return enumPermethyLabeling.None;
+                }
+            }
+        }
         /// <summary>
         /// Sum of Intensity Value: All isotoped peaks are included.
         /// </summary>

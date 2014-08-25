@@ -84,6 +84,24 @@
             this.button1 = new System.Windows.Forms.Button();
             this.button2 = new System.Windows.Forms.Button();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
+            this.tabControl1 = new System.Windows.Forms.TabControl();
+            this.tabIden = new System.Windows.Forms.TabPage();
+            this.tabQuan = new System.Windows.Forms.TabPage();
+            this.chkQuan13CHD2 = new System.Windows.Forms.CheckBox();
+            this.chkQuan13CH2D = new System.Windows.Forms.CheckBox();
+            this.chkQuan13CH3 = new System.Windows.Forms.CheckBox();
+            this.chkQuanCD3 = new System.Windows.Forms.CheckBox();
+            this.chkQuanCHD2 = new System.Windows.Forms.CheckBox();
+            this.chkQuanCH2D = new System.Windows.Forms.CheckBox();
+            this.chkQuanCH3 = new System.Windows.Forms.CheckBox();
+            this.txtQuanCH3 = new System.Windows.Forms.TextBox();
+            this.txtQuanCH2D = new System.Windows.Forms.TextBox();
+            this.txtQuanCHD2 = new System.Windows.Forms.TextBox();
+            this.txtQuanCD3 = new System.Windows.Forms.TextBox();
+            this.txtQuan13CH3 = new System.Windows.Forms.TextBox();
+            this.txtQuan13CH2D = new System.Windows.Forms.TextBox();
+            this.txtQuan13CHD2 = new System.Windows.Forms.TextBox();
+            this.btnQuan = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -92,6 +110,9 @@
             this.groupBox6.SuspendLayout();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
+            this.tabControl1.SuspendLayout();
+            this.tabIden.SuspendLayout();
+            this.tabQuan.SuspendLayout();
             this.SuspendLayout();
             // 
             // btnBrowseRaw
@@ -130,7 +151,7 @@
             this.groupBox1.Controls.Add(this.rdoDefaultList);
             this.groupBox1.Controls.Add(this.rdoUserList);
             this.groupBox1.Controls.Add(this.btnBrowseGlycan);
-            this.groupBox1.Location = new System.Drawing.Point(6, 104);
+            this.groupBox1.Location = new System.Drawing.Point(3, 80);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Size = new System.Drawing.Size(686, 44);
             this.groupBox1.TabIndex = 3;
@@ -182,7 +203,7 @@
             // btnMerge
             // 
             this.btnMerge.Enabled = false;
-            this.btnMerge.Location = new System.Drawing.Point(639, 348);
+            this.btnMerge.Location = new System.Drawing.Point(636, 324);
             this.btnMerge.Name = "btnMerge";
             this.btnMerge.Size = new System.Drawing.Size(53, 23);
             this.btnMerge.TabIndex = 14;
@@ -300,7 +321,7 @@
             this.groupBox2.Controls.Add(this.label3);
             this.groupBox2.Controls.Add(this.rdoAllRaw);
             this.groupBox2.Controls.Add(this.lblFile);
-            this.groupBox2.Location = new System.Drawing.Point(6, 27);
+            this.groupBox2.Location = new System.Drawing.Point(3, 3);
             this.groupBox2.Name = "groupBox2";
             this.groupBox2.Size = new System.Drawing.Size(686, 71);
             this.groupBox2.TabIndex = 17;
@@ -309,7 +330,7 @@
             // 
             // btnSetting
             // 
-            this.btnSetting.Location = new System.Drawing.Point(573, 348);
+            this.btnSetting.Location = new System.Drawing.Point(570, 324);
             this.btnSetting.Name = "btnSetting";
             this.btnSetting.Size = new System.Drawing.Size(54, 23);
             this.btnSetting.TabIndex = 19;
@@ -426,7 +447,7 @@
             this.groupBox3.Controls.Add(this.groupBox4);
             this.groupBox3.Controls.Add(this.chkReducedReducingEnd);
             this.groupBox3.Controls.Add(this.chkPermethylated);
-            this.groupBox3.Location = new System.Drawing.Point(6, 155);
+            this.groupBox3.Location = new System.Drawing.Point(3, 131);
             this.groupBox3.Name = "groupBox3";
             this.groupBox3.Size = new System.Drawing.Size(164, 216);
             this.groupBox3.TabIndex = 38;
@@ -453,7 +474,7 @@
             this.groupBox5.Controls.Add(this.label1);
             this.groupBox5.Controls.Add(this.txtPPM);
             this.groupBox5.Controls.Add(this.chkMZMatch);
-            this.groupBox5.Location = new System.Drawing.Point(176, 155);
+            this.groupBox5.Location = new System.Drawing.Point(173, 131);
             this.groupBox5.Name = "groupBox5";
             this.groupBox5.Size = new System.Drawing.Size(269, 74);
             this.groupBox5.TabIndex = 39;
@@ -515,7 +536,7 @@
             this.groupBox6.Controls.Add(this.txtMinLCTime);
             this.groupBox6.Controls.Add(this.chkMergeDffCharge);
             this.groupBox6.Controls.Add(this.txtMaxLCTime);
-            this.groupBox6.Location = new System.Drawing.Point(176, 235);
+            this.groupBox6.Location = new System.Drawing.Point(173, 211);
             this.groupBox6.Name = "groupBox6";
             this.groupBox6.Size = new System.Drawing.Size(269, 136);
             this.groupBox6.TabIndex = 40;
@@ -568,7 +589,7 @@
             this.toolsToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(700, 24);
+            this.menuStrip1.Size = new System.Drawing.Size(709, 24);
             this.menuStrip1.TabIndex = 41;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -650,35 +671,238 @@
             // pictureBox1
             // 
             this.pictureBox1.Image = global::COL.MultiGlycan.Properties.Resources.Peak;
-            this.pictureBox1.Location = new System.Drawing.Point(451, 160);
+            this.pictureBox1.Location = new System.Drawing.Point(448, 136);
             this.pictureBox1.Name = "pictureBox1";
             this.pictureBox1.Size = new System.Drawing.Size(241, 178);
             this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
             this.pictureBox1.TabIndex = 45;
             this.pictureBox1.TabStop = false;
             // 
+            // tabControl1
+            // 
+            this.tabControl1.Controls.Add(this.tabIden);
+            this.tabControl1.Controls.Add(this.tabQuan);
+            this.tabControl1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tabControl1.Location = new System.Drawing.Point(0, 24);
+            this.tabControl1.Name = "tabControl1";
+            this.tabControl1.SelectedIndex = 0;
+            this.tabControl1.Size = new System.Drawing.Size(709, 380);
+            this.tabControl1.TabIndex = 0;
+            // 
+            // tabIden
+            // 
+            this.tabIden.Controls.Add(this.groupBox2);
+            this.tabIden.Controls.Add(this.pictureBox1);
+            this.tabIden.Controls.Add(this.groupBox1);
+            this.tabIden.Controls.Add(this.btnMerge);
+            this.tabIden.Controls.Add(this.btnSetting);
+            this.tabIden.Controls.Add(this.groupBox6);
+            this.tabIden.Controls.Add(this.groupBox3);
+            this.tabIden.Controls.Add(this.groupBox5);
+            this.tabIden.Location = new System.Drawing.Point(4, 22);
+            this.tabIden.Name = "tabIden";
+            this.tabIden.Size = new System.Drawing.Size(701, 354);
+            this.tabIden.TabIndex = 0;
+            this.tabIden.Text = "Identification";
+            this.tabIden.UseVisualStyleBackColor = true;
+            // 
+            // tabQuan
+            // 
+            this.tabQuan.Controls.Add(this.btnQuan);
+            this.tabQuan.Controls.Add(this.txtQuan13CHD2);
+            this.tabQuan.Controls.Add(this.txtQuan13CH2D);
+            this.tabQuan.Controls.Add(this.txtQuan13CH3);
+            this.tabQuan.Controls.Add(this.txtQuanCD3);
+            this.tabQuan.Controls.Add(this.txtQuanCHD2);
+            this.tabQuan.Controls.Add(this.txtQuanCH2D);
+            this.tabQuan.Controls.Add(this.txtQuanCH3);
+            this.tabQuan.Controls.Add(this.chkQuan13CHD2);
+            this.tabQuan.Controls.Add(this.chkQuan13CH2D);
+            this.tabQuan.Controls.Add(this.chkQuan13CH3);
+            this.tabQuan.Controls.Add(this.chkQuanCD3);
+            this.tabQuan.Controls.Add(this.chkQuanCHD2);
+            this.tabQuan.Controls.Add(this.chkQuanCH2D);
+            this.tabQuan.Controls.Add(this.chkQuanCH3);
+            this.tabQuan.Location = new System.Drawing.Point(4, 22);
+            this.tabQuan.Name = "tabQuan";
+            this.tabQuan.Size = new System.Drawing.Size(701, 354);
+            this.tabQuan.TabIndex = 0;
+            this.tabQuan.Text = "Quantification";
+            this.tabQuan.UseVisualStyleBackColor = true;
+            // 
+            // chkQuan13CHD2
+            // 
+            this.chkQuan13CHD2.AutoSize = true;
+            this.chkQuan13CHD2.Checked = true;
+            this.chkQuan13CHD2.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.chkQuan13CHD2.Location = new System.Drawing.Point(10, 303);
+            this.chkQuan13CHD2.Name = "chkQuan13CHD2";
+            this.chkQuan13CHD2.Size = new System.Drawing.Size(67, 17);
+            this.chkQuan13CHD2.TabIndex = 6;
+            this.chkQuan13CHD2.Text = "13CHD2";
+            this.chkQuan13CHD2.UseVisualStyleBackColor = true;
+            this.chkQuan13CHD2.CheckedChanged += new System.EventHandler(this.chkQuan13CHD2_CheckedChanged);
+            // 
+            // chkQuan13CH2D
+            // 
+            this.chkQuan13CH2D.AutoSize = true;
+            this.chkQuan13CH2D.Checked = true;
+            this.chkQuan13CH2D.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.chkQuan13CH2D.Location = new System.Drawing.Point(10, 256);
+            this.chkQuan13CH2D.Name = "chkQuan13CH2D";
+            this.chkQuan13CH2D.Size = new System.Drawing.Size(67, 17);
+            this.chkQuan13CH2D.TabIndex = 5;
+            this.chkQuan13CH2D.Text = "13CH2D";
+            this.chkQuan13CH2D.UseVisualStyleBackColor = true;
+            this.chkQuan13CH2D.CheckedChanged += new System.EventHandler(this.chkQuan13CH2D_CheckedChanged);
+            // 
+            // chkQuan13CH3
+            // 
+            this.chkQuan13CH3.AutoSize = true;
+            this.chkQuan13CH3.Checked = true;
+            this.chkQuan13CH3.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.chkQuan13CH3.Location = new System.Drawing.Point(10, 209);
+            this.chkQuan13CH3.Name = "chkQuan13CH3";
+            this.chkQuan13CH3.Size = new System.Drawing.Size(59, 17);
+            this.chkQuan13CH3.TabIndex = 4;
+            this.chkQuan13CH3.Text = "13CH3";
+            this.chkQuan13CH3.UseVisualStyleBackColor = true;
+            this.chkQuan13CH3.CheckedChanged += new System.EventHandler(this.chkQuan13CH3_CheckedChanged);
+            // 
+            // chkQuanCD3
+            // 
+            this.chkQuanCD3.AutoSize = true;
+            this.chkQuanCD3.Checked = true;
+            this.chkQuanCD3.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.chkQuanCD3.Location = new System.Drawing.Point(10, 162);
+            this.chkQuanCD3.Name = "chkQuanCD3";
+            this.chkQuanCD3.Size = new System.Drawing.Size(47, 17);
+            this.chkQuanCD3.TabIndex = 3;
+            this.chkQuanCD3.Text = "CD3";
+            this.chkQuanCD3.UseVisualStyleBackColor = true;
+            this.chkQuanCD3.CheckedChanged += new System.EventHandler(this.chkQuanCD3_CheckedChanged);
+            // 
+            // chkQuanCHD2
+            // 
+            this.chkQuanCHD2.AutoSize = true;
+            this.chkQuanCHD2.Checked = true;
+            this.chkQuanCHD2.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.chkQuanCHD2.Location = new System.Drawing.Point(10, 115);
+            this.chkQuanCHD2.Name = "chkQuanCHD2";
+            this.chkQuanCHD2.Size = new System.Drawing.Size(55, 17);
+            this.chkQuanCHD2.TabIndex = 2;
+            this.chkQuanCHD2.Text = "CHD2";
+            this.chkQuanCHD2.UseVisualStyleBackColor = true;
+            this.chkQuanCHD2.CheckedChanged += new System.EventHandler(this.chkQuanCHD2_CheckedChanged);
+            // 
+            // chkQuanCH2D
+            // 
+            this.chkQuanCH2D.AutoSize = true;
+            this.chkQuanCH2D.Checked = true;
+            this.chkQuanCH2D.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.chkQuanCH2D.Location = new System.Drawing.Point(10, 68);
+            this.chkQuanCH2D.Name = "chkQuanCH2D";
+            this.chkQuanCH2D.Size = new System.Drawing.Size(55, 17);
+            this.chkQuanCH2D.TabIndex = 1;
+            this.chkQuanCH2D.Text = "CH2D";
+            this.chkQuanCH2D.UseVisualStyleBackColor = true;
+            this.chkQuanCH2D.CheckedChanged += new System.EventHandler(this.chkQuanCH2D_CheckedChanged);
+            // 
+            // chkQuanCH3
+            // 
+            this.chkQuanCH3.AutoSize = true;
+            this.chkQuanCH3.Checked = true;
+            this.chkQuanCH3.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.chkQuanCH3.Location = new System.Drawing.Point(10, 21);
+            this.chkQuanCH3.Name = "chkQuanCH3";
+            this.chkQuanCH3.Size = new System.Drawing.Size(47, 17);
+            this.chkQuanCH3.TabIndex = 0;
+            this.chkQuanCH3.Text = "CH3";
+            this.chkQuanCH3.UseVisualStyleBackColor = true;
+            this.chkQuanCH3.CheckedChanged += new System.EventHandler(this.chkQuanCH3_CheckedChanged);
+            // 
+            // txtQuanCH3
+            // 
+            this.txtQuanCH3.Location = new System.Drawing.Point(82, 19);
+            this.txtQuanCH3.Name = "txtQuanCH3";
+            this.txtQuanCH3.Size = new System.Drawing.Size(47, 20);
+            this.txtQuanCH3.TabIndex = 7;
+            this.txtQuanCH3.Text = "1.0";
+            // 
+            // txtQuanCH2D
+            // 
+            this.txtQuanCH2D.Location = new System.Drawing.Point(82, 66);
+            this.txtQuanCH2D.Name = "txtQuanCH2D";
+            this.txtQuanCH2D.Size = new System.Drawing.Size(47, 20);
+            this.txtQuanCH2D.TabIndex = 8;
+            this.txtQuanCH2D.Text = "1.0";
+            // 
+            // txtQuanCHD2
+            // 
+            this.txtQuanCHD2.Location = new System.Drawing.Point(82, 113);
+            this.txtQuanCHD2.Name = "txtQuanCHD2";
+            this.txtQuanCHD2.Size = new System.Drawing.Size(47, 20);
+            this.txtQuanCHD2.TabIndex = 9;
+            this.txtQuanCHD2.Text = "1.0";
+            // 
+            // txtQuanCD3
+            // 
+            this.txtQuanCD3.Location = new System.Drawing.Point(82, 160);
+            this.txtQuanCD3.Name = "txtQuanCD3";
+            this.txtQuanCD3.Size = new System.Drawing.Size(47, 20);
+            this.txtQuanCD3.TabIndex = 10;
+            this.txtQuanCD3.Text = "1.0";
+            // 
+            // txtQuan13CH3
+            // 
+            this.txtQuan13CH3.Location = new System.Drawing.Point(82, 207);
+            this.txtQuan13CH3.Name = "txtQuan13CH3";
+            this.txtQuan13CH3.Size = new System.Drawing.Size(47, 20);
+            this.txtQuan13CH3.TabIndex = 11;
+            this.txtQuan13CH3.Text = "1.0";
+            // 
+            // txtQuan13CH2D
+            // 
+            this.txtQuan13CH2D.Location = new System.Drawing.Point(82, 254);
+            this.txtQuan13CH2D.Name = "txtQuan13CH2D";
+            this.txtQuan13CH2D.Size = new System.Drawing.Size(47, 20);
+            this.txtQuan13CH2D.TabIndex = 12;
+            this.txtQuan13CH2D.Text = "1.0";
+            // 
+            // txtQuan13CHD2
+            // 
+            this.txtQuan13CHD2.Location = new System.Drawing.Point(82, 301);
+            this.txtQuan13CHD2.Name = "txtQuan13CHD2";
+            this.txtQuan13CHD2.Size = new System.Drawing.Size(47, 20);
+            this.txtQuan13CHD2.TabIndex = 13;
+            this.txtQuan13CHD2.Text = "1.0";
+            // 
+            // btnQuan
+            // 
+            this.btnQuan.Enabled = false;
+            this.btnQuan.Location = new System.Drawing.Point(609, 313);
+            this.btnQuan.Name = "btnQuan";
+            this.btnQuan.Size = new System.Drawing.Size(84, 23);
+            this.btnQuan.TabIndex = 14;
+            this.btnQuan.Text = "Quantification";
+            this.btnQuan.UseVisualStyleBackColor = true;
+            this.btnQuan.Click += new System.EventHandler(this.btnQuan_Click);
+            // 
             // frmMainESI
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
-            this.ClientSize = new System.Drawing.Size(700, 373);
-            this.Controls.Add(this.pictureBox1);
+            this.ClientSize = new System.Drawing.Size(709, 404);
+            this.Controls.Add(this.tabControl1);
             this.Controls.Add(this.button2);
             this.Controls.Add(this.button1);
-            this.Controls.Add(this.groupBox6);
             this.Controls.Add(this.chkLog);
-            this.Controls.Add(this.groupBox5);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.txtGlycanPPM);
-            this.Controls.Add(this.groupBox3);
             this.Controls.Add(this.btnMergeTest);
             this.Controls.Add(this.cboCPU);
             this.Controls.Add(this.label7);
-            this.Controls.Add(this.btnSetting);
-            this.Controls.Add(this.groupBox2);
-            this.Controls.Add(this.btnMerge);
-            this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.menuStrip1);
             this.Cursor = System.Windows.Forms.Cursors.Default;
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.Fixed3D;
@@ -702,6 +926,10 @@
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
+            this.tabControl1.ResumeLayout(false);
+            this.tabIden.ResumeLayout(false);
+            this.tabQuan.ResumeLayout(false);
+            this.tabQuan.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -765,5 +993,23 @@
         private System.Windows.Forms.TextBox txtMaxLCTime;
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.Label label6;
+        private System.Windows.Forms.TabControl tabControl1;
+        private System.Windows.Forms.TabPage tabIden;
+        private System.Windows.Forms.TabPage tabQuan;
+        private System.Windows.Forms.CheckBox chkQuan13CHD2;
+        private System.Windows.Forms.CheckBox chkQuan13CH2D;
+        private System.Windows.Forms.CheckBox chkQuan13CH3;
+        private System.Windows.Forms.CheckBox chkQuanCD3;
+        private System.Windows.Forms.CheckBox chkQuanCHD2;
+        private System.Windows.Forms.CheckBox chkQuanCH2D;
+        private System.Windows.Forms.CheckBox chkQuanCH3;
+        private System.Windows.Forms.TextBox txtQuan13CHD2;
+        private System.Windows.Forms.TextBox txtQuan13CH2D;
+        private System.Windows.Forms.TextBox txtQuan13CH3;
+        private System.Windows.Forms.TextBox txtQuanCD3;
+        private System.Windows.Forms.TextBox txtQuanCHD2;
+        private System.Windows.Forms.TextBox txtQuanCH2D;
+        private System.Windows.Forms.TextBox txtQuanCH3;
+        private System.Windows.Forms.Button btnQuan;
     }
 }

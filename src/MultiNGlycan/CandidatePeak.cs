@@ -18,7 +18,7 @@ namespace COL.MultiGlycan
         private string _adductLabel;
         public CandidatePeak(GlycoLib.GlycanCompound argCompound, int argCharge, float argAdductMass, int argAdductNo, string argAdductLabel)
         {
-            _glycanComposition = argCompound;
+            _glycanComposition = (GlycoLib.GlycanCompound)argCompound.Clone();
             _charge = argCharge;
             _adductMass = argAdductMass;
             _adductNo = argAdductNo;
@@ -52,6 +52,10 @@ namespace COL.MultiGlycan
             get {                
                 return (Convert.ToSingle(_glycanComposition.MonoMass) + _adductMass * _adductNo + (_charge - _adductNo) * MassLib.Atoms.ProtonMass) / _charge;
                   }
+        }
+        public COL.GlycoLib.enumPermethyLabeling Permethylabeling
+        {
+            get { return _glycanComposition.PermethyLabelingTag; }
         }
         public string GlycanKey
         {

@@ -74,7 +74,7 @@ namespace COL.MultiGlycan
                         Logger.WriteLog("Finish 1st scan:" + LstScanNumber[i].ToString());
                     }
                 }
-                // ProcessSingleScanTwoPassID Merged to ProcessSingleScan
+                 //ProcessSingleScanTwoPassID Merged to ProcessSingleScan
                 //if (_MultiNGlycan.TwoPassedID)
                 //{
                 //    //
