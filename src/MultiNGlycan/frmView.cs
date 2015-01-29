@@ -75,6 +75,7 @@ namespace COL.MultiGlycan
                 MergeResult = new Dictionary<string, List<string>>();
                 StreamReader sr = new StreamReader(openFileDialog1.FileName.Replace("_FullList", ""));
                 string[] tmp = null;
+                string GlycanKeyIdx = "HexNac-Hex-deHex-NeuAc-NeuGc";
                 Dictionary<string, int> dictTitle = new Dictionary<string, int>();            
                 do
                 {
@@ -86,13 +87,17 @@ namespace COL.MultiGlycan
                     for (int i = 0; i < tmp.Length; i++)
                     {
                         dictTitle.Add(tmp[i], i);
+                        if (tmp[i].ToLower().Contains("hexnac-hex-dehex-sia"))
+                        {
+                            GlycanKeyIdx = "HexNac-Hex-deHex-Sia";
+                        }
                     }
                     break;
                 } while (true);
                 do
                 {
                     tmp = sr.ReadLine().Split(',');
-                    string Key = tmp[dictTitle["HexNac-Hex-deHex-Sia"]] ; // hex-hexnac-dehax-sia
+                    string Key = tmp[dictTitle[GlycanKeyIdx]]; // hex-hexnac-dehax-sia
                     string Time = tmp[dictTitle["Start Time"]] + ":" + tmp[dictTitle["End Time"]] + ":" + tmp[dictTitle["Peak Intensity"]];
                     if (!MergeResult.ContainsKey(Key))
                     {
@@ -118,12 +123,12 @@ namespace COL.MultiGlycan
                 do
                 {
                     tmp = sr.ReadLine().Split(',');
-                    int Charge = Convert.ToInt32(Math.Round(Convert.ToSingle(tmp[dictTitle["Composition mono"]]) / Convert.ToSingle(tmp[dictTitle["m/z"]]), 0)); 
-                    string Key = tmp[dictTitle["HexNac-Hex-deHex-Sia"]]+ "-" + Charge.ToString(); // hex-hexnac-dehax-sia
+                    int Charge = Convert.ToInt32(Math.Round(Convert.ToSingle(tmp[dictTitle["Composition mono"]]) / Convert.ToSingle(tmp[dictTitle["m/z"]]), 0));
+                    string Key = tmp[dictTitle[GlycanKeyIdx]] + "-" + Charge.ToString(); // hex-hexnac-dehax-sia
                     string Adduct = tmp[dictTitle["Adduct"]];
                     if (chkMergeCharge.Checked)
                     {
-                        Key = tmp[dictTitle["HexNac-Hex-deHex-Sia"]];
+                        Key = tmp[dictTitle[GlycanKeyIdx]];
                     }
                     if (!dictValue.ContainsKey(Key))
                     {

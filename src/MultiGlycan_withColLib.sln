@@ -1,9 +1,12 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MultiGlycan_COLLib", "MultiNGlycan\MultiGlycan_COLLib.csproj", "{A73C69E3-C47C-41DE-9AFE-477A67037116}"
 EndProject
-Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "MultiGlycan_Setup", "MultiNGlycan_Setup\MultiNGlycan_Setup.vdproj", "{DBF0EB8F-57E5-4FF8-A2D2-2312BF368820}"
+Project("{6141683F-8A12-4E36-9623-2EB02B2C2303}") = "MultiGlycan Setup_2012", "Setup_2012\MultiGlycan Setup_2012.isproj", "{5C7713C0-5B0E-4435-B2BE-ADF9C9CF7564}"
+	ProjectSection(ProjectDependencies) = postProject
+		{A73C69E3-C47C-41DE-9AFE-477A67037116} = {A73C69E3-C47C-41DE-9AFE-477A67037116}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,12 +24,13 @@ Global
 		{A73C69E3-C47C-41DE-9AFE-477A67037116}.Release|Any CPU.Build.0 = Release|x86
 		{A73C69E3-C47C-41DE-9AFE-477A67037116}.Release|x86.ActiveCfg = Release|x86
 		{A73C69E3-C47C-41DE-9AFE-477A67037116}.Release|x86.Build.0 = Release|x86
-		{DBF0EB8F-57E5-4FF8-A2D2-2312BF368820}.Debug|Any CPU.ActiveCfg = Debug
-		{DBF0EB8F-57E5-4FF8-A2D2-2312BF368820}.Debug|x86.ActiveCfg = Debug
-		{DBF0EB8F-57E5-4FF8-A2D2-2312BF368820}.Debug|x86.Build.0 = Debug
-		{DBF0EB8F-57E5-4FF8-A2D2-2312BF368820}.Release|Any CPU.ActiveCfg = Release
-		{DBF0EB8F-57E5-4FF8-A2D2-2312BF368820}.Release|x86.ActiveCfg = Release
-		{DBF0EB8F-57E5-4FF8-A2D2-2312BF368820}.Release|x86.Build.0 = Release
+		{5C7713C0-5B0E-4435-B2BE-ADF9C9CF7564}.Debug|Any CPU.ActiveCfg = SingleImage
+		{5C7713C0-5B0E-4435-B2BE-ADF9C9CF7564}.Debug|x86.ActiveCfg = DVD-5
+		{5C7713C0-5B0E-4435-B2BE-ADF9C9CF7564}.Debug|x86.Build.0 = DVD-5
+		{5C7713C0-5B0E-4435-B2BE-ADF9C9CF7564}.Release|Any CPU.ActiveCfg = SingleImage
+		{5C7713C0-5B0E-4435-B2BE-ADF9C9CF7564}.Release|Any CPU.Build.0 = SingleImage
+		{5C7713C0-5B0E-4435-B2BE-ADF9C9CF7564}.Release|x86.ActiveCfg = SingleImage
+		{5C7713C0-5B0E-4435-B2BE-ADF9C9CF7564}.Release|x86.Build.0 = SingleImage
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

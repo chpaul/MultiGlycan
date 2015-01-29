@@ -14,20 +14,15 @@ namespace COL.MultiGlycan
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            RegistryKey key;
-            key = Registry.ClassesRoot.OpenSubKey(@"TypeLib\");
-            bool foundXCalibur = false;
-            foreach (String keyName in key.GetSubKeyNames())
+            string XcaliburKeyX64 = @"CLSID\{1d23188d-53fe-4c25-b032-dc70acdbdc02}\InprocServer32";  //X64
+            //string XcaliburKeyX32 = @"Wow6432Node\CLSID\{1d23188d-53fe-4c25-b032-dc70acdbdc02}\InprocServer32"; //X32
+            RegistryKey X64 = Registry.ClassesRoot.OpenSubKey(XcaliburKeyX64);
+            //RegistryKey X32 = Registry.ClassesRoot.OpenSubKey(XcaliburKeyX32);
+
+            if (X64 == null)
             {
-                if (keyName == "{5FE970A2-29C3-11D3-811D-00104B304896}")
-                {
-                    foundXCalibur = true;
-                    break;
-                }    
-            }
-            if (!foundXCalibur)
-            {     
-                MessageBox.Show("Please install Xcalibur to support .raw or use mzXML as input");              
+                MessageBox.Show("Xcalibur Library is not installed. Please install 32 bits MSFileReader or Xcalibur", "Library is not detected", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                Environment.Exit(1);
             }
             Application.Run(new frmMainESI());
         }

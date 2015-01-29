@@ -45,8 +45,8 @@
             this.bgWorker_Process.WorkerReportsProgress = true;
             this.bgWorker_Process.WorkerSupportsCancellation = true;
             this.bgWorker_Process.DoWork += new System.ComponentModel.DoWorkEventHandler(this.bgWorker_Process_DoWork);
-            this.bgWorker_Process.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.bgWorker_Process_RunWorkerCompleted);
             this.bgWorker_Process.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.bgWorker_Process_ProgressChanged);
+            this.bgWorker_Process.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.bgWorker_Process_RunWorkerCompleted);
             // 
             // lblCurrentScan
             // 
@@ -105,9 +105,9 @@
             this.lblStatus.AutoSize = true;
             this.lblStatus.Location = new System.Drawing.Point(226, 67);
             this.lblStatus.Name = "lblStatus";
-            this.lblStatus.Size = new System.Drawing.Size(95, 13);
+            this.lblStatus.Size = new System.Drawing.Size(128, 13);
             this.lblStatus.TabIndex = 6;
-            this.lblStatus.Text = "Status: Processing";
+            this.lblStatus.Text = "Status: Preparing process";
             // 
             // label2
             // 

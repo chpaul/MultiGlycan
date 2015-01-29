@@ -1,14 +1,17 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Drawing.Printing;
 using System.Text;
 using System.IO;
 using COL.GlycoLib;
 using COL.MassLib;
 using System.Drawing;
 using System.Threading;
+using OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup;
 using ZedGraph;
 using System.Linq;
+using Facet.Combinatorics;
 namespace COL.MultiGlycan
 {
 
@@ -31,8 +34,6 @@ namespace COL.MultiGlycan
         private bool _isReducedReducingEnd;
         private int _StartScan;
         private int _EndScan;
-        private GlypID.Peaks.clsPeakProcessorParameters _peakParameter;
-        private GlypID.HornTransform.clsHornTransformParameters _transformParameters;
         private bool _MergeDifferentCharge = true;
         private int _MaxCharge = 5;
         private bool _FindClusterUseList = true;
@@ -45,18 +46,32 @@ namespace COL.MultiGlycan
         private float _minLengthOfLC = 10;
         private bool _GlycanListContainLCOrder = false;
         private bool _IncludeMZMatch = false;
-        IRawFileReader rawReader;
+        ThermoRawReader rawReader;
         List<int> MSScanList;
-        List<CandidatePeak> _lstCandidatePeak; //Store candidate glycan m/z
+        //List<CandidatePeak> _lstCandidatePeak; //Store candidate glycan m/z
+
         List<float> _candidateMzList;
-        Dictionary<float, List<CandidatePeak>> _dicCandidatePeak;
+        //Dictionary<float, List<CandidatePeak>> _dicCandidatePeak;
+        Dictionary<float, List<GlycanCompound>> _dicCandidateGlycan;
         List<GlycanCompound> _identifiedGlycan;
-        List<float> GlycanMassList;
         bool DoLog = false;
+        private float _IsotopePPM = 6;
+        private float _SN = 2;
+        private int _MinPeakCount = 3;
         Dictionary<int, string> _GlycanLCodrer;
         List<Color> LstColor = new List<Color>() { Color.DarkCyan, Color.DarkGoldenrod, Color.DarkGray, Color.DarkGreen, Color.DarkKhaki, Color.DarkMagenta, Color.DarkOliveGreen, Color.DarkOrchid, Color.DarkRed, Color.DarkSalmon, Color.DarkSeaGreen, Color.DarkSlateBlue, Color.DarkSlateGray, Color.DarkTurquoise, Color.DarkViolet, Color.DeepPink, Color.DeepSkyBlue };
-        Dictionary<enumPermethyLabeling, float> LabelingRatio;
-        public MultiGlycanESI(string argRawFile, int argStartScan, int argEndScan, string argGlycanList, double argMassPPM, double argGlycanMass, double argMergeDurationMax, bool argPermenthylated, bool argReducedReducingEnd, Dictionary<enumPermethyLabeling, float> argLabelingRatio, bool argLog)
+        Dictionary<enumLabelingTag, float> _LabelingRatio;
+        enumGlycanLabelingMethod _LabelingMethod;
+        private bool _individualImgs = true;
+        private bool _quantImgs = true;
+        private int _Sia; // 0 = AC, 1=GC, 2 = AC+GC;
+        private bool _isMatchMonoPeakOnly = true;
+        Dictionary<enumLabelingTag, List<Tuple<string, int,float>>> dictEstimedPurity;
+        Dictionary<enumLabelingTag, float> PurityRatio;
+        private Dictionary<string, Dictionary<enumLabelingTag, double>> _NormalizedAbundance;
+        private Dictionary<string, Dictionary<enumLabelingTag, double>> _NormalizedFactor;
+        private Dictionary<string, Dictionary<enumLabelingTag, List<double>>> MergeIntensities;
+        public MultiGlycanESI(string argRawFile, int argStartScan, int argEndScan, string argGlycanList, double argMassPPM, double argGlycanMass, double argMergeDurationMax, bool argPermenthylated, bool argReducedReducingEnd, int argSia, Dictionary<enumLabelingTag, float> argLabelingRatio, Dictionary<float, string> argAdductLabel, List<float> argAdductMass, bool argLog)
         {
             DoLog = argLog;
             _rawFile = argRawFile;
@@ -71,6 +86,14 @@ namespace COL.MultiGlycan
             _EndScan = argEndScan;
             _adductMass = new List<float>();
             _identifiedGlycan = new List<GlycanCompound>();
+            if (Path.GetExtension(argRawFile) == ".raw")
+            {
+                rawReader = new ThermoRawReader(argRawFile);
+            }
+            _LabelingRatio = argLabelingRatio;
+            _adductLabel = argAdductLabel;
+            _adductMass = argAdductMass;
+            _Sia = argSia;
             //Read Glycan list           
             if (DoLog)
             {
@@ -81,21 +104,59 @@ namespace COL.MultiGlycan
             {
                 Logger.WriteLog("Finish Reading glycan list");
             }
-            if (Path.GetExtension(argRawFile) == ".raw")
-            {
-                rawReader = new RawReader(_rawFile, enumRawDataType.raw);
-            }
-            else
-            {
-                rawReader = new RawReader(_rawFile, enumRawDataType.mzxml);
-            }
-
-
-            LabelingRatio = argLabelingRatio;
         }
-        public MultiGlycanESI(string argRawFile, int argStartScan, int argEndScan, string argGlycanList, double argMassPPM, double argGlycanMass, double argMergeDurationMax, bool argPermenthylated, bool argReducedReducingEnd, bool argLog)
-            : this(argRawFile, argStartScan, argEndScan, argGlycanList, argMassPPM, argGlycanMass, argMergeDurationMax, argPermenthylated, argReducedReducingEnd, null, argLog)
+        public MultiGlycanESI(string argRawFile, int argStartScan, int argEndScan, string argGlycanList, double argMassPPM, double argGlycanMass, double argMergeDurationMax, bool argPermenthylated, bool argReducedReducingEnd, int argSia, bool argLog)
+            : this(argRawFile, argStartScan, argEndScan, argGlycanList, argMassPPM, argGlycanMass, argMergeDurationMax, argPermenthylated, argReducedReducingEnd, argSia, null, null, null, argLog)
         {
+        }
+
+        public bool HasEstimatePurity(enumLabelingTag argTag)
+        {
+            if (dictEstimedPurity.ContainsKey(argTag))
+            {
+                return true;
+            }
+            return false;
+        }
+        public Dictionary<enumLabelingTag, float> LabelingRatio
+        {
+            get { return _LabelingRatio; }
+            set { _LabelingRatio = value; }
+        }
+        public bool IndividualImgs
+        {
+            get { return _individualImgs; }
+            set { _individualImgs = value; }
+        }
+        public bool QuantificationImgs
+        {
+            get { return _quantImgs; }
+            set { _quantImgs = value; }
+        }
+        public enumGlycanLabelingMethod LabelingMethod
+        {
+            get { return _LabelingMethod; }
+            set { _LabelingMethod = value; }
+        }
+        public float PeakSN
+        {
+            get { return _SN; }
+            set { _SN = value; }
+        }
+        public float IsotopePPM
+        {
+            get { return _IsotopePPM; }
+            set { _IsotopePPM = value; }
+        }
+        public int MininumPeakCount
+        {
+            get { return _MinPeakCount; }
+            set { _MinPeakCount = value; }
+        }
+        public bool IsMatchMonoisotopicOnly
+        {
+            get { return _isMatchMonoPeakOnly; }
+            set { _isMatchMonoPeakOnly = value; }
         }
         public bool GlycanLCorderExist
         {
@@ -126,6 +187,11 @@ namespace COL.MultiGlycan
         {
             get { return rawReader; }
         }
+
+        public Dictionary<string, Dictionary<enumLabelingTag, double>> NormalizedAbundance
+        {
+            get { return _NormalizedAbundance; }
+        }
         //public List<ClusteredPeak> ClustedPeak
         //{
         //    get { return _cluPeaks; }
@@ -145,6 +211,7 @@ namespace COL.MultiGlycan
         public string ExportFilePath
         {
             set { _ExportFilePath = value; }
+            get { return _ExportFilePath; }
         }
         public int StartScan
         {
@@ -163,24 +230,6 @@ namespace COL.MultiGlycan
         {
             set { _MergeDifferentCharge = value; }
             get { return _MergeDifferentCharge; }
-        }
-        public GlypID.Peaks.clsPeakProcessorParameters PeakProcessorParameters
-        {
-            get { return _peakParameter; }
-            set
-            {
-                _peakParameter = value;
-                rawReader.SetPeakProcessorParameter(_peakParameter);
-            }
-        }
-        public GlypID.HornTransform.clsHornTransformParameters TransformParameters
-        {
-            get { return _transformParameters; }
-            set
-            {
-                _transformParameters = value;
-                rawReader.SetTransformParameter(_transformParameters);
-            }
         }
         public List<float> AdductMass
         {
@@ -207,41 +256,39 @@ namespace COL.MultiGlycan
             }
             if (rawReader.GetMsLevel(argScanNo) == 1)
             {
-                if (argScanNo == 274)
-                {
-                }
                 if (DoLog)
                 {
                     Logger.WriteLog("\tStart read raw file: " + argScanNo.ToString());
                 }
-                //Get MS Scan
-                MSScan GMSScan = rawReader.ReadScan(argScanNo);
+                //Get MS Scan                
+                MSScan GMSScan = rawReader.ReadScan(argScanNo, _SN);
                 if (DoLog)
                 {
                     Logger.WriteLog("\tEnd read raw file: " + argScanNo.ToString());
                 }
                 //Get Peaks
-                List<MSPeak> deIsotopedPeaks = GMSScan.MSPeaks;
+                //List<MSPeak> deIsotopedPeaks = GMSScan.;
 
                 //Convert to Float List
-                List<float> mzList = new List<float>();
-                foreach (MSPeak Peak in GMSScan.MSPeaks)
-                {
-                    mzList.Add(Peak.MonoisotopicMZ);
-                }
-                mzList.Sort();
+                //List<float> mzList = new List<float>();
+                //foreach (MSPeak Peak in GMSScan.MSPeaks)
+                //{
+                //    mzList.Add(Peak.MonoisotopicMZ);
+                //}
+                //mzList.Sort();
+                
 
                 //Glycan Cluster in this scan
                 List<MatchedGlycanPeak> Cluster;
                 if (_FindClusterUseList)
                 {
-                    if (_candidateMzList == null || _lstCandidatePeak == null) // Generate Candidate Peak
+                    if (_candidateMzList == null) // Generate Candidate Peak
                     {
                         if (DoLog)
                         {
                             Logger.WriteLog("Start generate candidate peak");
                         }
-                        _candidateMzList = GenerateCandidatePeakList(_GlycanList);
+                        _candidateMzList = GenerateCandidateGlycanMZList(_GlycanList);
                         if (DoLog)
                         {
                             Logger.WriteLog("End generate candidate peak");
@@ -251,7 +298,8 @@ namespace COL.MultiGlycan
                     {
                         Logger.WriteLog("\tStart find cluster use default list:" + argScanNo.ToString());
                     }
-                    Cluster = FindClusterWGlycanList(deIsotopedPeaks, argScanNo, GMSScan.Time);
+                    //Cluster = FindClusterWGlycanList(deIsotopedPeaks, argScanNo, GMSScan.Time);
+                    Cluster = FindClusterWGlycanList(GMSScan);
                     foreach (MatchedGlycanPeak MatchedPeak in Cluster)
                     {
                         if (!_identifiedGlycan.Contains(MatchedPeak.GlycanComposition))
@@ -286,8 +334,8 @@ namespace COL.MultiGlycan
                             {
                                 continue;
                             }
-                            List<CandidatePeak> ClosedGlycans = _dicCandidatePeak[_candidateMzList[ClosedPeaksIdx]];
-
+                            // List<CandidatePeak> ClosedGlycans = _dicCandidatePeak[_candidateMzList[ClosedPeaksIdx]];
+                            List<GlycanCompound> ClosedGlycans = _dicCandidateGlycan[_candidateMzList[ClosedPeaksIdx]];
                             int MaxIntIdx = i;
                             float MAXInt = 0;
                             int StartIdx = i - 10;
@@ -311,9 +359,9 @@ namespace COL.MultiGlycan
                             MSPeak Peak = new MSPeak(targetMZ, GMSScan.Intensities[MaxIntIdx]);
                             //############SaveMatchedGlycanCompound
 
-                            foreach (CandidatePeak CP in ClosedGlycans)
+                            foreach (GlycanCompound CP in ClosedGlycans)
                             {
-                                _2ndPassedPeaksInScan.Add(new MatchedGlycanPeak(GMSScan.ScanNo, GMSScan.Time, Peak, CP.GlycanComposition, CP.AdductLabel, CP.AdductNo));
+                                _2ndPassedPeaksInScan.Add(new MatchedGlycanPeak(GMSScan.ScanNo, GMSScan.Time, Peak, CP));
                             }
                         }
                     }
@@ -403,7 +451,7 @@ namespace COL.MultiGlycan
                     Logger.WriteLog("\tEnd read raw file: " + argScanNo.ToString());
                 }
                 //Use identifed glycan
-                _candidateMzList = GenerateCandidatePeakList(_identifiedGlycan);
+                _candidateMzList = GenerateCandidateGlycanMZList(_identifiedGlycan);
 
                 foreach (float targetMZ in _candidateMzList)
                 {
@@ -465,14 +513,97 @@ namespace COL.MultiGlycan
                     }
                     MSPeak Peak = new MSPeak(MSScan.MZs[MaxIntIdx], MSScan.Intensities[MaxIntIdx]);
                     //############SaveMatchedGlycanCompound
-                    List<CandidatePeak> ClosedGlycans = _dicCandidatePeak[targetMZ];
-                    foreach (CandidatePeak CP in ClosedGlycans)
+                    //List<CandidatePeak> ClosedGlycans = _dicCandidatePeak[targetMZ];
+                    List<GlycanCompound> ClosedGlycans = _dicCandidateGlycan[targetMZ];
+                    foreach (GlycanCompound CP in ClosedGlycans)
                     {
-                        _2ndPassedPeaksInScan.Add(new MatchedGlycanPeak(MSScan.ScanNo, MSScan.Time, Peak, CP.GlycanComposition, CP.AdductLabel, CP.AdductNo));
+                        _2ndPassedPeaksInScan.Add(new MatchedGlycanPeak(MSScan.ScanNo, MSScan.Time, Peak, CP));
                     }
                 }
             }
         }
+        public void EstimatePurity()
+        {
+            dictEstimedPurity = new Dictionary<enumLabelingTag, List<Tuple<string, int, float>>>(); //Dict Key: Labeling Tag, Tuple1 = Glycan Key;Tuple3 = Scan Num; Tuple3 = Purity
+            Dictionary<enumLabelingTag, float> SumPurity = new Dictionary<enumLabelingTag, float>();
+            foreach (MatchedGlycanPeak MPeak in _MatchedPeaksInScan)
+            {
+                if (COL.MassLib.MassUtility.GetMassPPM(MPeak.GlycanComposition.MZ, MPeak.MSPoints[0].Mass) < _massPPM) // If the Theoretical Monoisotopic Peak = First peak
+                 {
+                    continue;
+                }
+                if (!dictEstimedPurity.ContainsKey(MPeak.GlycanComposition.LabelingTag))
+                {
+                    dictEstimedPurity.Add(MPeak.GlycanComposition.LabelingTag, new List<Tuple<string, int,float>>());
+                    SumPurity.Add(MPeak.GlycanComposition.LabelingTag, 0);
+                }
+                //Find Theoratical Mono
+                int TheoratiocalMonoIdx = 0;
+                for (int i = 0; i < MPeak.MSPoints.Count; i++)
+                {
+                    if (MassLib.MassUtility.GetMassPPM(MPeak.MSPoints[i].Mass, MPeak.GlycanComposition.MZ) <= _massPPM)
+                    {
+                        TheoratiocalMonoIdx = i;
+                        break;
+                    }
+                }
+
+                float[] Intensities = new float[TheoratiocalMonoIdx+1];
+                for (int i = 0; i <= TheoratiocalMonoIdx; i++)
+                {
+                    Intensities[i] = MPeak.MSPoints[i].Intensity;
+                }
+                float purity = PurityEstimater.Estimater(MPeak.GlycanComposition.NumOfPermethlationSites, 0.8f, Intensities);
+                if (purity == 0.8f)
+                {
+                    continue;
+                }
+                dictEstimedPurity[MPeak.GlycanComposition.LabelingTag].Add(new Tuple<string, int,float>(MPeak.GlycanComposition.GlycanKey,MPeak.ScanNum, purity));
+                SumPurity[MPeak.GlycanComposition.LabelingTag] = SumPurity[MPeak.GlycanComposition.LabelingTag] + purity;
+            }
+            PurityRatio = new Dictionary<enumLabelingTag, float>();
+            foreach (enumLabelingTag tag in SumPurity.Keys)
+                PurityRatio.Add(tag, SumPurity[tag]/dictEstimedPurity[tag].Count);
+        }
+        //public void CorrectIntensityByIsotope()
+        //{
+        //    foreach (MatchedGlycanPeak MPeak in _MatchedPeaksInScan)
+        //    {
+        //        if (COL.MassLib.MassUtility.GetMassPPM(MPeak.GlycanComposition.MZ, MPeak.MSPoints[0].Mass) < _massPPM) // If the Theoretical Monoisotopic Peak = First peak
+        //        {
+        //            continue;
+        //        }
+
+        //        int TheoratiocalMonoIdx = 0;
+        //        for (int i = 0; i < MPeak.MSPoints.Count; i++)
+        //        {
+        //            if (MassLib.MassUtility.GetMassPPM(MPeak.MSPoints[i].Mass, MPeak.GlycanComposition.MZ) <= _massPPM)
+        //            {
+        //                TheoratiocalMonoIdx = i;
+        //                break;
+        //            }
+        //        }
+        //        int IntensityCount = TheoratiocalMonoIdx + 3;
+        //        if (TheoratiocalMonoIdx + 3 > MPeak.MSPoints.Count)
+        //        {
+        //            IntensityCount = MPeak.MSPoints.Count;
+        //        }
+        //        float[] Intensities = new float[IntensityCount];
+        //        for (int i = 0; i < IntensityCount; i++)
+        //        {
+        //            Intensities[i] = MPeak.MSPoints[i].Intensity;
+        //        }
+        //        if (MPeak.GlycanComposition.LabelingTag == enumLabelingTag.MP_CH3)
+        //        {
+        //            MPeak.CorrectedIntensity = IntensityNormalization.IntensityCorrectionByIsotope(MPeak.GlycanComposition, TheoratiocalMonoIdx, Intensities, 1.0f);
+        //        }
+        //        else
+        //        {
+        //            MPeak.CorrectedIntensity = IntensityNormalization.IntensityCorrectionByIsotope(MPeak.GlycanComposition, TheoratiocalMonoIdx, Intensities, PurityRatio[MPeak.GlycanComposition.LabelingTag]);    
+        //        }
+        //        Console.WriteLine(MPeak.CorrectedIntensity);
+        //    }
+        //}
         public void ApplyLCordrer()
         {
             Dictionary<string, int> GlycanOrder = new Dictionary<string, int>();
@@ -594,8 +725,6 @@ namespace COL.MultiGlycan
         }
         public void Process(Object threadContext)
         {
-            rawReader.SetPeakProcessorParameter(_peakParameter);
-            rawReader.SetTransformParameter(_transformParameters);
             if (MSScanList == null)
             {
                 MSScanList = new List<int>();
@@ -614,8 +743,95 @@ namespace COL.MultiGlycan
             _doneEvent.Set();
         }
 
+        public void NormalizeQuantitaionAbundance()
+        {
+            Dictionary<string,GlycanCompound> DictGlycan = new Dictionary<string, GlycanCompound>();
+            MergeIntensities = new Dictionary<string, Dictionary<enumLabelingTag, List<double>>>();
+            foreach (MatchedGlycanPeak matchP in _MatchedPeaksInScan)
+            {
+                if (!MergeIntensities.ContainsKey(matchP.GlycanKey))
+                {
+                    MergeIntensities.Add(matchP.GlycanKey, new Dictionary<enumLabelingTag, List<double>>());
+                    DictGlycan.Add(matchP.GlycanKey,matchP.GlycanComposition);
+                }
+                if (!MergeIntensities[matchP.GlycanKey].ContainsKey(matchP.GlycanComposition.LabelingTag))
+                {
+                    MergeIntensities[matchP.GlycanKey].Add(matchP.GlycanComposition.LabelingTag, new List<double>());
+                    for (int i = 0; i < 7; i++)
+                    {
+                        MergeIntensities[matchP.GlycanKey][matchP.GlycanComposition.LabelingTag].Add(0);
+                    }
+                }
+                int MonoIdx = 0;
+
+                for (int i = 0; i < matchP.MSPoints.Count; i++)
+                {
+                    if (Math.Abs(matchP.GlycanComposition.MZ - matchP.MSPoints[i].Mass) < 0.1)
+                    {
+                        MonoIdx = i;
+                        break;
+                    }
+                }
+                int StartFillInListIdx = 0;
+                int StartFillInIntensityIdx = 0;
+                if (MonoIdx <= 3)
+                {
+                    StartFillInListIdx = 3 - MonoIdx;
+                    StartFillInIntensityIdx = 0;
+                }
+                else
+                {
+                    StartFillInListIdx = 0;
+                    StartFillInIntensityIdx = MonoIdx - 3;
+                }
+                for (int i = StartFillInIntensityIdx; i < matchP.MSPoints.Count; i++)
+                {
+                    MergeIntensities[matchP.GlycanKey][matchP.GlycanComposition.LabelingTag][StartFillInListIdx] =
+                        MergeIntensities[matchP.GlycanKey][matchP.GlycanComposition.LabelingTag][StartFillInListIdx] +
+                        matchP.MSPoints[i].Intensity;
+                    StartFillInListIdx++;
+                    if (StartFillInListIdx == 7)
+                    {
+                        break;
+                    }
+                }
+            }
+            _NormalizedAbundance = new Dictionary<string, Dictionary<enumLabelingTag, double>>();
+            _NormalizedFactor = new Dictionary<string, Dictionary<enumLabelingTag, double>>();
+            foreach (string GlycanKey in MergeIntensities.Keys)
+            {
+                _NormalizedFactor.Add(GlycanKey, new Dictionary<enumLabelingTag, double>());
+                foreach (enumLabelingTag Tag in MergeIntensities[GlycanKey].Keys)
+                {
+                    double NormalizatedFactor = IntensityNormalization.IntensityNormalizationFactorByIsotope(DictGlycan[GlycanKey],
+                        DictGlycan[GlycanKey].NumOfPermethlationSites, MergeIntensities[GlycanKey][Tag].ToArray(), PurityRatio[Tag]);
+
+                    _NormalizedFactor[GlycanKey].Add(Tag, NormalizatedFactor);
+                }
+            }
+            foreach (string GlycanKey in _NormalizedFactor.Keys)
+            {
+                _NormalizedAbundance.Add(GlycanKey, new Dictionary<enumLabelingTag, double>());
+                foreach (enumLabelingTag Tag in MergeIntensities[GlycanKey].Keys)
+                {
+                    double estimedPurity = 1.0;
+                    if (PurityRatio.ContainsKey(Tag))
+                    {
+                        estimedPurity = PurityRatio[Tag];
+                    }
+                    double NormalizatedAbundance = MergeIntensities[GlycanKey][Tag][3]*_NormalizedFactor[GlycanKey][Tag]/
+                                                   Math.Pow( estimedPurity , DictGlycan[GlycanKey].NumOfPermethlationSites);
+                    _NormalizedAbundance[GlycanKey].Add(Tag, NormalizatedAbundance);
+                }
+            }
+        }
         public void ExportToCSV()
         {
+            if (!Directory.Exists(_ExportFilePath))
+            {
+                Directory.CreateDirectory(_ExportFilePath);
+            }
+            #region Merge report
             //Merged Cluster
             StreamWriter sw = null;
             try
@@ -634,48 +850,69 @@ namespace COL.MultiGlycan
                     adduct = adduct + add + "(" + _adductLabel[add] + ");";
                 }
                 sw.WriteLine("Adduct:" + adduct);
+                string SearchSia = "NeuAc";
+                if (_Sia == 1)
+                {
+                    SearchSia = "NeuGC";
+                }
+                else if (_Sia == 2)
+                {
+                    SearchSia = SearchSia + "; NeuGc";
+                }
+                sw.WriteLine("Sia:" + SearchSia);
                 sw.WriteLine("Mass tolerance (PPM):" + _massPPM.ToString());
-                sw.WriteLine("Include m/z match only peak:" + _IncludeMZMatch.ToString());
+                // sw.WriteLine("Include m/z match only peak:" + _IncludeMZMatch.ToString());
                 sw.WriteLine("Max minute in front of LC apex  (a):" + _maxLCFrontMin.ToString());
                 sw.WriteLine("Max minute in back of LC apex  (b):" + _maxLCBackMin.ToString());
                 sw.WriteLine("Merge different charge glycan:" + _MergeDifferentCharge.ToString());
                 sw.WriteLine("Min length of LC Peak in minute (c):" + _minLengthOfLC.ToString());
                 sw.WriteLine("Minimum abundance:" + _minAbundance.ToString());
-                sw.WriteLine("Signal to noise ratio" + _peakParameter.SignalToNoiseThreshold.ToString());
-                sw.WriteLine("Peak background ratio" + _peakParameter.PeakBackgroundRatio.ToString());
-                sw.WriteLine("Use absolute peptide intensity" + _transformParameters.UseAbsolutePeptideIntensity.ToString());
-                if (_transformParameters.UseAbsolutePeptideIntensity)
-                {
+                //sw.WriteLine("Signal to noise ratio" + _peakParameter.SignalToNoiseThreshold.ToString());
+                //sw.WriteLine("Peak background ratio" + _peakParameter.PeakBackgroundRatio.ToString());
+                //sw.WriteLine("Use absolute peptide intensity" + _transformParameters.UseAbsolutePeptideIntensity.ToString());
+                //if (_transformParameters.UseAbsolutePeptideIntensity)
+                //{
 
-                    sw.WriteLine("Absolute peptide intensity:" + _transformParameters.AbsolutePeptideIntensity.ToString());
-                }
-                else
-                {
-                    sw.WriteLine("Peptide intensity ratio:" + _transformParameters.PeptideMinBackgroundRatio.ToString());
-                }
+                //    sw.WriteLine("Absolute peptide intensity:" + _transformParameters.AbsolutePeptideIntensity.ToString());
+                //}
+                //else
+                //{
+                //    sw.WriteLine("Peptide intensity ratio:" + _transformParameters.PeptideMinBackgroundRatio.ToString());
+                //}
 
 
-                if (LabelingRatio != null)
+                switch (_LabelingMethod)
                 {
-                    string tmp = "";
-                    foreach (enumPermethyLabeling tag in LabelingRatio.Keys)
-                    {
-                        tmp = tmp + tag.ToString() +"("+LabelingRatio[tag].ToString("0.00")+")"+ ";";
-                    }
-                    sw.WriteLine("Permethylation Tabeling Tag:" + tmp);
-                    sw.WriteLine("Start Time,End Time,Start Scan Num,End Scan Num,Peak Intensity, Adjusted Intensity,LC Peak Area,Adjusted Intensity,HexNac-Hex-deHex-Sia,Label Tag,Composition mono");
-                }
-                else
-                {
-                    sw.WriteLine("Start Time,End Time,Start Scan Num,End Scan Num,Peak Intensity,LC Peak Area,HexNac-Hex-deHex-Sia,Composition mono");
-                }
-                if (LabelingRatio != null)
-                {
-                    _MergedResultList = _MergedResultList.OrderBy(x => x.GlycanComposition.NoOfHexNAc).ThenBy(x => x.GlycanComposition.NoOfHex).ThenBy(x => x.GlycanComposition.NoOfDeHex).ThenBy(x => x.GlycanComposition.NoOfSia).ThenBy(x=>x.PermethyLabel).ThenByDescending(x => x.MonoIntensity).ToList();
-                }
-                else
-                {
-                    _MergedResultList = _MergedResultList.OrderBy(x => x.GlycanComposition.NoOfHexNAc).ThenBy(x => x.GlycanComposition.NoOfHex).ThenBy(x => x.GlycanComposition.NoOfDeHex).ThenBy(x => x.GlycanComposition.NoOfSia).ThenByDescending(x => x.MonoIntensity).ToList();
+                    case enumGlycanLabelingMethod.None:
+                        sw.WriteLine("Start Time,End Time,Start Scan Num,End Scan Num,Peak Intensity,LC Peak Area,HexNac-Hex-deHex-NeuAc-NeuGc,Composition mono");
+                        //Sort
+                        _MergedResultList = _MergedResultList.OrderBy(x => x.GlycanComposition.NoOfHexNAc).ThenBy(x => x.GlycanComposition.NoOfHex).ThenBy(x => x.GlycanComposition.NoOfDeHex).ThenBy(x => x.GlycanComposition.NoOfSia).ThenByDescending(x => x.MonoIntensity).ToList();
+                        break;
+                    case enumGlycanLabelingMethod.DRAG:
+                    case enumGlycanLabelingMethod.MultiplexPermethylated:
+                        string tmp = "";
+                        foreach (enumLabelingTag tag in _LabelingRatio.Keys)
+                        {
+                            tmp = tmp + tag.ToString() + "(" + _LabelingRatio[tag].ToString("0.00") + ")" + ";";
+                        }
+                        sw.WriteLine("Labeling Tag:" + tmp);
+                        if (_LabelingMethod == enumGlycanLabelingMethod.MultiplexPermethylated)
+                        {
+                            tmp = "";
+                            foreach (enumLabelingTag tag in _LabelingRatio.Keys)
+                            {
+                                if (PurityRatio.ContainsKey(tag))
+                                {
+                                    tmp = tmp + tag.ToString() + "(" + PurityRatio[tag].ToString("0.00") + ")" + ";";
+                                }
+                            }
+                            sw.WriteLine("Estimated Purity:" + tmp);
+                        }
+                        sw.WriteLine("Start Time,End Time,Start Scan Num,End Scan Num,Peak Intensity, Adjusted Intensity,LC Peak Area,Adjusted Intensity,HexNac-Hex-deHex-NeuAc-NeuGc,Label Tag,Composition mono");
+                        //Sort
+                        _MergedResultList = _MergedResultList.OrderBy(x => x.GlycanComposition.NoOfHexNAc).ThenBy(x => x.GlycanComposition.NoOfHex).ThenBy(x => x.GlycanComposition.NoOfDeHex).ThenBy(x => x.GlycanComposition.NoOfSia).ThenBy(x => x.MonoIntensity).ThenByDescending(x => x.LabelingTag).ToList();
+                        break;
+
                 }
                 foreach (ClusteredPeak cls in _MergedResultList)
                 {
@@ -696,22 +933,22 @@ namespace COL.MultiGlycan
                     export = export + cls.StartScan + ","
                                      + cls.EndScan + ","
                                      + cls.MonoIntensity.ToString() + ",";
-                    if (LabelingRatio != null)
+                    if (_LabelingMethod != enumGlycanLabelingMethod.None)
                     {
-                        export = export + (cls.MonoIntensity * LabelingRatio[cls.PermethyLabel]).ToString()+",";
+                        export = export + (cls.MonoIntensity * _LabelingRatio[cls.LabelingTag]).ToString() + ",";
                     }
                     export = export + cls.PeakArea.ToString() + ",";
-                    if (LabelingRatio != null)
+                    if (_LabelingMethod != enumGlycanLabelingMethod.None)
                     {
-                        export = export + (cls.PeakArea * LabelingRatio[cls.PermethyLabel]).ToString() + ",";
+                        export = export + (cls.PeakArea * _LabelingRatio[cls.LabelingTag]).ToString() + ",";
                     }
 
                     if (cls.GlycanComposition != null)
                     {
-                        string Composition = cls.GlycanComposition.NoOfHexNAc + "-" + cls.GlycanComposition.NoOfHex + "-" + cls.GlycanComposition.NoOfDeHex + "-" + cls.GlycanComposition.NoOfSia;
-                        if (LabelingRatio != null)
+                        string Composition = cls.GlycanKey;//cls.GlycanComposition.NoOfHexNAc + "-" + cls.GlycanComposition.NoOfHex + "-" + cls.GlycanComposition.NoOfDeHex + "-" + cls.GlycanComposition.NoOfSia;
+                        if (_LabelingMethod != enumGlycanLabelingMethod.None)
                         {
-                            export = export + Composition + "," + cls.GlycanComposition.PermethyLabelingTag.ToString()+"," + cls.GlycanComposition.MonoMass;
+                            export = export + Composition + "," + cls.GlycanComposition.LabelingTag.ToString() + "," + cls.GlycanComposition.MonoMass;
                         }
                         else
                         {
@@ -739,6 +976,8 @@ namespace COL.MultiGlycan
                     sw.Close();
                 }
             }
+            #endregion
+            #region LC order Report
             string FullFilename;
             if (_GlycanListContainLCOrder)
             {
@@ -787,15 +1026,17 @@ namespace COL.MultiGlycan
                     }
                 }
             }
+            #endregion
+            #region Full list
             Dictionary<string, List<MatchedGlycanPeak>> dictGlycans = new Dictionary<string, List<MatchedGlycanPeak>>();
             //Single Cluster in each scan
             try
             {
                 FullFilename = _ExportFilePath + "\\" + Path.GetFileName(_ExportFilePath) + "_FullList.csv";
                 sw = new StreamWriter(FullFilename);
-                if (LabelingRatio != null)
+                if (_LabelingMethod != enumGlycanLabelingMethod.None)
                 {
-                    sw.WriteLine("Time,Scan Num,Abundance, Adjusted abundance,m/z,HexNac-Hex-deHex-Sia,Adduct,Label Tag,Composition mono");
+                    sw.WriteLine("Time,Scan Num,Abundance, Adjusted abundance,m/z,HexNac-Hex-deHex-NeuAc-NeuGc,Adduct,Label Tag,Composition mono");
                 }
                 else
                 {
@@ -809,16 +1050,18 @@ namespace COL.MultiGlycan
                     int r = M1.GlycanKey.CompareTo(M2.GlycanKey);
                     if (r == 0) r = M1.ScanTime.CompareTo(M2.ScanTime);
                     if (r == 0) r = M1.Peak.MonoIntensity.CompareTo(M2.Peak.MonoIntensity);
-                    if (LabelingRatio != null) r = M1.GlycanComposition.PermethyLabelingTag.CompareTo(M2.GlycanComposition.PermethyLabelingTag);
+                    if (_LabelingMethod != enumGlycanLabelingMethod.None) r = M1.GlycanComposition.LabelingTag.CompareTo(M2.GlycanComposition.LabelingTag);
                     return r;
                 });
+                _MatchedPeaksInScan = _MatchedPeaksInScan.OrderBy(x => x.GlycanComposition.NoOfHexNAc).ThenBy(x => x.GlycanComposition.NoOfHex).ThenBy(x => x.GlycanComposition.NoOfDeHex).ThenBy(x => x.GlycanComposition.NoOfSia).ThenBy(x => x.GlycanComposition.MonoMass).ThenByDescending(x => x.GlycanComposition.LabelingTag).ToList();
+
 
                 foreach (MatchedGlycanPeak cls in _MatchedPeaksInScan)
                 {
                     string key = cls.GlycanKey;
-                    if (LabelingRatio != null)
+                    if (_LabelingMethod != enumGlycanLabelingMethod.None)
                     {
-                        key = cls.GlycanKey + "-" + cls.GlycanComposition.PermethyLabelingTag.ToString();
+                        key = cls.GlycanKey + "-" + cls.GlycanComposition.LabelingTag.ToString();
                     }
                     if (!dictGlycans.ContainsKey(key))
                     {
@@ -829,27 +1072,47 @@ namespace COL.MultiGlycan
                     //{
                     //    continue;
                     //}
-                    string export = cls.ScanTime + ","
+                    string export = cls.ScanTime.ToString("0.00") + ","
                                     + cls.ScanNum + ",";
 
                     export = export + cls.Peak.MonoIntensity.ToString() + ",";
-                    if (LabelingRatio != null)
+                    if (_LabelingMethod != enumGlycanLabelingMethod.None)
                     {
-                        export =export + (cls.Peak.MonoIntensity * LabelingRatio[cls.GlycanComposition.PermethyLabelingTag]).ToString()+",";
+                        // export = export + (cls.Peak.MonoIntensity * _LabelingRatio[cls.GlycanComposition.LabelingTag]).ToString() + ",";
+                        //2014.09.30 change to export correct intensity
+                        export = export + (cls.CorrectedIntensity).ToString() + ",";
                     }
-                    export = export+cls.Peak.MonoisotopicMZ+",";
+                    export = export + cls.Peak.DeisotopeMz + ",";
 
                     if (cls.GlycanComposition != null)
                     {
-                        string Composition = cls.GlycanComposition.NoOfHexNAc + "-" + cls.GlycanComposition.NoOfHex + "-" + cls.GlycanComposition.NoOfDeHex + "-" + cls.GlycanComposition.NoOfSia;
-                        if (LabelingRatio != null)
+                        string Composition = cls.GlycanKey;// cls.GlycanComposition.NoOfHexNAc + "-" + cls.GlycanComposition.NoOfHex + "-" + cls.GlycanComposition.NoOfDeHex + "-" + cls.GlycanComposition.NoOfSia;
+                        export = export + Composition + ",";
+                        string strAdduct = "";
+                        foreach (Tuple<string, float, int> adduct in cls.GlycanComposition.Adducts)
                         {
-                            export = export + "," + Composition + "," + cls.AdductCount.ToString() + "*" + cls.Adduct + "," + cls.GlycanComposition.PermethyLabelingTag.ToString() +","+ cls.GlycanComposition.MonoMass;
+                            strAdduct = strAdduct + adduct.Item1 + " * " + adduct.Item3.ToString() + "; ";
                         }
-                        else
-                        {
-                            export = export + "," + Composition + "," + cls.AdductCount.ToString() + "*" + cls.Adduct + "," + cls.GlycanComposition.MonoMass;
-                        }
+                        export = export + strAdduct + ",";
+                        //if (cls.Adduct == "H")
+                        //{
+                        //    export = export + cls.Charge + "*" + cls.Adduct + ",";
+                        //}
+                        //else
+                        //{
+                        //    if (cls.AdductCount == cls.Charge)
+                        //    {
+                        //        export = export + cls.AdductCount.ToString() + "*" + cls.Adduct +",";
+                        //    }
+                        //    else
+                        //    {
+                        //        export = export + cls.AdductCount.ToString() + "*" + cls.Adduct + " H*" + (cls.Charge - cls.AdductCount).ToString() + ",";
+                        //    }                          
+                        //}
+
+                        export = export + cls.GlycanComposition.LabelingTag.ToString() + ",";
+
+                        export = export + cls.GlycanComposition.MonoMass;
                     }
                     else
                     {
@@ -868,36 +1131,196 @@ namespace COL.MultiGlycan
                     sw.Close();
                 }
             }
+            #endregion
+            #region Quantification
+            //Quant Result
+            if (_LabelingMethod != enumGlycanLabelingMethod.None)
+            {
+                if (_LabelingMethod == enumGlycanLabelingMethod.MultiplexPermethylated)
+                {
+                    NormalizeQuantitaionAbundance();
+                    FullFilename = _ExportFilePath + "\\" + Path.GetFileName(_ExportFilePath) + "_Quant.csv";
+                    sw = new StreamWriter(FullFilename);
+                    string tmp = "Glycan,";
+                    List<enumLabelingTag> Tags = new List<enumLabelingTag>();
+                    foreach (enumLabelingTag tag in _LabelingRatio.Keys)
+                    {
+                        Tags.Add(tag);
+                    }
+                    Tags.Sort();
+                    foreach (enumLabelingTag tag in Tags)
+                    {
+                        tmp = tmp + tag.ToString() + ",Normalization Factor, Estimated Purity,Normalizted and Adjusted Abundance (Adjusted Factor=" + _LabelingRatio[tag].ToString() + "),";
+                    }
+                    sw.WriteLine(tmp);
+                    foreach (string GKey in MergeIntensities.Keys)
+                    {
+                        tmp = GKey +",";
+                        foreach (enumLabelingTag tag in Tags)
+                        {
+                            double Purity = 1.0;
+                            if (PurityRatio.ContainsKey(tag))
+                            {
+                                Purity = PurityRatio[tag];
+                            }
 
+                            tmp = tmp + MergeIntensities[GKey][tag][3] + "," +
+                                                _NormalizedFactor[GKey][tag].ToString("0.00") +"," +
+                                                Purity.ToString("0.000") +","+
+                                              (_NormalizedAbundance[GKey][tag] * _LabelingRatio[tag]) + ",";
+                        }
+                        sw.WriteLine(tmp);
+                    }
+                    sw.Close();
+                }
+                else if (_LabelingMethod == enumGlycanLabelingMethod.DRAG)
+                {
+                    FullFilename = _ExportFilePath + "\\" + Path.GetFileName(_ExportFilePath) + "_Quant.csv";
+                    sw = new StreamWriter(FullFilename);
+                    string tmp = "Glycan,";
+                    List<enumLabelingTag> Tags = new List<enumLabelingTag>();
+                    foreach (enumLabelingTag tag in _LabelingRatio.Keys)
+                    {
+                        Tags.Add(tag);
+                    }
+                    Tags.Sort();
+                    foreach (enumLabelingTag tag in Tags)
+                    {
+                        tmp = tmp + tag.ToString() + "," + tag.ToString() + "(Adjusted " + _LabelingRatio[tag].ToString() + "),";
+                    }
+                    sw.WriteLine(tmp);
+                    Dictionary<string, List<MatchedGlycanPeak>> GlycanPeaks = new Dictionary<string, List<MatchedGlycanPeak>>();
+                    foreach (string Gkey in dictGlycans.Keys)
+                    {
+                        string key = Gkey.Substring(0, Gkey.LastIndexOf('-'));
+                        if (!GlycanPeaks.ContainsKey(key))
+                        {
+                            GlycanPeaks.Add(key, new List<MatchedGlycanPeak>());
+                        }
+                        GlycanPeaks[key].AddRange(dictGlycans[Gkey]);
+                    }
+                    foreach (string GKey in GlycanPeaks.Keys)
+                    {
+                        List<MatchedGlycanPeak> psks = GlycanPeaks[GKey];
+                        Dictionary<enumLabelingTag, double> dictLabelIntensity = new Dictionary<enumLabelingTag, double>();
+                        foreach (MatchedGlycanPeak p in psks)
+                        {
+                            if (!dictLabelIntensity.ContainsKey(p.GlycanComposition.LabelingTag))
+                            {
+                                dictLabelIntensity.Add(p.GlycanComposition.LabelingTag, 0.0);
+                            }
+                            dictLabelIntensity[p.GlycanComposition.LabelingTag] = (p.MostIntenseIntensity) + dictLabelIntensity[p.GlycanComposition.LabelingTag];
+                        }
+                        tmp = GKey +",";
+                        foreach (enumLabelingTag tag in Tags)
+                        {
+                            if (dictLabelIntensity.ContainsKey(tag))
+                            {
+         
+                                    tmp = tmp + dictLabelIntensity[tag] + "," +
+                                          (dictLabelIntensity[tag] * _LabelingRatio[tag]) + ",";
+                                
+                            }
+                            else
+                            {
+                                tmp = tmp + "0,0,";
+                            }
+                        }
+                        sw.WriteLine(tmp);
+                    }
+                    sw.Close();
+                }
+
+            }
+            #endregion
+            #region Image
             //Generate images.
             //CreateFolder
-            string Dir = _ExportFilePath + "\\Pic";
-            if (!Directory.Exists(Dir))
+            if (_individualImgs || _quantImgs)
             {
-                Directory.CreateDirectory(Dir);
-            }
-            foreach (string key in dictGlycans.Keys)
-            {
-                GetLCImage(key, dictGlycans[key]).Save(Dir + "\\" + key + ".png", System.Drawing.Imaging.ImageFormat.Png);
-            }
-            //Generate Quantitation figures
-            if (LabelingRatio != null)
-            {
-                Dictionary<string, List<MatchedGlycanPeak>> GlycanPeaks = new Dictionary<string, List<MatchedGlycanPeak>>();
-                foreach(string Gkey in dictGlycans.Keys)
+                string Dir = _ExportFilePath + "\\Pic";
+                if (!Directory.Exists(Dir))
                 {
-                    string key = Gkey.Substring(0, Gkey.LastIndexOf('-'));
-                    if(!GlycanPeaks.ContainsKey(key))                       
+                    Directory.CreateDirectory(Dir);
+                }
+                if (_individualImgs)
+                {
+                    foreach (string key in dictGlycans.Keys)
                     {
-                        GlycanPeaks.Add(key, new List<MatchedGlycanPeak>());
+                        GetLCImage(key, dictGlycans[key]).Save(Dir + "\\" + key + ".png", System.Drawing.Imaging.ImageFormat.Png);
                     }
-                    GlycanPeaks[key].AddRange(dictGlycans[key]);
                 }
-                foreach (string GKey in GlycanPeaks.Keys)
+                //Generate Quantitation figures
+                if (_LabelingMethod != enumGlycanLabelingMethod.None && _quantImgs && _LabelingRatio.Count >= 2)
                 {
-                    GetQuantitionImage(GKey, GlycanPeaks[GKey]).Save(Dir + "\\Quant-" + GKey + ".png", System.Drawing.Imaging.ImageFormat.Png);
+                    if (_LabelingMethod == enumGlycanLabelingMethod.MultiplexPermethylated)
+                    {
+                        foreach (string Gkey in dictGlycans.Keys)
+                        {
+                            string key = Gkey.Substring(0, Gkey.LastIndexOf('-'));
+                            GetQuantitionImage(key, _NormalizedAbundance[key]).Save(Dir + "\\Quant-" + key + ".png", System.Drawing.Imaging.ImageFormat.Png);
+                        }
+                    }
+                    else if (_LabelingMethod == enumGlycanLabelingMethod.DRAG)
+                    {
+                        Dictionary<string, List<MatchedGlycanPeak>> GlycanPeaks =
+                            new Dictionary<string, List<MatchedGlycanPeak>>();
+                        foreach (string Gkey in dictGlycans.Keys)
+                        {
+                            string key = Gkey.Substring(0, Gkey.LastIndexOf('-'));
+                            if (!GlycanPeaks.ContainsKey(key))
+                            {
+                                GlycanPeaks.Add(key, new List<MatchedGlycanPeak>());
+                            }
+                            GlycanPeaks[key].AddRange(dictGlycans[Gkey]);
+                        }
+                        foreach (string GKey in GlycanPeaks.Keys)
+                        {
+                            GetQuantitionImage(GKey, GlycanPeaks[GKey])
+                                .Save(Dir + "\\Quant-" + GKey + ".png", System.Drawing.Imaging.ImageFormat.Png);
+                        }
+                    }
                 }
+
             }
+            #endregion
+
+            //#region Test
+            //FullFilename = _ExportFilePath + "\\" + Path.GetFileName(_ExportFilePath) + "_5-6-0-3.csv";
+            //sw = new StreamWriter(FullFilename);
+            //Dictionary<string,Dictionary<float, float>> _intensityCount = new Dictionary<string,Dictionary<float, float>>();
+            //sw.WriteLine("mz,0mz,idx,-10,-9,-8,-7,-6,-5,-4,-3,-2,-1,0,1,2,3,4,5,6,7,8");
+            //foreach (MatchedGlycanPeak MatchPeak in MatchedPeakInScan)
+            //{
+            //    if (MatchPeak.GlycanComposition.LabelingTag == enumLabelingTag.MP_CH2D)
+            //    {
+            //        //find index
+            //        int MonoIdx = 0;
+                   
+            //        for (int i = 0; i < MatchPeak.MSPoints.Count; i++)
+            //        {
+            //            if (Math.Abs(MatchPeak.GlycanComposition.MZ - MatchPeak.MSPoints[i].Mass) < 0.1)
+            //            {
+            //                MonoIdx = i;
+            //                break;
+            //            }
+            //        }
+            //        string tmpOpt =MatchPeak.GlycanComposition.MZ +"," +MatchPeak.MSPoints[MonoIdx].Mass+","+MonoIdx+",";
+
+            //        for (int i = 0; i < 10 - MonoIdx; i++)
+            //        {
+            //            tmpOpt = tmpOpt + "0,";
+            //        }
+            //        for (int i = 0; i < MatchPeak.MSPoints.Count; i++)
+            //        {
+            //            tmpOpt = tmpOpt + MatchPeak.MSPoints[i].Intensity + ",";
+            //        }
+            //        sw.WriteLine(tmpOpt.Substring(0,tmpOpt.Length-1));
+            //    }
+            //}
+
+            //sw.Close();
+            //#endregion
         }
         public void ExportParametersToExcel()
         {
@@ -951,27 +1374,27 @@ namespace COL.MultiGlycan
             CurrentSheet.Cells[17, 1].Value = "Minimum abundance:";
             CurrentSheet.Cells[17, 2].Value = _minAbundance.ToString();
 
-            CurrentSheet.Cells[19, 1].Value = "Peak processing parameters";
-            CurrentSheet.Cells[20, 1].Value = "Signal to noise ratio:";
-            CurrentSheet.Cells[20, 2].Value = _peakParameter.SignalToNoiseThreshold.ToString();
-            CurrentSheet.Cells[21, 1].Value = "Peak background ratio:";
-            CurrentSheet.Cells[21, 2].Value = _peakParameter.PeakBackgroundRatio.ToString();
-            CurrentSheet.Cells[22, 1].Value = "Use absolute peptide intensity:";
-            CurrentSheet.Cells[22, 2].Value = _transformParameters.UseAbsolutePeptideIntensity.ToString();
-            if (_transformParameters.UseAbsolutePeptideIntensity)
-            {
+            //CurrentSheet.Cells[19, 1].Value = "Peak processing parameters";
+            //CurrentSheet.Cells[20, 1].Value = "Signal to noise ratio:";
+            //CurrentSheet.Cells[20, 2].Value = _peakParameter.SignalToNoiseThreshold.ToString();
+            //CurrentSheet.Cells[21, 1].Value = "Peak background ratio:";
+            //CurrentSheet.Cells[21, 2].Value = _peakParameter.PeakBackgroundRatio.ToString();
+            //CurrentSheet.Cells[22, 1].Value = "Use absolute peptide intensity:";
+            //CurrentSheet.Cells[22, 2].Value = _transformParameters.UseAbsolutePeptideIntensity.ToString();
+            //if (_transformParameters.UseAbsolutePeptideIntensity)
+            //{
 
-                CurrentSheet.Cells[23, 1].Value = "Absolute peptide intensity:";
-                CurrentSheet.Cells[23, 2].Value = _transformParameters.AbsolutePeptideIntensity.ToString();
-            }
-            else
-            {
-                CurrentSheet.Cells[23, 1].Value = "Peptide intensity ratio:";
-                CurrentSheet.Cells[23, 2].Value = _transformParameters.PeptideMinBackgroundRatio.ToString();
-            }
+            //    CurrentSheet.Cells[23, 1].Value = "Absolute peptide intensity:";
+            //    CurrentSheet.Cells[23, 2].Value = _transformParameters.AbsolutePeptideIntensity.ToString();
+            //}
+            //else
+            //{
+            //    CurrentSheet.Cells[23, 1].Value = "Peptide intensity ratio:";
+            //    CurrentSheet.Cells[23, 2].Value = _transformParameters.PeptideMinBackgroundRatio.ToString();
+            //}
 
-            CurrentSheet.Cells[24, 1].Value = "Max charge";
-            CurrentSheet.Cells[24, 2].Value = _transformParameters.MaxCharge;
+            //CurrentSheet.Cells[24, 1].Value = "Max charge";
+            //CurrentSheet.Cells[24, 2].Value = _transformParameters.MaxCharge;
 
             System.Reflection.Assembly assm = typeof(frmMainESI).Assembly;
             System.Reflection.AssemblyName assmName = assm.GetName();
@@ -1074,7 +1497,124 @@ namespace COL.MultiGlycan
             CurrentSheet.Dispose();
             GC.Collect();
         }
+        public Image GetPurityEstimateImage(enumLabelingTag argTag)
+        {
+            ZedGraph.ZedGraphControl zgcGlycan = new ZedGraph.ZedGraphControl();
+            zgcGlycan.Width = 2400;
+            zgcGlycan.Height = 1200;
+            GraphPane GP = zgcGlycan.GraphPane;
+            GP.Title.Text = "Purity Estimate " + argTag.ToString() +" - " + PurityRatio[argTag].ToString("0.000000");
+            GP.XAxis.Title.Text = "Scan Number";
+            GP.YAxis.Title.Text = "Abundance";
+            GP.CurveList.Clear();
+            List<Tuple<string, int, float>> dataTag = dictEstimedPurity[argTag];
+            PointPairList PPL = new PointPairList();
+            foreach (Tuple<string, int, float> data in dataTag)
+            {
+                PPL.Add(new PointPair(Convert.ToSingle(data.Item2), data.Item3));
+            }
+            LineItem lin = new LineItem(argTag.ToString(), PPL,Color.Blue,SymbolType.Circle);
+            lin.Line.IsVisible = false;
+            GP.CurveList.Add(lin);
+            zgcGlycan.AxisChange();
+            zgcGlycan.Refresh();
+            return (Image)zgcGlycan.MasterPane.GetImage();
+        }
         public Image GetLCImage(string argGKey, List<MatchedGlycanPeak> argMatchedScan)
+        {
+            try
+            {
+                string Gkey = argGKey;
+                ZedGraph.ZedGraphControl zgcGlycan = new ZedGraph.ZedGraphControl();
+                zgcGlycan.Width = 2400;
+                zgcGlycan.Height = 1200;
+
+                GraphPane GP = zgcGlycan.GraphPane;
+                GP.Title.Text = "Glycan: " + Gkey;
+                GP.XAxis.Title.Text = "Scan time (min)";
+                GP.YAxis.Title.Text = "Abundance";
+                GP.CurveList.Clear();
+                Dictionary<string, PointPairList> dictAdductPoints = new Dictionary<string, PointPairList>();
+                Dictionary<float, float> MergeIntensity = new Dictionary<float, float>();
+                List<float> Time = new List<float>();
+                foreach (MatchedGlycanPeak MPeak in argMatchedScan)
+                {
+                    string adduct = "";
+                    foreach (Tuple<string, float, int> addct in MPeak.GlycanComposition.Adducts)
+                    {
+                        adduct = adduct + addct.Item1 + "+";
+                    }
+                    adduct = adduct.Substring(0, adduct.Length - 1);
+                    if (!dictAdductPoints.ContainsKey(adduct))
+                    {
+                        dictAdductPoints.Add(adduct, new PointPairList());
+                    }
+                    dictAdductPoints[adduct].Add(MPeak.ScanTime, MPeak.Peak.MonoIntensity);
+
+                    if (!MergeIntensity.ContainsKey(Convert.ToSingle(MPeak.ScanTime)))
+                    {
+                        MergeIntensity.Add(Convert.ToSingle(MPeak.ScanTime), 0);
+                    }
+                    MergeIntensity[Convert.ToSingle(MPeak.ScanTime)] = MergeIntensity[Convert.ToSingle(MPeak.ScanTime)] + MPeak.Peak.MonoIntensity;
+
+                    if (!Time.Contains(Convert.ToSingle(MPeak.ScanTime)))
+                    {
+                        Time.Add(Convert.ToSingle(MPeak.ScanTime));
+                    }
+                }
+                int ColorIdx = 0;
+                foreach (string Adduct in dictAdductPoints.Keys)
+                {
+                    dictAdductPoints[Adduct].Sort(delegate(PointPair M1, PointPair M2)
+                    {
+                        return M1.X.CompareTo(M2.X);
+                    }
+                    );
+                    List<double> Mzs = new List<double>();
+                    List<double> Intensities = new List<double>();
+                    foreach (PointPair pp in dictAdductPoints[Adduct])
+                    {
+                        if (Mzs.Contains(pp.X))
+                        {
+                            int idx = Mzs.IndexOf(pp.X);
+                            Intensities[idx] = Intensities[idx] + pp.Y;
+                        }
+                        else
+                        {
+                            Mzs.Add(pp.X);
+                            Intensities.Add(pp.Y);
+                        }
+                    }
+                    LineItem Lne = GP.AddCurve(Adduct, Mzs.ToArray(), Intensities.ToArray(), LstColor[ColorIdx%17]);
+                    Lne.Line.IsSmooth = true;
+                    Lne.Line.SmoothTension = 0.15f;
+                    Lne.Symbol.Size = 2.0f;
+                    ColorIdx = ColorIdx + 1;
+                }
+                //Merge Intensity
+                Time.Sort();
+                PointPairList PPLMerge = new PointPairList();
+                foreach (float tim in Time)
+                {
+                    PPLMerge.Add(Convert.ToSingle(tim.ToString("0.00")), MergeIntensity[tim]);
+                }
+                LineItem Merge = GP.AddCurve("Merge", PPLMerge, Color.Black);
+                Merge.Symbol.Size = 2.0f;
+                Merge.Line.Width = 3.0f;
+                Merge.Line.IsSmooth = true;
+                Merge.Line.SmoothTension = 0.15f;
+                zgcGlycan.AxisChange();
+                zgcGlycan.Refresh();
+                return (Image)zgcGlycan.MasterPane.GetImage();
+            }
+            catch (Exception)
+            {
+                throw new Exception("GetLC Pic failed " + argGKey);
+            }
+       
+        }
+
+        public Image GetQuantitionImage(string argGKey, Dictionary<enumLabelingTag, double> argData)
         {
             string Gkey = argGKey;
             ZedGraph.ZedGraphControl zgcGlycan = new ZedGraph.ZedGraphControl();
@@ -1083,48 +1623,40 @@ namespace COL.MultiGlycan
 
             GraphPane GP = zgcGlycan.GraphPane;
             GP.Title.Text = "Glycan: " + Gkey;
-            GP.XAxis.Title.Text = "Scan time (min)";
-            GP.YAxis.Title.Text = "Abundance";
+            GP.XAxis.Title.Text = "Labeling";
+            GP.YAxis.Title.Text = "Abundance(%)";
             GP.CurveList.Clear();
-            Dictionary<string, PointPairList> dictAdductPoints = new Dictionary<string, PointPairList>();
-            Dictionary<float, float> MergeIntensity = new Dictionary<float, float>();
-            List<float> Time = new List<float>();
-            foreach (MatchedGlycanPeak MPeak in argMatchedScan)
+            double YMax = 0;
+            foreach (enumLabelingTag tag in argData.Keys)
             {
-                if (!dictAdductPoints.ContainsKey(MPeak.Adduct))
+                if (argData[tag] > YMax)
                 {
-                    dictAdductPoints.Add(MPeak.Adduct, new PointPairList());
+                    YMax = argData[tag];
                 }
-                dictAdductPoints[MPeak.Adduct].Add(MPeak.ScanTime, MPeak.Peak.MonoIntensity);
+            }
+            List<string> labels = new List<string>();
+            PointPairList ppl = new PointPairList();
+            int x = 0;
+            foreach (enumLabelingTag tag in argData.Keys)
+            {
+                labels.Add(tag.ToString());
+                ppl.Add(x,argData[tag] /YMax*100);
+                x++;
+            }
 
-                if (!MergeIntensity.ContainsKey(Convert.ToSingle(MPeak.ScanTime)))
-                {
-                    MergeIntensity.Add(Convert.ToSingle(MPeak.ScanTime), 0);
-                }
-                MergeIntensity[Convert.ToSingle(MPeak.ScanTime)] = MergeIntensity[Convert.ToSingle(MPeak.ScanTime)] + MPeak.Peak.MonoIntensity;
-
-                if (!Time.Contains(Convert.ToSingle(MPeak.ScanTime)))
-                {
-                    Time.Add(Convert.ToSingle(MPeak.ScanTime));
-                }
-            }
-            int ColorIdx = 0;
-            foreach (string Adduct in dictAdductPoints.Keys)
+            BarItem myBar = GP.AddBar("Data", ppl, Color.Red);
+            myBar.Bar.Fill.Type = FillType.Solid;
+            for (int i = 0; i < myBar.Points.Count; i++)
             {
-                LineItem Lne = GP.AddCurve(Adduct, dictAdductPoints[Adduct], LstColor[ColorIdx]);
-                Lne.Symbol.Size = 2.0f;
-                ColorIdx = ColorIdx + 1;
+                TextObj barLabel = new TextObj(myBar.Points[i].Y.ToString("0.00"), myBar.Points[i].X + 1, myBar.Points[i].Y + 5);
+                barLabel.FontSpec.Border.IsVisible = false;
+                GP.GraphObjList.Add(barLabel);
             }
-            //Merge Intensity
-            Time.Sort();
-            PointPairList PPLMerge = new PointPairList();
-            foreach (float tim in Time)
-            {
-                PPLMerge.Add(tim, MergeIntensity[tim]);
-            }
-            LineItem Merge = GP.AddCurve("Merge", PPLMerge, Color.Black);
-            Merge.Symbol.Size = 2.0f;
-            Merge.Line.Width = 3.0f;
+            myBar.Label.IsVisible = true;
+            GP.Legend.IsVisible = false;
+            GP.XAxis.Type = AxisType.Text;
+            GP.XAxis.Scale.TextLabels = labels.ToArray();
+            GP.XAxis.MajorTic.IsAllTics = false;
             zgcGlycan.AxisChange();
             zgcGlycan.Refresh();
             return (Image)zgcGlycan.MasterPane.GetImage();
@@ -1139,43 +1671,161 @@ namespace COL.MultiGlycan
             GraphPane GP = zgcGlycan.GraphPane;
             GP.Title.Text = "Glycan: " + Gkey;
             GP.XAxis.Title.Text = "Labeling";
-            GP.YAxis.Title.Text = "Abundance";
+            GP.YAxis.Title.Text = "Abundance(%)";
             GP.CurveList.Clear();
-            Dictionary<enumPermethyLabeling, double> dictLabelIntensity = new Dictionary<enumPermethyLabeling, double>();
+            Dictionary<enumLabelingTag, double> dictLabelIntensity = new Dictionary<enumLabelingTag, double>();
+            double YMax = 0;
             foreach (MatchedGlycanPeak p in argMatchedScan)
             {
-                if (!dictLabelIntensity.ContainsKey(p.GlycanComposition.PermethyLabelingTag))
+                if (!dictLabelIntensity.ContainsKey(p.GlycanComposition.LabelingTag))
                 {
-                    dictLabelIntensity.Add(p.GlycanComposition.PermethyLabelingTag,0.0);
+                    dictLabelIntensity.Add(p.GlycanComposition.LabelingTag, 0.0);
                 }
-                dictLabelIntensity[p.GlycanComposition.PermethyLabelingTag] = (p.MostIntenseIntensity * LabelingRatio[p.GlycanComposition.PermethyLabelingTag]) +dictLabelIntensity[p.GlycanComposition.PermethyLabelingTag];
+                dictLabelIntensity[p.GlycanComposition.LabelingTag] = (p.CorrectedIntensity * _LabelingRatio[p.GlycanComposition.LabelingTag]) + dictLabelIntensity[p.GlycanComposition.LabelingTag];
+                if (dictLabelIntensity[p.GlycanComposition.LabelingTag] > YMax)
+                {
+                    YMax = dictLabelIntensity[p.GlycanComposition.LabelingTag];
+                }
             }
-
+            List<string> labels = new List<string>();
             PointPairList ppl = new PointPairList();
-            ppl.Add(0, dictLabelIntensity[enumPermethyLabeling.CH3]);
-            ppl.Add(1, dictLabelIntensity[enumPermethyLabeling.CH2D]);
-            ppl.Add(2, dictLabelIntensity[enumPermethyLabeling.CHD2]);
-            ppl.Add(3, dictLabelIntensity[enumPermethyLabeling.CD3]);
-            ppl.Add(4, dictLabelIntensity[enumPermethyLabeling.C13H3]);
-            ppl.Add(5, dictLabelIntensity[enumPermethyLabeling.C13H2D]);
-            ppl.Add(6, dictLabelIntensity[enumPermethyLabeling.C13HD2]);
-
-            double YMax = 0;
-            for (int i = 0; i < ppl.Count - 1; i++)
+            if (_LabelingMethod == enumGlycanLabelingMethod.MultiplexPermethylated)
             {
-                BoxObj box = new BoxObj(ppl[i].X, ppl[i].Y, ppl[i + 1].X - ppl[i].X, ppl[i].Y);
-                box.IsClippedToChartRect = true;
-                GP.GraphObjList.Add(box);
-                if (ppl[i].Y > YMax)
+                int i = 0;
+                if (_LabelingRatio.ContainsKey(enumLabelingTag.MP_CH3) && dictLabelIntensity.ContainsKey(enumLabelingTag.MP_CH3))
                 {
-                    YMax = ppl[i].Y;
+                    labels.Add("CH3");
+                    if (dictLabelIntensity.ContainsKey(enumLabelingTag.MP_CH3))
+                    {
+                        ppl.Add(i, dictLabelIntensity[enumLabelingTag.MP_CH3] / YMax * 100);
+                    }
+                    else
+                    {
+                        ppl.Add(i, 0);
+                    }
+                    i++;
+                }
+                if (_LabelingRatio.ContainsKey(enumLabelingTag.MP_CH2D) && dictLabelIntensity.ContainsKey(enumLabelingTag.MP_CH2D))
+                {
+                    labels.Add("CH2D");
+                    if (dictLabelIntensity.ContainsKey(enumLabelingTag.MP_CH2D))
+                    {
+                        ppl.Add(i, dictLabelIntensity[enumLabelingTag.MP_CH2D] / YMax * 100);
+                    }
+                    else
+                    {
+                        ppl.Add(i, 0);
+                    }
+                    i++;
+                }
+                if (_LabelingRatio.ContainsKey(enumLabelingTag.MP_CHD2) && dictLabelIntensity.ContainsKey(enumLabelingTag.MP_CHD2))
+                {
+                    labels.Add("CHD2");
+                    if (dictLabelIntensity.ContainsKey(enumLabelingTag.MP_CHD2))
+                    {
+                        ppl.Add(i, dictLabelIntensity[enumLabelingTag.MP_CHD2] / YMax * 100);
+                    }
+                    else
+                    {
+                        ppl.Add(i, 0);
+                    }
+                    i++;
+                }
+                if (_LabelingRatio.ContainsKey(enumLabelingTag.MP_CD3) && dictLabelIntensity.ContainsKey(enumLabelingTag.MP_CD3))
+                {
+                    labels.Add("CD3");
+                    if (dictLabelIntensity.ContainsKey(enumLabelingTag.MP_CD3))
+                    {
+                        ppl.Add(i, dictLabelIntensity[enumLabelingTag.MP_CD3] / YMax * 100);
+                    }
+                    else
+                    {
+                        ppl.Add(i, 0);
+                    }
+                    i++;
+                }
+                if (_LabelingRatio.ContainsKey(enumLabelingTag.MP_13CH3) && dictLabelIntensity.ContainsKey(enumLabelingTag.MP_13CH3))
+                {
+                    labels.Add("13CH3");
+                    if (dictLabelIntensity.ContainsKey(enumLabelingTag.MP_13CH3))
+                    {
+                        ppl.Add(i, dictLabelIntensity[enumLabelingTag.MP_13CH3] / YMax * 100);
+                    }
+                    else
+                    {
+                        ppl.Add(i, 0);
+                    }
+                    i++;
+                }
+                if (_LabelingRatio.ContainsKey(enumLabelingTag.MP_13CHD2) && dictLabelIntensity.ContainsKey(enumLabelingTag.MP_13CHD2))
+                {
+                    labels.Add("13CHD2");
+                    if (dictLabelIntensity.ContainsKey(enumLabelingTag.MP_13CHD2))
+                    {
+                        ppl.Add(i, dictLabelIntensity[enumLabelingTag.MP_13CHD2] / YMax * 100);
+                    }
+                    else
+                    {
+                        ppl.Add(i, 0);
+                    }
+                    i++;
+                }
+                if (_LabelingRatio.ContainsKey(enumLabelingTag.MP_13CD3) && dictLabelIntensity.ContainsKey(enumLabelingTag.MP_13CD3))
+                {
+                    labels.Add("13CD3");
+                    if (dictLabelIntensity.ContainsKey(enumLabelingTag.MP_13CD3))
+                    {
+                        ppl.Add(i, dictLabelIntensity[enumLabelingTag.MP_13CD3] / YMax * 100);
+                    }
+                    else
+                    {
+                        ppl.Add(i, 0);
+                    }
                 }
             }
-            GP.XAxis.Scale.Min = -1;
-            GP.XAxis.Scale.Max = 7;
-            GP.YAxis.Scale.Min = 0;
-            GP.YAxis.Scale.Max = YMax;
+            else if (_LabelingMethod == enumGlycanLabelingMethod.DRAG)
+            {
+                int i = 0;
+                if (_LabelingRatio.ContainsKey(enumLabelingTag.DRAG_Light))
+                {
+                    labels.Add("Light");
+                    if (dictLabelIntensity.ContainsKey(enumLabelingTag.DRAG_Light))
+                    {
+                        ppl.Add(i, dictLabelIntensity[enumLabelingTag.DRAG_Light] / YMax * 100);
+                    }
+                    else
+                    {
+                        ppl.Add(i, 0);
+                    }
+                    i++;
+                }
+                if (_LabelingRatio.ContainsKey(enumLabelingTag.DRAG_Heavy))
+                {
+                    labels.Add("Heavy");
+                    if (dictLabelIntensity.ContainsKey(enumLabelingTag.DRAG_Heavy))
+                    {
+                        ppl.Add(i, dictLabelIntensity[enumLabelingTag.DRAG_Heavy] / YMax * 100);
+                    }
+                    else
+                    {
+                        ppl.Add(i, 0);
+                    }
+                }
+            }
 
+            BarItem myBar = GP.AddBar("Data", ppl, Color.Red);
+            myBar.Bar.Fill.Type = FillType.Solid;
+            for (int i = 0; i < myBar.Points.Count; i++)
+            {
+                TextObj barLabel = new TextObj(myBar.Points[i].Y.ToString("0.00"), myBar.Points[i].X + 1, myBar.Points[i].Y + 5);
+                barLabel.FontSpec.Border.IsVisible = false;
+                GP.GraphObjList.Add(barLabel);
+            }
+            myBar.Label.IsVisible = true;
+            GP.Legend.IsVisible = false;
+            GP.XAxis.Type = AxisType.Text;
+            GP.XAxis.Scale.TextLabels = labels.ToArray();
+            GP.XAxis.MajorTic.IsAllTics = false;
             zgcGlycan.AxisChange();
             zgcGlycan.Refresh();
             return (Image)zgcGlycan.MasterPane.GetImage();
@@ -1278,27 +1928,27 @@ namespace COL.MultiGlycan
                 CurrentSheet.Cells[17, 1].Value = "Minimum abundance:";
                 CurrentSheet.Cells[17, 2].Value = _minAbundance.ToString();
 
-                CurrentSheet.Cells[19, 1].Value = "Peak processing parameters";
-                CurrentSheet.Cells[20, 1].Value = "Signal to noise ratio";
-                CurrentSheet.Cells[20, 2].Value = _peakParameter.SignalToNoiseThreshold.ToString();
-                CurrentSheet.Cells[21, 1].Value = "Peak background ratio";
-                CurrentSheet.Cells[21, 2].Value = _peakParameter.PeakBackgroundRatio.ToString();
-                CurrentSheet.Cells[22, 1].Value = "Use absolute peptide intensity";
-                CurrentSheet.Cells[22, 2].Value = _transformParameters.UseAbsolutePeptideIntensity.ToString();
-                if (_transformParameters.UseAbsolutePeptideIntensity)
-                {
+                //CurrentSheet.Cells[19, 1].Value = "Peak processing parameters";
+                //CurrentSheet.Cells[20, 1].Value = "Signal to noise ratio";
+                //CurrentSheet.Cells[20, 2].Value = _peakParameter.SignalToNoiseThreshold.ToString();
+                //CurrentSheet.Cells[21, 1].Value = "Peak background ratio";
+                //CurrentSheet.Cells[21, 2].Value = _peakParameter.PeakBackgroundRatio.ToString();
+                //CurrentSheet.Cells[22, 1].Value = "Use absolute peptide intensity";
+                //CurrentSheet.Cells[22, 2].Value = _transformParameters.UseAbsolutePeptideIntensity.ToString();
+                //if (_transformParameters.UseAbsolutePeptideIntensity)
+                //{
 
-                    CurrentSheet.Cells[23, 1].Value = "Absolute peptide intensity";
-                    CurrentSheet.Cells[23, 2].Value = _transformParameters.AbsolutePeptideIntensity.ToString();
-                }
-                else
-                {
-                    CurrentSheet.Cells[23, 1].Value = "Peptide intensity ratio";
-                    CurrentSheet.Cells[23, 2].Value = _transformParameters.PeptideMinBackgroundRatio.ToString();
-                }
+                //    CurrentSheet.Cells[23, 1].Value = "Absolute peptide intensity";
+                //    CurrentSheet.Cells[23, 2].Value = _transformParameters.AbsolutePeptideIntensity.ToString();
+                //}
+                //else
+                //{
+                //    CurrentSheet.Cells[23, 1].Value = "Peptide intensity ratio";
+                //    CurrentSheet.Cells[23, 2].Value = _transformParameters.PeptideMinBackgroundRatio.ToString();
+                //}
 
-                CurrentSheet.Cells[24, 1].Value = "Max charge";
-                CurrentSheet.Cells[24, 2].Value = _transformParameters.MaxCharge;
+                //CurrentSheet.Cells[24, 1].Value = "Max charge";
+                //CurrentSheet.Cells[24, 2].Value = _transformParameters.MaxCharge;
 
                 System.Reflection.Assembly assm = typeof(frmMainESI).Assembly;
                 System.Reflection.AssemblyName assmName = assm.GetName();
@@ -1408,103 +2058,293 @@ namespace COL.MultiGlycan
                 throw ex;
             }
         }
-        private List<float> GenerateCandidatePeakList(List<GlycanCompound> argGlycanComList)
+        private List<float> GenerateCandidateGlycanMZList(List<GlycanCompound> argGlycanComList)
         {
-            _lstCandidatePeak = new List<CandidatePeak>();
             List<float> CandidateMzList = new List<float>();
-            _dicCandidatePeak = new Dictionary<float, List<CandidatePeak>>(); //CandidateMZ to Glycan
+            _dicCandidateGlycan = new Dictionary<float, List<GlycanCompound>>();
             foreach (GlycanCompound comp in argGlycanComList)
             {
-                for (int i = 1; i <= _MaxCharge; i++) //Charge
+                if (!_dicCandidateGlycan.ContainsKey(Convert.ToSingle(comp.MZ)))
                 {
-                    foreach (float adductMass in _adductMass)
-                    {
-                        for (int j = 0; j <= i; j++) //Adduct Number
-                        {
-                            string AdductLabel = _adductLabel[adductMass];
-                            float AdductMass = adductMass;
-                            CandidatePeak tmpCandidate = new CandidatePeak(comp, i, AdductMass, j, AdductLabel);
-                            bool FoundSameGlycanKey;
-                            if (j == 0)
-                            {
-                                AdductLabel = "H";
-                                AdductMass = Atoms.ProtonMass;
-                                tmpCandidate = new CandidatePeak(comp, i, AdductMass, 1, AdductLabel);
-                            }
-                            
-                            //If candidateMZ has the same value don't add into list;
-                            if (!CandidateMzList.Contains(tmpCandidate.TotalMZ))
-                            {
-                                CandidateMzList.Add(tmpCandidate.TotalMZ);
-                            }
-
-                            //Inseet to dictionary <mz, List<candidates>>
-                            if (!_dicCandidatePeak.ContainsKey(tmpCandidate.TotalMZ))
-                            {
-                                _dicCandidatePeak.Add(tmpCandidate.TotalMZ, new List<CandidatePeak>());
-                            }
-                            FoundSameGlycanKey = false;
-                            foreach (CandidatePeak CP in _dicCandidatePeak[tmpCandidate.TotalMZ])
-                            {
-                                if (CP.GlycanKey == tmpCandidate.GlycanKey) //Current Glycan already in List
-                                {
-                                    FoundSameGlycanKey = true;
-                                    break;
-                                }
-                            }
-                            if (!FoundSameGlycanKey)
-                            {        
-                                ((List<CandidatePeak>)(_dicCandidatePeak[tmpCandidate.TotalMZ])).Add(tmpCandidate);
-                            }
-
-
-                            //Add labeling glycan
-                            if (LabelingRatio != null)
-                            {
-                                foreach (enumPermethyLabeling LabelKey in LabelingRatio.Keys)
-                                {
-                                    if (j == 1 &&
-                                        AdductMass == Atoms.SodiumMass &&
-                                        LabelKey == enumPermethyLabeling.CH3 &&
-                                        i==2)
-                                    {
-                                    }
-                                    tmpCandidate = new CandidatePeak(comp, i, AdductMass, j, AdductLabel);
-                                    tmpCandidate.GlycanComposition.PermethyLabelingTag = LabelKey;
-                                    //If candidateMZ has the same value don't add into list;
-                                    if (!CandidateMzList.Contains(tmpCandidate.TotalMZ))
-                                    {
-                                        CandidateMzList.Add(tmpCandidate.TotalMZ);
-                                    }
-
-                                    //Inseet to dictionary <mz, List<candidates>>
-                                    if (!_dicCandidatePeak.ContainsKey(tmpCandidate.TotalMZ))
-                                    {
-                                        _dicCandidatePeak.Add(tmpCandidate.TotalMZ, new List<CandidatePeak>());
-                                    }
-                                    FoundSameGlycanKey = false;
-                                    foreach (CandidatePeak CP in _dicCandidatePeak[tmpCandidate.TotalMZ])
-                                    {
-                                        if (CP.GlycanKey == tmpCandidate.GlycanKey && CP.Permethylabeling == tmpCandidate.Permethylabeling) //Current Glycan already in List
-                                        {
-                                            FoundSameGlycanKey = true;
-                                            break;
-                                        }
-                                    }
-                                    if (!FoundSameGlycanKey)
-                                    {
-                                        ((List<CandidatePeak>)(_dicCandidatePeak[tmpCandidate.TotalMZ])).Add(tmpCandidate);
-                                    }
-                                }
-                            }
-
-                        }
-                    }
+                    _dicCandidateGlycan.Add(Convert.ToSingle(comp.MZ), new List<GlycanCompound>());
+                }
+                _dicCandidateGlycan[Convert.ToSingle(comp.MZ)].Add(comp);
+                if (!CandidateMzList.Contains(Convert.ToSingle(comp.MZ)))
+                {
+                    CandidateMzList.Add(Convert.ToSingle(comp.MZ));
                 }
             }
-            //_lstCandidatePeak.Sort();            
             CandidateMzList.Sort();
             return CandidateMzList;
+        }
+        /// <summary>
+        /// Old retired function
+        /// </summary>
+        /// <param name="argGlycanComList"></param>
+        /// <returns></returns>
+        //private List<float> GenerateCandidatePeakList(List<GlycanCompound> argGlycanComList)
+        //{
+        //    _lstCandidatePeak = new List<CandidatePeak>();
+        //    List<float> CandidateMzList = new List<float>();
+        //    _dicCandidatePeak = new Dictionary<float, List<CandidatePeak>>(); //CandidateMZ to Glycan
+        //    foreach (GlycanCompound comp in argGlycanComList)
+        //    {
+        //        for (int i = 1; i <= _MaxCharge; i++) //Charge
+        //        {
+        //            foreach (float adductMass in _adductMass)
+        //            {
+        //                for (int j = 0; j <= i; j++) //Adduct Number
+        //                {
+        //                    string AdductLabel = _adductLabel[adductMass];
+        //                    float AdductMass = adductMass;
+        //                    CandidatePeak tmpCandidate = new CandidatePeak(comp, i, AdductMass, j, AdductLabel);
+        //                    bool FoundSameGlycanKey;
+        //                    //Add labeling glycan
+        //                    if (_LabelingMethod != enumGlycanLabelingMethod.None)
+        //                    {
+        //                        foreach (enumLabelingTag LabelKey in _LabelingRatio.Keys)
+        //                        {
+        //                            if (j == 0)
+        //                            {
+        //                                AdductLabel = "H";
+        //                                AdductMass = Atoms.ProtonMass;
+        //                                tmpCandidate = new CandidatePeak(comp, i, AdductMass, 1, AdductLabel);
+        //                            }
+        //                            else
+        //                            {
+        //                                tmpCandidate = new CandidatePeak(comp, i, AdductMass, j, AdductLabel);
+        //                            }                                    
+        //                            tmpCandidate.GlycanComposition.LabelingTag = LabelKey;
+        //                            //If candidateMZ has the same value don't add into list;
+        //                            if (!CandidateMzList.Contains(tmpCandidate.TotalMZ))
+        //                            {
+        //                                CandidateMzList.Add(tmpCandidate.TotalMZ);
+        //                            }
+
+        //                            //Inseet to dictionary <mz, List<candidates>>
+        //                            if (!_dicCandidatePeak.ContainsKey(tmpCandidate.TotalMZ))
+        //                            {
+        //                                _dicCandidatePeak.Add(tmpCandidate.TotalMZ, new List<CandidatePeak>());
+        //                            }
+        //                            FoundSameGlycanKey = false;
+        //                            foreach (CandidatePeak CP in _dicCandidatePeak[tmpCandidate.TotalMZ])
+        //                            {
+        //                                if (CP.GlycanKey == tmpCandidate.GlycanKey && CP.LabelingTag == tmpCandidate.LabelingTag) //Current Glycan already in List
+        //                                {
+        //                                    FoundSameGlycanKey = true;
+        //                                    break;
+        //                                }
+        //                            }
+        //                            if (!FoundSameGlycanKey)
+        //                            {
+        //                                ((List<CandidatePeak>)(_dicCandidatePeak[tmpCandidate.TotalMZ])).Add(tmpCandidate);
+        //                                _lstCandidatePeak.Add(tmpCandidate);
+        //                            }
+        //                        }
+        //                    }
+        //                    else
+        //                    {                              
+        //                        if (j == 0)
+        //                        {
+        //                            AdductLabel = "H";
+        //                            AdductMass = Atoms.ProtonMass;
+        //                            tmpCandidate = new CandidatePeak(comp, i, AdductMass, 1, AdductLabel);
+        //                        }
+
+        //                        //If candidateMZ has the same value don't add into list;
+        //                        if (!CandidateMzList.Contains(tmpCandidate.TotalMZ))
+        //                        {
+        //                            CandidateMzList.Add(tmpCandidate.TotalMZ);
+        //                        }
+
+        //                        //Inseet to dictionary <mz, List<candidates>>
+        //                        if (!_dicCandidatePeak.ContainsKey(tmpCandidate.TotalMZ))
+        //                        {
+        //                            _dicCandidatePeak.Add(tmpCandidate.TotalMZ, new List<CandidatePeak>());
+        //                        }
+        //                        FoundSameGlycanKey = false;
+        //                        foreach (CandidatePeak CP in _dicCandidatePeak[tmpCandidate.TotalMZ])
+        //                        {
+        //                            if (CP.GlycanKey == tmpCandidate.GlycanKey) //Current Glycan already in List
+        //                            {
+        //                                FoundSameGlycanKey = true;
+        //                                break;
+        //                            }
+        //                        }
+        //                        if (!FoundSameGlycanKey)
+        //                        {
+        //                            ((List<CandidatePeak>)(_dicCandidatePeak[tmpCandidate.TotalMZ])).Add(tmpCandidate);
+        //                            _lstCandidatePeak.Add(tmpCandidate);
+        //                        }
+        //                    }
+
+        //                }
+        //            }
+        //        }
+        //    }
+        //    //_lstCandidatePeak.Sort();            
+        //    CandidateMzList.Sort();
+        //    return CandidateMzList;
+        //}
+        private List<MatchedGlycanPeak> FindClusterWGlycanList(MSScan argScan)
+        {
+            List<MatchedGlycanPeak> MatchedPeaks = new List<MatchedGlycanPeak>();
+            List<string> MatchedGlycanKey = new List<string>();
+            List<GlycanCompound> FoundGlycanCompounds = new List<GlycanCompound>();
+            //First round search in High confidence peak list
+            foreach (GlycanCompound Candidate in _GlycanList)
+            {
+                int ClosedIdx = MassLib.MassUtility.GetClosestMassIdx(argScan.MZs, Convert.ToSingle(Candidate.MZ));
+                if (MassLib.MassUtility.GetMassPPM(argScan.MZs[ClosedIdx], Candidate.MZ) > _massPPM)
+                {
+                    continue;
+                }
+
+                List<int> Peak = FindPeakIdx(argScan.MZs, ClosedIdx, Candidate.Charge);
+                if (Peak.Count < _MinPeakCount)
+                {
+                    continue;
+                }
+                if (_isMatchMonoPeakOnly && ClosedIdx != Peak[0])
+                {
+                    continue;
+                }
+                MSPeak msp;
+                float maxIntensity = 0;
+                int maxIntensityIdx = 0;
+                double TotalIntensity = 0;
+                List<MSPoint> MSPs = new List<MSPoint>();
+                for (int j = 0; j < Peak.Count; j++)
+                {
+                    TotalIntensity = TotalIntensity + argScan.Intensities[Peak[j]];
+                    MSPs.Add(new MSPoint(argScan.MZs[Peak[j]],argScan.Intensities[Peak[j]]));
+                    if (argScan.Intensities[Peak[j]] > maxIntensity)
+                    {
+                        maxIntensity = argScan.Intensities[Peak[j]];
+                        maxIntensityIdx = Peak[j];
+                    }
+                }
+                float Mass = (argScan.MZs[Peak[0]] - MassLib.Atoms.ProtonMass) * Candidate.Charge;
+                msp = new MSPeak(Mass, argScan.Intensities[Peak[0]], Candidate.Charge, argScan.MZs[ClosedIdx], 0, argScan.MZs[maxIntensityIdx], argScan.Intensities[maxIntensityIdx], TotalIntensity);
+                MatchedGlycanPeak newMatchedPeak = new MatchedGlycanPeak(argScan.ScanNo, argScan.Time, msp, Candidate);
+                newMatchedPeak.MSPoints = MSPs;
+                MatchedPeaks.Add(newMatchedPeak);
+                FoundGlycanCompounds.Add(Candidate);
+                if (!MatchedGlycanKey.Contains(Candidate.GlycanKey))
+                {
+                   MatchedGlycanKey.Add(Candidate.GlycanKey);
+                }
+            }
+            //Second round glycan in low raw mz list with already match glycan
+            foreach (GlycanCompound Candidate in _GlycanList)
+            {
+                if (!MatchedGlycanKey.Contains(Candidate.GlycanKey) || FoundGlycanCompounds.Contains(Candidate))
+                {
+                    continue;
+                }
+                int ClosedIdx = MassLib.MassUtility.GetClosestMassIdx(argScan.RawMZs, Convert.ToSingle(Candidate.MZ));
+                if (MassLib.MassUtility.GetMassPPM(argScan.RawMZs[ClosedIdx], Candidate.MZ) > _massPPM)
+                {
+                    continue;
+                }
+
+                List<int> Peak = FindPeakIdx(argScan.RawMZs, ClosedIdx, Candidate.Charge);
+
+                if (_isMatchMonoPeakOnly && ClosedIdx != Peak[0])
+                {
+                    continue;
+                }
+                MSPeak msp;
+                float maxIntensity = 0;
+                int maxIntensityIdx = 0;
+                double TotalIntensity = 0;
+                List<MSPoint> MSPs = new List<MSPoint>();
+                for (int j = 0; j < Peak.Count; j++)
+                {
+                    TotalIntensity = TotalIntensity + argScan.RawIntensities[Peak[j]];
+                    MSPs.Add(new MSPoint(argScan.RawMZs[Peak[j]], argScan.RawIntensities[Peak[j]]));
+                    if (argScan.RawIntensities[Peak[j]] > maxIntensity)
+                    {
+                        maxIntensity = argScan.RawIntensities[Peak[j]];
+                        maxIntensityIdx = Peak[j];
+                    }
+                }
+                float Mass = (argScan.RawMZs[Peak[0]] - MassLib.Atoms.ProtonMass) * Candidate.Charge;
+                msp = new MSPeak(Mass, argScan.RawIntensities[Peak[0]], Candidate.Charge, argScan.RawMZs[ClosedIdx], 0, argScan.RawMZs[maxIntensityIdx], argScan.RawIntensities[maxIntensityIdx], TotalIntensity);
+                MatchedGlycanPeak newMatchedPeak = new MatchedGlycanPeak(argScan.ScanNo, argScan.Time, msp, Candidate);
+                newMatchedPeak.MSPoints = MSPs;
+                MatchedPeaks.Add(newMatchedPeak);
+            }
+            return MatchedPeaks;
+        }
+        private List<int> FindPeakIdx(float[] argMZAry, int argTargetIdx, int argCharge)
+        {
+            List<int> Peak = new List<int>();
+            float Interval = 1 / (float)argCharge;
+            float FirstMZ = argMZAry[argTargetIdx];
+            int CurrentIdx = argTargetIdx;
+            Peak.Add(argTargetIdx);
+            //Forward  Peak
+            for (int i = argTargetIdx - 1; i >= 0; i--)
+            {
+                if (argMZAry[argTargetIdx] - argMZAry[i] >= Interval * 10)
+                {
+                    break;
+                }
+                List<int> ClosedPeaks = MassLib.MassUtility.GetClosestMassIdxsWithinPPM(argMZAry, argMZAry[CurrentIdx] - Interval, _IsotopePPM);
+                if (ClosedPeaks.Count == 1)
+                {
+                    CurrentIdx = ClosedPeaks[0];
+                    Peak.Insert(0, ClosedPeaks[0]);
+                }
+                else if (ClosedPeaks.Count > 1)
+                {
+                    double minPPM = 100;
+                    int minPPMIdx = 0;
+                    for (int j = 0; j < ClosedPeaks.Count; j++)
+                    {
+                        if (MassLib.MassUtility.GetMassPPM(argMZAry[ClosedPeaks[j]], argMZAry[CurrentIdx] - Interval) < minPPM)
+                        {
+                            minPPMIdx = ClosedPeaks[j];
+                            minPPM = MassLib.MassUtility.GetMassPPM(argMZAry[ClosedPeaks[j]], argMZAry[CurrentIdx] + Interval);
+                        }
+                    }
+                    CurrentIdx = minPPMIdx;
+                    Peak.Insert(0, CurrentIdx);
+                }
+            }
+            //Backward  Peak
+            CurrentIdx = argTargetIdx;
+            for (int i = argTargetIdx + 1; i < argMZAry.Length; i++)
+            {
+                if (argMZAry[i] - argMZAry[argTargetIdx] >= Interval * 10)
+                {
+                    break;
+                }
+                List<int> ClosedPeaks = MassLib.MassUtility.GetClosestMassIdxsWithinPPM(argMZAry, argMZAry[CurrentIdx] + Interval, _IsotopePPM);
+                if (ClosedPeaks.Count == 1)
+                {
+                    CurrentIdx = ClosedPeaks[0];
+                    Peak.Add(ClosedPeaks[0]);
+                }
+                else if (ClosedPeaks.Count > 1)
+                {
+                    double minPPM = 100;
+                    int minPPMIdx = 0;
+                    for (int j = 0; j < ClosedPeaks.Count; j++)
+                    {
+                        if (MassLib.MassUtility.GetMassPPM(argMZAry[ClosedPeaks[j]], argMZAry[CurrentIdx] + Interval) < minPPM)
+                        {
+                            minPPMIdx = ClosedPeaks[j];
+                            minPPM = MassLib.MassUtility.GetMassPPM(argMZAry[ClosedPeaks[j]], argMZAry[CurrentIdx] + Interval);
+                        }
+                    }
+                    CurrentIdx = minPPMIdx;
+                    Peak.Add(CurrentIdx);
+                }
+            }
+
+            return Peak;
         }
         private List<MatchedGlycanPeak> FindClusterWGlycanList(List<MSPeak> argPeaks, int argScanNum, double argTime)
         {
@@ -1520,18 +2360,15 @@ namespace COL.MultiGlycan
                 //List<CandidatePeak> ClosedPeaks = _dicCandidatePeak[_candidateMzList[ClosedPeakIdx]];
                 //foreach (CandidatePeak ClosedPeak in ClosedPeaks)
                 List<int> ClosedPeaksIdxs = MassLib.MassUtility.GetClosestMassIdxsWithinPPM(_candidateMzList, p.MonoisotopicMZ, (float)_massPPM);
-                if (p.MonoisotopicMZ >= 798 && p.MonoisotopicMZ <= 800)
-                {
-                }
                 foreach (int ClosedPeakIdx in ClosedPeaksIdxs)
                 {
-                    List<CandidatePeak> ClosedGlycans = _dicCandidatePeak[_candidateMzList[ClosedPeakIdx]];
-                    foreach (CandidatePeak ClosedGlycan in ClosedGlycans)
+                    List<GlycanCompound> ClosedGlycans = _dicCandidateGlycan[_candidateMzList[ClosedPeakIdx]];
+                    foreach (GlycanCompound ClosedGlycan in ClosedGlycans)
                     {
                         if (p.ChargeState == ClosedGlycan.Charge &&
-                            Math.Abs(MassLib.MassUtility.GetMassPPM(ClosedGlycan.TotalMZ, p.MonoisotopicMZ)) <= _massPPM)
+                            Math.Abs(MassLib.MassUtility.GetMassPPM(ClosedGlycan.MZ, p.MonoisotopicMZ)) <= _massPPM)
                         {
-                            MatchedGlycanPeak MatchedGlycanP = new MatchedGlycanPeak(argScanNum, argTime, p, ClosedGlycan.GlycanComposition, ClosedGlycan.AdductLabel, ClosedGlycan.AdductNo);
+                            MatchedGlycanPeak MatchedGlycanP = new MatchedGlycanPeak(argScanNum, argTime, p, ClosedGlycan);
                             MatchedPeaks.Add(MatchedGlycanP);
                             /*ClusteredPeak tmpPeak = new ClusteredPeak(argScanNum);
                             tmpPeak.EndScan = argScanNum;
@@ -1706,15 +2543,15 @@ namespace COL.MultiGlycan
             //List<ClusteredPeak> MergedClusterForAllKeys = new List<ClusteredPeak>();
             _MergedResultList = new List<ClusteredPeak>();  //Store Result
             Dictionary<string, List<MatchedGlycanPeak>> dictAllPeak = new Dictionary<string, List<MatchedGlycanPeak>>();  //KEY: GlycanKey;GlycanKey+Charge;,GlycanKey+LabelTag; GlycanKey+charge + LabelTag
-            List<string> GlycanWProton = new List<string>(); //Store Glycan with Proton adduct
+            //List<string> GlycanWProton = new List<string>(); //Store Glycan with Proton adduct
             for (int i = 0; i < _MatchedPeaksInScan.Count; i++)
             {
                 string key = "";
                 if (_MergeDifferentCharge)
                 {
-                    if (LabelingRatio != null)
+                    if (_LabelingMethod != enumGlycanLabelingMethod.None)
                     {
-                        key = _MatchedPeaksInScan[i].GlycanKey +"-"+ _MatchedPeaksInScan[i].GlycanComposition.PermethyLabelingTag.ToString();
+                        key = _MatchedPeaksInScan[i].GlycanKey + "-" + _MatchedPeaksInScan[i].GlycanComposition.LabelingTag.ToString();
                     }
                     else
                     {
@@ -1723,9 +2560,9 @@ namespace COL.MultiGlycan
                 }
                 else
                 {
-                    if (LabelingRatio != null)
+                    if (_LabelingMethod != enumGlycanLabelingMethod.None)
                     {
-                        key = _MatchedPeaksInScan[i].GlycanKey + "-" + _MatchedPeaksInScan[i].Charge.ToString() + "-" + _MatchedPeaksInScan[i].GlycanComposition.PermethyLabelingTag.ToString();
+                        key = _MatchedPeaksInScan[i].GlycanKey + "-" + _MatchedPeaksInScan[i].Charge.ToString() + "-" + _MatchedPeaksInScan[i].GlycanComposition.LabelingTag.ToString();
                     }
                     else
                     {
@@ -1738,17 +2575,17 @@ namespace COL.MultiGlycan
                     dictAllPeak.Add(key, new List<MatchedGlycanPeak>());
                 }
                 dictAllPeak[key].Add(_MatchedPeaksInScan[i]);
-                if (_MatchedPeaksInScan[i].Adduct == "H" && !GlycanWProton.Contains(key))
-                {
-                    GlycanWProton.Add(key);
-                }
+                //if (_MatchedPeaksInScan[i].Adduct == "H" && !GlycanWProton.Contains(key))
+                //{
+                //    GlycanWProton.Add(key);
+                //}
             }
             foreach (string KEY in dictAllPeak.Keys)
             {
-                if (!GlycanWProton.Contains(KEY))  //Skip identified glycans without Proton adduct;
-                {
-                    continue;
-                }
+                //if (!GlycanWProton.Contains(KEY))  //Skip identified glycans without Proton adduct;
+                //{
+                //    continue;
+                //}
                 List<MatchedGlycanPeak> AllPeaksWithSameGlycan = dictAllPeak[KEY];
 
                 //if (AllPeaksWithSameGlycan[AllPeaksWithSameGlycan.Count - 1].ScanTime - AllPeaksWithSameGlycan[0].ScanTime <= _maxLCFrontMin)
@@ -1894,9 +2731,9 @@ namespace COL.MultiGlycan
                 string key = "";
                 if (_MergeDifferentCharge)
                 {
-                    if (LabelingRatio != null)
+                    if (_LabelingMethod != enumGlycanLabelingMethod.None)
                     {
-                        key = _MatchedPeaksInScan[i].GlycanKey + "-" + _MatchedPeaksInScan[i].GlycanComposition.PermethyLabelingTag.ToString();
+                        key = _MatchedPeaksInScan[i].GlycanKey + "-" + _MatchedPeaksInScan[i].GlycanComposition.LabelingTag.ToString();
                     }
                     else
                     {
@@ -1905,9 +2742,9 @@ namespace COL.MultiGlycan
                 }
                 else
                 {
-                    if (LabelingRatio != null)
+                    if (_LabelingMethod != enumGlycanLabelingMethod.None)
                     {
-                        key = _MatchedPeaksInScan[i].GlycanKey + "-" + _MatchedPeaksInScan[i].Charge.ToString() + "-" + _MatchedPeaksInScan[i].GlycanComposition.PermethyLabelingTag.ToString();
+                        key = _MatchedPeaksInScan[i].GlycanKey + "-" + _MatchedPeaksInScan[i].Charge.ToString() + "-" + _MatchedPeaksInScan[i].GlycanComposition.LabelingTag.ToString();
                     }
                     else
                     {
@@ -1920,17 +2757,17 @@ namespace COL.MultiGlycan
                     dictAllPeak.Add(key, new List<MatchedGlycanPeak>());
                 }
                 dictAllPeak[key].Add(_MatchedPeaksInScan[i]);
-                if (_MatchedPeaksInScan[i].Adduct == "H" && !GlycanWProton.Contains(key))
-                {
-                    GlycanWProton.Add(key);
-                }
+                //if (_MatchedPeaksInScan[i].Adduct == "H" && !GlycanWProton.Contains(key))
+                //{
+                //    GlycanWProton.Add(key);
+                //}
             }
             foreach (string KEY in dictAllPeak.Keys)
             {
-                if (!GlycanWProton.Contains(KEY))  //Skip identified glycans without Proton adduct;
-                {
-                    continue;
-                }
+                //if (!GlycanWProton.Contains(KEY))  //Skip identified glycans without Proton adduct;
+                //{
+                //    continue;
+                //}
                 List<MatchedGlycanPeak> AllPeaksWithSameGlycan = dictAllPeak[KEY];
                 AllPeaksWithSameGlycan.Sort(delegate(MatchedGlycanPeak Peak1, MatchedGlycanPeak Peak2)
                 {
@@ -2100,17 +2937,17 @@ namespace COL.MultiGlycan
                     dictAllPeak.Add(key, new List<MatchedGlycanPeak>());
                 }
                 dictAllPeak[key].Add(_MatchedPeaksInScan[i]);
-                if (_MatchedPeaksInScan[i].Adduct == "H" && !GlycanWProton.Contains(key))
-                {
-                    GlycanWProton.Add(key);
-                }
+                //if (_MatchedPeaksInScan[i].Adduct == "H" && !GlycanWProton.Contains(key))
+                //{
+                //    GlycanWProton.Add(key);
+                //}
             }
             foreach (string KEY in dictAllPeak.Keys)
             {
-                if (!GlycanWProton.Contains(KEY))  //Skip identified glycans without Proton adduct;
-                {
-                    continue;
-                }
+                //if (!GlycanWProton.Contains(KEY))  //Skip identified glycans without Proton adduct;
+                //{
+                //    continue;
+                //}
                 List<MatchedGlycanPeak> AllPeaksWithSameGlycan = dictAllPeak[KEY];
 
                 //if (AllPeaksWithSameGlycan[AllPeaksWithSameGlycan.Count - 1].ScanTime - AllPeaksWithSameGlycan[0].ScanTime <= _maxLCFrontMin)
@@ -2624,8 +3461,64 @@ namespace COL.MultiGlycan
         {
             return Math.Abs(Convert.ToDouble(((argMeasureMass - argExactMass) / argExactMass) * Math.Pow(10.0, 6.0)));
         }
-
         public void ReadGlycanList()
+        {
+            _GlycanList = new List<GlycanCompound>();
+            List<GlycanCompound> tmps = new List<GlycanCompound>();
+            tmps = COL.GlycoLib.ReadGlycanListFromFile.ReadGlycanList(_glycanFile,
+                                                                                                                               _isPermethylated,
+                                                                                                                                true,
+                                                                                                                                _isReducedReducingEnd);
+            bool isHuman = true;
+            if (_Sia == 1)
+            {
+                isHuman = false;
+            }
+            foreach (GlycanCompound gCompound in tmps)
+            {
+                foreach (enumLabelingTag Tag in _LabelingRatio.Keys)
+                {
+                    for (int i = 1; i <= 5; i++) //charge
+                    {
+                        foreach (List<Tuple<int, int>> combin in GetCombinations(_adductLabel.Count, i))
+                        {
+                            List<Tuple<string, float, int>> LstAdducts = new List<Tuple<string, float, int>>();
+                            for (int j = 0; j < combin.Count; j++)
+                            {
+                                LstAdducts.Add(new Tuple<string, float, int>(_adductLabel[_adductMass[combin[j].Item1]], _adductMass[combin[j].Item1], combin[j].Item2));
+                            }
+                            _GlycanList.Add(new GlycanCompound(gCompound.NoOfHexNAc,
+                                                         gCompound.NoOfHex,
+                                                         gCompound.NoOfDeHex,
+                                                         gCompound.NoOfSia,
+                                                         _isPermethylated,
+                                                         false,
+                                                         _isReducedReducingEnd,
+                                                         false,
+                                                         isHuman,
+                                                         LstAdducts,
+                                                         Tag));
+                            if (_Sia == 2)
+                            {
+                                _GlycanList.Add(new GlycanCompound(gCompound.NoOfHexNAc,
+                               gCompound.NoOfHex,
+                               gCompound.NoOfDeHex,
+                               gCompound.NoOfSia,
+                               _isPermethylated,
+                               false,
+                               _isReducedReducingEnd,
+                               false,
+                               false,
+                               LstAdducts,
+                               Tag));
+                            }
+                        }
+                    }
+                }
+            }
+
+        }
+        public void ReadGlycanListOld()
         {
             _GlycanList = new List<GlycanCompound>();
             StreamReader sr;
@@ -2684,8 +3577,8 @@ namespace COL.MultiGlycan
                                              false,
                                              _isReducedReducingEnd,
                                              false,
-                                             true,
-                                             true);
+                                             true
+                                             );
                     _GlycanList.Add(GC);
                     if (splittmp.Length == 5 && splittmp[(int)compindex["order"]] != "") // Contain order
                     {
@@ -2708,6 +3601,39 @@ namespace COL.MultiGlycan
                 throw new Exception("Glycan list file reading error. Please check input file.");
             }
             _GlycanList.Sort();
+        }
+        private IEnumerable<List<Tuple<int, int>>> GetCombinations(int argAdductNumber, int argMaxCharge)
+        {
+            //Generate Adduct Combination
+            int TotalAdductNumber = argAdductNumber;
+            char[] inputset = new char[TotalAdductNumber];
+            for (int i = 0; i < TotalAdductNumber; i++)
+            {
+                inputset[i] = Convert.ToChar(i + 48);
+            }
+            Combinations<char> combinations = new Combinations<char>(inputset, argMaxCharge, GenerateOption.WithRepetition);
+            Dictionary<char, int> DictAdductCount = new Dictionary<char, int>();
+            foreach (IList<char> c in combinations)
+            {
+                DictAdductCount.Clear();
+                for (int i = 0; i < c.Count; i++)
+                {
+                    if (!DictAdductCount.ContainsKey(c[i]))
+                    {
+                        DictAdductCount[c[i]] = 0;
+                    }
+                    DictAdductCount[c[i]] = DictAdductCount[c[i]] + 1;
+                }
+                List<Tuple<int, int>> ReturnValues = new List<Tuple<int, int>>();
+                for (int j = 0; j < TotalAdductNumber; j++)
+                {
+                    if (DictAdductCount.ContainsKey(Convert.ToChar(j + 48)))
+                    {
+                        ReturnValues.Add(new Tuple<int, int>(j, DictAdductCount[Convert.ToChar(j + 48)]));
+                    }
+                }
+                yield return ReturnValues;
+            }
         }
     }
 }

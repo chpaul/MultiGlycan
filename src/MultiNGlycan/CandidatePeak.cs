@@ -39,6 +39,10 @@ namespace COL.MultiGlycan
         {
             get { return _charge; }
         }
+        public GlycoLib.enumLabelingTag GlycanLabelTag
+        {
+            get { return _glycanComposition.LabelingTag; }
+        }
         public GlycoLib.GlycanCompound GlycanComposition
         {
             get { return _glycanComposition; }
@@ -53,9 +57,9 @@ namespace COL.MultiGlycan
                 return (Convert.ToSingle(_glycanComposition.MonoMass) + _adductMass * _adductNo + (_charge - _adductNo) * MassLib.Atoms.ProtonMass) / _charge;
                   }
         }
-        public COL.GlycoLib.enumPermethyLabeling Permethylabeling
+        public COL.GlycoLib.enumLabelingTag LabelingTag
         {
-            get { return _glycanComposition.PermethyLabelingTag; }
+            get { return _glycanComposition.LabelingTag; }
         }
         public string GlycanKey
         {

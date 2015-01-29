@@ -3,38 +3,43 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using System.IO;
 using System.Reflection;
+using COL.MassLib;
+using Microsoft.Win32;
 using ZedGraph;
+using CSMSL.Chemistry;
+using CSMSL.Spectral;
 namespace COL.MultiGlycan
 {
     public partial class frmMainESI : Form
     {
-        GlypID.Peaks.clsPeakProcessorParameters _peakParameter;
-        GlypID.HornTransform.clsHornTransformParameters _transformParameters;
         frmPeakParameters frmPeakpara;
         bool DoLog = false;
         private int _endScan = 0;
-
+        COL.MassLib.ThermoRawReader raw;
         public frmMainESI()
         {
             InitializeComponent();
             this.Text = this.Text + "  " + AssemblyVersion.Split('.')[0] + "." + AssemblyVersion.Split('.')[1];// +" (build: " + AssemblyVersion.Split('.')[2] + ")"; 
-
+            cboSia.SelectedIndex = 0;
             //int MaxCPU = Environment.ProcessorCount;
             //for (int i = 1; i <= MaxCPU; i++)
             //{
             //    cboCPU.Items.Add(i); 
             //}
             //cboCPU.SelectedIndex = (int)Math.Floor(cboCPU.Items.Count / 2.0f)-1;   
+          
         }
 
 
         private void btnBrowseRaw_Click(object sender, EventArgs e)
         {
             openFileDialog1.Filter = "RAW Files (*.raw; *.mzXML)|*.raw;*.mzxml";
+            openFileDialog1.Filter = "RAW Files (*.raw)|*.raw";
             openFileDialog1.FileName = "";
             if (openFileDialog1.ShowDialog() == DialogResult.OK)
             {
@@ -42,14 +47,14 @@ namespace COL.MultiGlycan
 
                 if (Path.GetExtension(openFileDialog1.FileName) == ".raw")
                 {
-                    COL.MassLib.RawReader raw = new COL.MassLib.RawReader(txtRawFile.Text,"raw");
+                    raw = new COL.MassLib.ThermoRawReader(txtRawFile.Text);
                     _endScan = raw.NumberOfScans;
                 }
-                else
-                {
-                    COL.MassLib.RawReader raw = new COL.MassLib.RawReader(txtRawFile.Text,"mzxml");
-                    _endScan = raw.NumberOfScans;
-                }
+                //else
+                //{
+                //    COL.MassLib.RawReader raw = new COL.MassLib.RawReader(txtRawFile.Text,"mzxml");
+                //    _endScan = raw.NumberOfScans;
+                //}
                 txtEndScan.Text = _endScan.ToString();
             }
         }
@@ -65,7 +70,7 @@ namespace COL.MultiGlycan
         {
             PreparingMultiGlycan(null);
         }
-        private void PreparingMultiGlycan(Dictionary<COL.GlycoLib.enumPermethyLabeling,float> argPermethyLabeling)
+        private void PreparingMultiGlycan(Dictionary<COL.GlycoLib.enumLabelingTag,float> argLabeling)
         {
             DoLog = chkLog.Checked;
             //saveFileDialog1.Filter = "Excel Files (*.xslx)|*.xslx";
@@ -92,16 +97,10 @@ namespace COL.MultiGlycan
                 return;
             }
 
-            _peakParameter = frmPeakpara.PeakProcessorParameters;
-            _transformParameters = frmPeakpara.TransformParameters;
-
             if (saveFileDialog1.ShowDialog() == DialogResult.OK)
             {
 
-                if (!Directory.Exists(saveFileDialog1.FileName))
-                {
-                    Directory.CreateDirectory(saveFileDialog1.FileName);
-                }
+          
 
                 string glycanlist = System.Windows.Forms.Application.StartupPath + "\\Default_Combination.csv";
                 if (!rdoDefaultList.Checked)
@@ -114,43 +113,6 @@ namespace COL.MultiGlycan
 
                     Logger.WriteLog("Start initial program");
 
-                }
-                // MultiNGlycanESIMultiThreads MultiESIs = new MultiNGlycanESIMultiThreads(glycanlist, txtRawFile.Text, Convert.ToInt32(cboCPU.SelectedItem), _peakParameter, _transformParameters);
-                MultiGlycanESI ESI = null;
-                if (argPermethyLabeling!=null)
-                {
-                    ESI = new MultiGlycanESI(txtRawFile.Text, Convert.ToInt32(txtStartScan.Text), Convert.ToInt32(txtEndScan.Text), glycanlist, Convert.ToDouble(txtPPM.Text), Convert.ToDouble(txtGlycanPPM.Text), Convert.ToDouble(txtMaxLCTime.Text), chkPermethylated.Checked, chkReducedReducingEnd.Checked, argPermethyLabeling, DoLog);
-                }
-                else
-                {
-                    ESI = new MultiGlycanESI(txtRawFile.Text, Convert.ToInt32(txtStartScan.Text), Convert.ToInt32(txtEndScan.Text), glycanlist, Convert.ToDouble(txtPPM.Text), Convert.ToDouble(txtGlycanPPM.Text), Convert.ToDouble(txtMaxLCTime.Text), chkPermethylated.Checked, chkReducedReducingEnd.Checked, DoLog);
-                }                
-                ESI.MergeDifferentChargeIntoOne = chkMergeDffCharge.Checked;
-                ESI.PeakProcessorParameters = _peakParameter;
-                ESI.TransformParameters = _transformParameters;
-                ESI.ExportFilePath = saveFileDialog1.FileName;
-                ESI.MaxLCBackMin = Convert.ToSingle(txtMaxLCTime.Text);
-                ESI.MaxLCFrontMin = Convert.ToSingle(txtMinLCTime.Text);
-
-                if (chkAbundance.Checked)
-                {
-                    ESI.MinAbundance = Convert.ToDouble(txtAbundanceMin.Text);
-                }
-                else
-                {
-                    ESI.MinAbundance = 0;
-                }
-                if (chkMinLengthOfLC.Checked)
-                {
-                    ESI.MinLengthOfLC = Convert.ToSingle(txtScanCount.Text);
-                }
-                else
-                {
-                    ESI.MinLengthOfLC = 0;
-                }
-                if (chkMZMatch.Checked)
-                {
-                    ESI.IncludeMZMatch = true;
                 }
                 List<float> AdductMasses = new List<float>();
                 Dictionary<float, string> AdductLabel = new Dictionary<float, string>();
@@ -181,8 +143,59 @@ namespace COL.MultiGlycan
                     AdductLabel.Add(outMass, "User");
                 }
 
-                ESI.AdductMass = AdductMasses;
-                ESI.AdductMassToLabel = AdductLabel;
+                // MultiNGlycanESIMultiThreads MultiESIs = new MultiNGlycanESIMultiThreads(glycanlist, txtRawFile.Text, Convert.ToInt32(cboCPU.SelectedItem), _peakParameter, _transformParameters);
+                MultiGlycanESI ESI = null;
+                if (argLabeling.Count != 0)
+                {
+                    ESI = new MultiGlycanESI(txtRawFile.Text, Convert.ToInt32(txtStartScan.Text), Convert.ToInt32(txtEndScan.Text), glycanlist, Convert.ToDouble(txtPPM.Text), Convert.ToDouble(txtGlycanPPM.Text), Convert.ToDouble(txtMaxLCTime.Text), chkPermethylated.Checked, chkReducedReducingEnd.Checked,cboSia.SelectedIndex, argLabeling, AdductLabel,AdductMasses, DoLog);
+                }
+                else
+                {
+                    ESI = new MultiGlycanESI(txtRawFile.Text, Convert.ToInt32(txtStartScan.Text), Convert.ToInt32(txtEndScan.Text), glycanlist, Convert.ToDouble(txtPPM.Text), Convert.ToDouble(txtGlycanPPM.Text), Convert.ToDouble(txtMaxLCTime.Text), chkPermethylated.Checked, chkReducedReducingEnd.Checked, cboSia.SelectedIndex, DoLog);
+                }
+                ESI.LabelingMethod = GlycoLib.enumGlycanLabelingMethod.None;
+                if (rdoDRAG.Checked)
+                {
+                    ESI.LabelingMethod = GlycoLib.enumGlycanLabelingMethod.DRAG;
+                }
+                else if (rdoMultiplePemrthylated.Checked)
+                {
+                    ESI.LabelingMethod = GlycoLib.enumGlycanLabelingMethod.MultiplexPermethylated;
+                }
+
+                ESI.MergeDifferentChargeIntoOne = chkMergeDffCharge.Checked;  
+                ESI.ExportFilePath = saveFileDialog1.FileName;
+                ESI.MaxLCBackMin = Convert.ToSingle(txtMaxLCTime.Text);
+                ESI.MaxLCFrontMin = Convert.ToSingle(txtMinLCTime.Text);
+                ESI.IsotopePPM = Convert.ToSingle(txtIsotopeEnvTolerence.Text);
+                ESI.MininumPeakCount = Convert.ToInt32(txtIsotopeEnvMinPeakCount.Text);
+                ESI.PeakSN = Convert.ToSingle(txtSN.Text);
+                ESI.IsMatchMonoisotopicOnly = chkMonoOnly.Checked;
+                if (chkAbundance.Checked)
+                {
+                    ESI.MinAbundance = Convert.ToDouble(txtAbundanceMin.Text);
+                }
+                else
+                {
+                    ESI.MinAbundance = 0;
+                }
+                if (chkMinLengthOfLC.Checked)
+                {
+                    ESI.MinLengthOfLC = Convert.ToSingle(txtScanCount.Text);
+                }
+                else
+                {
+                    ESI.MinLengthOfLC = 0;
+                }
+                if (chkMZMatch.Checked)
+                {
+                    ESI.IncludeMZMatch = true;
+                }                
+               
+               // ESI.AdductMass = AdductMasses;
+                //ESI.AdductMassToLabel = AdductLabel;
+                ESI.IndividualImgs = chkIndividualImg.Checked;
+                ESI.QuantificationImgs = chkQuantImgs.Checked;
                 if (DoLog)
                 {
                     Logger.WriteLog("Initial program complete");
@@ -220,7 +233,7 @@ namespace COL.MultiGlycan
         {
             frmPeakpara = new frmPeakParameters();
             frmPeakpara.ShowDialog();
-            btnMerge.Enabled = true;
+            btnNext.Enabled = true;
             btnQuan.Enabled = true;
         }
 
@@ -401,9 +414,6 @@ namespace COL.MultiGlycan
                     GP.XAxis.Title.Text = "Scan time (min)";
                     GP.YAxis.Title.Text = "Abundance";
                     GP.CurveList.Clear();
-
-
-
 
 
                     Dictionary<string, PointPairList> dictAdductPoints = new Dictionary<string, PointPairList>();
@@ -671,7 +681,7 @@ namespace COL.MultiGlycan
 
         private void chkQuan13CH2D_CheckedChanged(object sender, EventArgs e)
         {
-            txtQuan13CH2D.Enabled = chkQuan13CH2D.Checked;
+            txtQuan13CD3.Enabled = chkQuan13CD3.Checked;
         }
 
         private void chkQuan13CHD2_CheckedChanged(object sender, EventArgs e)
@@ -681,38 +691,137 @@ namespace COL.MultiGlycan
 
         private void btnQuan_Click(object sender, EventArgs e)
         {
-            Dictionary<COL.GlycoLib.enumPermethyLabeling, float> labelingRatio = new Dictionary<GlycoLib.enumPermethyLabeling, float>();
-            if (chkQuan13CH2D.Checked)
+            Dictionary<COL.GlycoLib.enumLabelingTag, float> labelingRatio = new Dictionary<GlycoLib.enumLabelingTag, float>();
+
+            if (rdoDRAG.Checked)
             {
-                labelingRatio.Add(GlycoLib.enumPermethyLabeling.C13H2D, Convert.ToSingle(txtQuan13CH2D.Text));
+                if (chkPermethylated.Checked)
+                {
+                    MessageBox.Show("Permethylated check box should not be checked");
+                    chkPermethylated.Checked = false;
+                }
+                if (chkReducedReducingEnd.Checked)
+                {
+                    MessageBox.Show("Reduced reducing end check box should not be checked");
+                    chkReducedReducingEnd.Checked = false;
+                }
+                if (chkDRAG_Light.Checked)
+                {
+                    labelingRatio.Add(GlycoLib.enumLabelingTag.DRAG_Light, Convert.ToSingle(txtDRAGLight.Text));
+                }
+                if (chkDRAG_Heavy.Checked)
+                {
+                    labelingRatio.Add(GlycoLib.enumLabelingTag.DRAG_Heavy, Convert.ToSingle(txtDRAGHeavy.Text));
+                }
             }
-            if (chkQuan13CH3.Checked)
+            else // MP
             {
-                labelingRatio.Add(GlycoLib.enumPermethyLabeling.C13H3, Convert.ToSingle(txtQuan13CH3.Text));
+                if (!chkPermethylated.Checked)
+                {
+                    MessageBox.Show("Permethylated check box should be checked");
+                    chkPermethylated.Checked = true;
+                }                
+                if (chkQuan13CD3.Checked)
+                {
+                    labelingRatio.Add(GlycoLib.enumLabelingTag.MP_13CD3, Convert.ToSingle(txtQuan13CD3.Text));
+                }
+                if (chkQuan13CH3.Checked)
+                {
+                    labelingRatio.Add(GlycoLib.enumLabelingTag.MP_13CH3, Convert.ToSingle(txtQuan13CH3.Text));
+                }
+                if (chkQuan13CHD2.Checked)
+                {
+                    labelingRatio.Add(GlycoLib.enumLabelingTag.MP_13CHD2, Convert.ToSingle(txtQuan13CHD2.Text));
+                }
+                if (chkQuanCD3.Checked)
+                {
+                    labelingRatio.Add(GlycoLib.enumLabelingTag.MP_CD3, Convert.ToSingle(txtQuanCD3.Text));
+                }
+                if (chkQuanCH2D.Checked)
+                {
+                    labelingRatio.Add(GlycoLib.enumLabelingTag.MP_CH2D, Convert.ToSingle(txtQuanCH2D.Text));
+                }
+                if (chkQuanCH3.Checked)
+                {
+                    labelingRatio.Add(GlycoLib.enumLabelingTag.MP_CH3, Convert.ToSingle(txtQuanCH3.Text));
+                }
+                if (chkQuanCHD2.Checked)
+                {
+                    labelingRatio.Add(GlycoLib.enumLabelingTag.MP_CHD2, Convert.ToSingle(txtQuanCHD2.Text));
+                }
             }
-            if (chkQuan13CHD2.Checked)
-            {
-                labelingRatio.Add(GlycoLib.enumPermethyLabeling.C13HD2, Convert.ToSingle(txtQuan13CHD2.Text));
-            }
-            if (chkQuanCD3.Checked)
-            {
-                labelingRatio.Add(GlycoLib.enumPermethyLabeling.CD3, Convert.ToSingle(txtQuanCD3.Text));
-            }
-            if (chkQuanCH2D.Checked)
-            {
-                labelingRatio.Add(GlycoLib.enumPermethyLabeling.CH2D, Convert.ToSingle(txtQuanCH2D.Text));
-            }
-            if (chkQuanCH3.Checked)
-            {
-                labelingRatio.Add(GlycoLib.enumPermethyLabeling.CH3, Convert.ToSingle(txtQuanCH3.Text));
-            }
-            if (chkQuanCHD2.Checked)
-            {
-                labelingRatio.Add(GlycoLib.enumPermethyLabeling.CHD2, Convert.ToSingle(txtQuanCHD2.Text));
-            }
+     
 
             PreparingMultiGlycan(labelingRatio);
         }
+
+        private void btnNext_Click(object sender, EventArgs e)
+        {
+            tabControl1.SelectedIndex = 1;
+        }
+
+        private void rdoNeutral_CheckedChanged(object sender, EventArgs e)
+        {
+            grpDRAG.Enabled = false;
+            grpMultiplexPreM.Enabled = false;
+            chkQuantImgs.Checked = false;
+            chkQuantImgs.Enabled = false;
+        }
+
+        private void rdoDRAG_CheckedChanged(object sender, EventArgs e)
+        {
+            grpDRAG.Enabled = true;
+            grpMultiplexPreM.Enabled = false;
+            chkReducedReducingEnd.Checked = false;
+            chkPermethylated.Checked = false;
+            chkQuantImgs.Checked = true;
+            chkQuantImgs.Enabled = true;
+        }
+
+        private void rdoMultiplePemrthylated_CheckedChanged(object sender, EventArgs e)
+        {
+            grpDRAG.Enabled = false;
+            grpMultiplexPreM.Enabled = true;
+            chkQuantImgs.Checked = true;
+            chkQuantImgs.Enabled = true;
+        }
+
+
+        private void tabControl1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (rdoLabelFree.Checked)
+            {
+                chkQuantImgs.Checked = false;
+                chkQuantImgs.Enabled = false;
+            }
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            MassLib.ThermoRawReader Raw = new ThermoRawReader(@"E:\Dropbox\Chuan-Yih\PerMethQuant\RiboB_7plex_05302014.raw");
+            List<MSScan> scans = Raw.ReadScans(766, 1066);
+            List<MSPeak> Peaks = new List<MSPeak>();
+            foreach (MSScan s in scans)
+            {
+                foreach (MSPeak p in s.MSPeaks)
+                {
+                    if (p.ChargeState == 2)
+                    {
+                        Peaks.Add(p);
+                        ;
+                    }
+                    //if (p.MonoisotopicMZ >= 834.62 && p.MonoisotopicMZ <= 834.65)
+                    //{
+                    //    Peaks.Add(p);
+                    //}
+                }
+            }
+
+        }
+
+
+
+
 
       
     }

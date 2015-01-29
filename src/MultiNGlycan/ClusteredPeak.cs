@@ -41,17 +41,17 @@ namespace COL.MultiGlycan
             get { return _LCPeak; }
             set { _LCPeak = value; }
         }
-        public enumPermethyLabeling PermethyLabel
+        public enumLabelingTag LabelingTag
         {
             get
             {
                 if (_MatchedPeaksInScan.Count > 0)
                 {
-                    return _MatchedPeaksInScan[0].GlycanComposition.PermethyLabelingTag;
+                    return _MatchedPeaksInScan[0].GlycanComposition.LabelingTag;
                 }
                 else
                 {
-                    return enumPermethyLabeling.None;
+                    return enumLabelingTag.None;
                 }
             }
         }
@@ -194,10 +194,7 @@ namespace COL.MultiGlycan
         {
             get
             {
-                return _MatchedPeaksInScan[0].GlycanComposition.NoOfHexNAc.ToString() + "-" +
-                              _MatchedPeaksInScan[0].GlycanComposition.NoOfHex.ToString() + "-" +
-                              _MatchedPeaksInScan[0].GlycanComposition.NoOfDeHex.ToString() + "-" +
-                              _MatchedPeaksInScan[0].GlycanComposition.NoOfSia.ToString();
+                return _MatchedPeaksInScan[0].GlycanComposition.GlycanKey;
             }
         }
         public double TimeInterval

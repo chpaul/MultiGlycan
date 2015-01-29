@@ -6,6 +6,8 @@ using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
 using System.IO;
+using COL.GlycoLib;
+
 namespace COL.MultiGlycan
 {
     public partial class frmProcessing : Form
@@ -24,7 +26,7 @@ namespace COL.MultiGlycan
             DoLog = argLog;
 
             _MultiNGlycan = argMultiNGlycan;
-            _MultiNGlycan.MaxGlycanCharge = _MultiNGlycan.TransformParameters.MaxCharge;
+            _MultiNGlycan.MaxGlycanCharge = 5;
             int StartScan = argMultiNGlycan.StartScan;
             int EndScan = argMultiNGlycan.EndScan;
             LstScanNumber = new List<int>();
@@ -41,8 +43,6 @@ namespace COL.MultiGlycan
             {
                 Logger.WriteLog("Start process each scan");
             }
-            _MultiNGlycan.RawReader.SetPeakProcessorParameter(_MultiNGlycan.PeakProcessorParameters);
-            _MultiNGlycan.RawReader.SetTransformParameter(_MultiNGlycan.TransformParameters);
             bgWorker_Process.RunWorkerAsync();
         }
         //public frmProcessing(MultiNGlycanESIMultiThreads argMultiNGlycan, int argExportScanFilter)
@@ -131,10 +131,7 @@ namespace COL.MultiGlycan
                    // _MultiNGlycan.MergeCluster();
                 _MultiNGlycan.MergeSingleScanResultToPeak();
                 //}
-
-
-
-
+                
 
                 if (DoLog)
                 {
@@ -144,8 +141,28 @@ namespace COL.MultiGlycan
                 {
                     _MultiNGlycan.ApplyLCordrer();
                 }
+
+                if(!Directory.Exists(_MultiNGlycan.ExportFilePath + "\\Pic"))
+                {
+                    Directory.CreateDirectory(_MultiNGlycan.ExportFilePath + "\\Pic");
+                }
+
+                if (_MultiNGlycan.LabelingMethod == GlycoLib.enumGlycanLabelingMethod.MultiplexPermethylated)
+                {
+                    _MultiNGlycan.EstimatePurity();
+                    foreach (GlycoLib.enumLabelingTag tag in _MultiNGlycan.LabelingRatio.Keys)
+                    {
+                        if (tag == enumLabelingTag.MP_CH3 || !_MultiNGlycan.HasEstimatePurity((tag)))
+                            continue;
+                        _MultiNGlycan.GetPurityEstimateImage(tag).Save(_MultiNGlycan.ExportFilePath + "\\Pic\\EstimatePurity_" + tag.ToString() + ".png", System.Drawing.Imaging.ImageFormat.Png); 
+                    }          
+          
+                    //Correct Intensity;
+                    //_MultiNGlycan.CorrectIntensityByIsotope();
+                }
                 if (DoLog)
                 {
+                    ;
                     Logger.WriteLog("Start export");
                 }
                 lblStatus.Text = "Exporting";
