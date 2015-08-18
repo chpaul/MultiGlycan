@@ -48,9 +48,12 @@
             this.rdoAllRaw = new System.Windows.Forms.RadioButton();
             this.rdoScanNum = new System.Windows.Forms.RadioButton();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.lblLastScanTime = new System.Windows.Forms.Label();
             this.chkMergeDffCharge = new System.Windows.Forms.CheckBox();
             this.btnMergeTest = new System.Windows.Forms.Button();
             this.groupBox5 = new System.Windows.Forms.GroupBox();
+            this.chkForceProtonated = new System.Windows.Forms.CheckBox();
+            this.label13 = new System.Windows.Forms.Label();
             this.chkMonoOnly = new System.Windows.Forms.CheckBox();
             this.chkMZMatch = new System.Windows.Forms.CheckBox();
             this.label5 = new System.Windows.Forms.Label();
@@ -66,15 +69,20 @@
             this.toolsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.eluctionProfileViewerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.massCalculatorToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItem2 = new System.Windows.Forms.ToolStripMenuItem();
+            this.batchModeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.txtGlycanPPM = new System.Windows.Forms.TextBox();
             this.label2 = new System.Windows.Forms.Label();
             this.chkLog = new System.Windows.Forms.CheckBox();
-            this.button1 = new System.Windows.Forms.Button();
-            this.button2 = new System.Windows.Forms.Button();
-            this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabIden = new System.Windows.Forms.TabPage();
-            this.button3 = new System.Windows.Forms.Button();
+            this.txtMinPeakHeight = new System.Windows.Forms.TextBox();
+            this.groupBox8 = new System.Windows.Forms.GroupBox();
+            this.chkApplyLinearRegLC = new System.Windows.Forms.CheckBox();
+            this.txtLCTolerance = new System.Windows.Forms.TextBox();
+            this.txtLCTime = new System.Windows.Forms.TextBox();
+            this.label11 = new System.Windows.Forms.Label();
+            this.label12 = new System.Windows.Forms.Label();
             this.btnNext = new System.Windows.Forms.Button();
             this.groupBox7 = new System.Windows.Forms.GroupBox();
             this.label10 = new System.Windows.Forms.Label();
@@ -83,6 +91,7 @@
             this.label7 = new System.Windows.Forms.Label();
             this.txtIsotopeEnvTolerence = new System.Windows.Forms.TextBox();
             this.label8 = new System.Windows.Forms.Label();
+            this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.tabQuan = new System.Windows.Forms.TabPage();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
@@ -121,15 +130,17 @@
             this.rdoMultiplePemrthylated = new System.Windows.Forms.RadioButton();
             this.btnQuan = new System.Windows.Forms.Button();
             this.label9 = new System.Windows.Forms.Label();
+            this.directoryEntry1 = new System.DirectoryServices.DirectoryEntry();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox5.SuspendLayout();
             this.groupBox6.SuspendLayout();
             this.menuStrip1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.tabControl1.SuspendLayout();
             this.tabIden.SuspendLayout();
+            this.groupBox8.SuspendLayout();
             this.groupBox7.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.tabQuan.SuspendLayout();
             this.groupBox3.SuspendLayout();
             this.groupBox4.SuspendLayout();
@@ -314,6 +325,7 @@
             // 
             // groupBox2
             // 
+            this.groupBox2.Controls.Add(this.lblLastScanTime);
             this.groupBox2.Controls.Add(this.txtRawFile);
             this.groupBox2.Controls.Add(this.txtEndScan);
             this.groupBox2.Controls.Add(this.rdoScanNum);
@@ -330,6 +342,15 @@
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Raw File";
             // 
+            // lblLastScanTime
+            // 
+            this.lblLastScanTime.AutoSize = true;
+            this.lblLastScanTime.Location = new System.Drawing.Point(509, 45);
+            this.lblLastScanTime.Name = "lblLastScanTime";
+            this.lblLastScanTime.Size = new System.Drawing.Size(84, 13);
+            this.lblLastScanTime.TabIndex = 5;
+            this.lblLastScanTime.Text = "Last Scan Time:";
+            // 
             // chkMergeDffCharge
             // 
             this.chkMergeDffCharge.AutoSize = true;
@@ -344,7 +365,7 @@
             // 
             // btnMergeTest
             // 
-            this.btnMergeTest.Location = new System.Drawing.Point(369, -4);
+            this.btnMergeTest.Location = new System.Drawing.Point(501, 1);
             this.btnMergeTest.Name = "btnMergeTest";
             this.btnMergeTest.Size = new System.Drawing.Size(75, 23);
             this.btnMergeTest.TabIndex = 28;
@@ -355,20 +376,45 @@
             // 
             // groupBox5
             // 
+            this.groupBox5.Controls.Add(this.chkForceProtonated);
+            this.groupBox5.Controls.Add(this.label13);
             this.groupBox5.Controls.Add(this.chkMonoOnly);
             this.groupBox5.Controls.Add(this.label1);
             this.groupBox5.Controls.Add(this.txtPPM);
             this.groupBox5.Location = new System.Drawing.Point(286, 128);
             this.groupBox5.Name = "groupBox5";
-            this.groupBox5.Size = new System.Drawing.Size(154, 98);
+            this.groupBox5.Size = new System.Drawing.Size(154, 134);
             this.groupBox5.TabIndex = 39;
             this.groupBox5.TabStop = false;
             this.groupBox5.Text = "Search Threshold";
             // 
+            // chkForceProtonated
+            // 
+            this.chkForceProtonated.AutoSize = true;
+            this.chkForceProtonated.Checked = true;
+            this.chkForceProtonated.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.chkForceProtonated.Location = new System.Drawing.Point(6, 94);
+            this.chkForceProtonated.Name = "chkForceProtonated";
+            this.chkForceProtonated.Size = new System.Drawing.Size(114, 30);
+            this.chkForceProtonated.TabIndex = 13;
+            this.chkForceProtonated.Text = "Glycan must have \r\nprotonated adduct";
+            this.chkForceProtonated.UseVisualStyleBackColor = true;
+            // 
+            // label13
+            // 
+            this.label13.AutoSize = true;
+            this.label13.Location = new System.Drawing.Point(6, 42);
+            this.label13.Name = "label13";
+            this.label13.Size = new System.Drawing.Size(139, 13);
+            this.label13.TabIndex = 12;
+            this.label13.Text = "Min peak height: >            %";
+            // 
             // chkMonoOnly
             // 
             this.chkMonoOnly.AutoSize = true;
-            this.chkMonoOnly.Location = new System.Drawing.Point(6, 44);
+            this.chkMonoOnly.Checked = true;
+            this.chkMonoOnly.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.chkMonoOnly.Location = new System.Drawing.Point(6, 71);
             this.chkMonoOnly.Name = "chkMonoOnly";
             this.chkMonoOnly.Size = new System.Drawing.Size(140, 17);
             this.chkMonoOnly.TabIndex = 11;
@@ -378,7 +424,7 @@
             // chkMZMatch
             // 
             this.chkMZMatch.AutoSize = true;
-            this.chkMZMatch.Location = new System.Drawing.Point(215, -3);
+            this.chkMZMatch.Location = new System.Drawing.Point(290, 0);
             this.chkMZMatch.Name = "chkMZMatch";
             this.chkMZMatch.Size = new System.Drawing.Size(183, 30);
             this.chkMZMatch.TabIndex = 42;
@@ -449,8 +495,6 @@
             // chkMinLengthOfLC
             // 
             this.chkMinLengthOfLC.AutoSize = true;
-            this.chkMinLengthOfLC.Checked = true;
-            this.chkMinLengthOfLC.CheckState = System.Windows.Forms.CheckState.Checked;
             this.chkMinLengthOfLC.Location = new System.Drawing.Point(15, 87);
             this.chkMinLengthOfLC.Name = "chkMinLengthOfLC";
             this.chkMinLengthOfLC.Size = new System.Drawing.Size(191, 17);
@@ -481,7 +525,8 @@
             // menuStrip1
             // 
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.toolsToolStripMenuItem});
+            this.toolsToolStripMenuItem,
+            this.batchModeToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.Size = new System.Drawing.Size(707, 24);
@@ -492,7 +537,8 @@
             // 
             this.toolsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.eluctionProfileViewerToolStripMenuItem,
-            this.massCalculatorToolStripMenuItem});
+            this.massCalculatorToolStripMenuItem,
+            this.toolStripMenuItem2});
             this.toolsToolStripMenuItem.Name = "toolsToolStripMenuItem";
             this.toolsToolStripMenuItem.Size = new System.Drawing.Size(48, 20);
             this.toolsToolStripMenuItem.Text = "Tools";
@@ -511,9 +557,21 @@
             this.massCalculatorToolStripMenuItem.Text = "Mass Calculator";
             this.massCalculatorToolStripMenuItem.Click += new System.EventHandler(this.massCalculatorToolStripMenuItem_Click);
             // 
+            // toolStripMenuItem2
+            // 
+            this.toolStripMenuItem2.Name = "toolStripMenuItem2";
+            this.toolStripMenuItem2.Size = new System.Drawing.Size(185, 22);
+            // 
+            // batchModeToolStripMenuItem
+            // 
+            this.batchModeToolStripMenuItem.Name = "batchModeToolStripMenuItem";
+            this.batchModeToolStripMenuItem.Size = new System.Drawing.Size(83, 20);
+            this.batchModeToolStripMenuItem.Text = "Batch Mode";
+            this.batchModeToolStripMenuItem.Click += new System.EventHandler(this.batchModeToolStripMenuItem_Click);
+            // 
             // txtGlycanPPM
             // 
-            this.txtGlycanPPM.Location = new System.Drawing.Point(170, 0);
+            this.txtGlycanPPM.Location = new System.Drawing.Point(679, 7);
             this.txtGlycanPPM.Name = "txtGlycanPPM";
             this.txtGlycanPPM.Size = new System.Drawing.Size(21, 20);
             this.txtGlycanPPM.TabIndex = 11;
@@ -523,7 +581,7 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(83, 4);
+            this.label2.Location = new System.Drawing.Point(591, 9);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(86, 13);
             this.label2.TabIndex = 9;
@@ -533,45 +591,13 @@
             // chkLog
             // 
             this.chkLog.AutoSize = true;
-            this.chkLog.Location = new System.Drawing.Point(555, 4);
+            this.chkLog.Location = new System.Drawing.Point(483, 351);
             this.chkLog.Name = "chkLog";
             this.chkLog.Size = new System.Drawing.Size(124, 17);
             this.chkLog.TabIndex = 40;
             this.chkLog.Text = "Log entire procedure";
             this.chkLog.UseVisualStyleBackColor = true;
             this.chkLog.Visible = false;
-            // 
-            // button1
-            // 
-            this.button1.Location = new System.Drawing.Point(452, -3);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(84, 23);
-            this.button1.TabIndex = 43;
-            this.button1.Text = "XIC Generator";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Visible = false;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
-            // 
-            // button2
-            // 
-            this.button2.Location = new System.Drawing.Point(542, -3);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(105, 23);
-            this.button2.TabIndex = 44;
-            this.button2.Text = "Merge Algo Test";
-            this.button2.UseVisualStyleBackColor = true;
-            this.button2.Visible = false;
-            this.button2.Click += new System.EventHandler(this.button2_Click);
-            // 
-            // pictureBox1
-            // 
-            this.pictureBox1.Image = global::COL.MultiGlycan.Properties.Resources.Peak;
-            this.pictureBox1.Location = new System.Drawing.Point(450, 136);
-            this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(241, 178);
-            this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
-            this.pictureBox1.TabIndex = 45;
-            this.pictureBox1.TabStop = false;
             // 
             // tabControl1
             // 
@@ -587,10 +613,12 @@
             // 
             // tabIden
             // 
-            this.tabIden.Controls.Add(this.button3);
+            this.tabIden.Controls.Add(this.txtMinPeakHeight);
+            this.tabIden.Controls.Add(this.groupBox8);
             this.tabIden.Controls.Add(this.btnNext);
             this.tabIden.Controls.Add(this.groupBox7);
             this.tabIden.Controls.Add(this.groupBox2);
+            this.tabIden.Controls.Add(this.chkLog);
             this.tabIden.Controls.Add(this.pictureBox1);
             this.tabIden.Controls.Add(this.groupBox1);
             this.tabIden.Controls.Add(this.groupBox6);
@@ -602,16 +630,73 @@
             this.tabIden.Text = "Identification";
             this.tabIden.UseVisualStyleBackColor = true;
             // 
-            // button3
+            // txtMinPeakHeight
             // 
-            this.button3.Location = new System.Drawing.Point(357, 345);
-            this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(75, 23);
-            this.button3.TabIndex = 48;
-            this.button3.Text = "button3";
-            this.button3.UseVisualStyleBackColor = true;
-            this.button3.Visible = false;
-            this.button3.Click += new System.EventHandler(this.button3_Click);
+            this.txtMinPeakHeight.Location = new System.Drawing.Point(389, 168);
+            this.txtMinPeakHeight.Name = "txtMinPeakHeight";
+            this.txtMinPeakHeight.Size = new System.Drawing.Size(25, 20);
+            this.txtMinPeakHeight.TabIndex = 13;
+            this.txtMinPeakHeight.Text = "5";
+            // 
+            // groupBox8
+            // 
+            this.groupBox8.Controls.Add(this.chkApplyLinearRegLC);
+            this.groupBox8.Controls.Add(this.txtLCTolerance);
+            this.groupBox8.Controls.Add(this.txtLCTime);
+            this.groupBox8.Controls.Add(this.label11);
+            this.groupBox8.Controls.Add(this.label12);
+            this.groupBox8.Location = new System.Drawing.Point(286, 268);
+            this.groupBox8.Name = "groupBox8";
+            this.groupBox8.Size = new System.Drawing.Size(158, 104);
+            this.groupBox8.TabIndex = 48;
+            this.groupBox8.TabStop = false;
+            this.groupBox8.Text = "Glycan Linear Regression";
+            // 
+            // chkApplyLinearRegLC
+            // 
+            this.chkApplyLinearRegLC.AutoSize = true;
+            this.chkApplyLinearRegLC.Checked = true;
+            this.chkApplyLinearRegLC.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.chkApplyLinearRegLC.Location = new System.Drawing.Point(9, 20);
+            this.chkApplyLinearRegLC.Name = "chkApplyLinearRegLC";
+            this.chkApplyLinearRegLC.Size = new System.Drawing.Size(140, 17);
+            this.chkApplyLinearRegLC.TabIndex = 4;
+            this.chkApplyLinearRegLC.Text = "Apply Linear Regression";
+            this.chkApplyLinearRegLC.UseVisualStyleBackColor = true;
+            // 
+            // txtLCTolerance
+            // 
+            this.txtLCTolerance.Location = new System.Drawing.Point(83, 66);
+            this.txtLCTolerance.Name = "txtLCTolerance";
+            this.txtLCTolerance.Size = new System.Drawing.Size(41, 20);
+            this.txtLCTolerance.TabIndex = 3;
+            this.txtLCTolerance.Text = "5";
+            // 
+            // txtLCTime
+            // 
+            this.txtLCTime.Location = new System.Drawing.Point(83, 43);
+            this.txtLCTime.Name = "txtLCTime";
+            this.txtLCTime.Size = new System.Drawing.Size(41, 20);
+            this.txtLCTime.TabIndex = 0;
+            this.txtLCTime.Text = "120";
+            // 
+            // label11
+            // 
+            this.label11.AutoSize = true;
+            this.label11.Location = new System.Drawing.Point(3, 46);
+            this.label11.Name = "label11";
+            this.label11.Size = new System.Drawing.Size(154, 13);
+            this.label11.TabIndex = 1;
+            this.label11.Text = "Total LC Time:                   mins";
+            // 
+            // label12
+            // 
+            this.label12.AutoSize = true;
+            this.label12.Location = new System.Drawing.Point(6, 69);
+            this.label12.Name = "label12";
+            this.label12.Size = new System.Drawing.Size(147, 13);
+            this.label12.TabIndex = 2;
+            this.label12.Text = "Tolerance:                           %";
             // 
             // btnNext
             // 
@@ -688,6 +773,16 @@
             this.label8.Size = new System.Drawing.Size(201, 13);
             this.label8.TabIndex = 47;
             this.label8.Text = "Isotope envelop tolerence:              (ppm)";
+            // 
+            // pictureBox1
+            // 
+            this.pictureBox1.Image = global::COL.MultiGlycan.Properties.Resources.Peak;
+            this.pictureBox1.Location = new System.Drawing.Point(450, 136);
+            this.pictureBox1.Name = "pictureBox1";
+            this.pictureBox1.Size = new System.Drawing.Size(241, 178);
+            this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            this.pictureBox1.TabIndex = 45;
+            this.pictureBox1.TabStop = false;
             // 
             // tabQuan
             // 
@@ -1118,7 +1213,7 @@
             // label9
             // 
             this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(179, 5);
+            this.label9.Location = new System.Drawing.Point(217, 9);
             this.label9.Name = "label9";
             this.label9.Size = new System.Drawing.Size(71, 13);
             this.label9.TabIndex = 48;
@@ -1133,10 +1228,7 @@
             this.ClientSize = new System.Drawing.Size(707, 445);
             this.Controls.Add(this.tabControl1);
             this.Controls.Add(this.chkMZMatch);
-            this.Controls.Add(this.button2);
             this.Controls.Add(this.label9);
-            this.Controls.Add(this.button1);
-            this.Controls.Add(this.chkLog);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.txtGlycanPPM);
             this.Controls.Add(this.btnMergeTest);
@@ -1158,11 +1250,14 @@
             this.groupBox6.PerformLayout();
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.tabControl1.ResumeLayout(false);
             this.tabIden.ResumeLayout(false);
+            this.tabIden.PerformLayout();
+            this.groupBox8.ResumeLayout(false);
+            this.groupBox8.PerformLayout();
             this.groupBox7.ResumeLayout(false);
             this.groupBox7.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.tabQuan.ResumeLayout(false);
             this.tabQuan.PerformLayout();
             this.groupBox3.ResumeLayout(false);
@@ -1205,7 +1300,6 @@
         private System.Windows.Forms.GroupBox groupBox6;
         private System.Windows.Forms.MenuStrip menuStrip1;
         private System.Windows.Forms.ToolStripMenuItem toolsToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem eluctionProfileViewerToolStripMenuItem;
         private System.Windows.Forms.TextBox txtGlycanPPM;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.TextBox txtAbundanceMin;
@@ -1217,7 +1311,6 @@
         private System.Windows.Forms.CheckBox chkMZMatch;
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.Button button2;
-        private System.Windows.Forms.PictureBox pictureBox1;
         private System.Windows.Forms.TextBox txtMinLCTime;
         private System.Windows.Forms.TextBox txtMaxLCTime;
         private System.Windows.Forms.Label label5;
@@ -1273,5 +1366,20 @@
         private System.Windows.Forms.CheckBox chkReducedReducingEnd;
         private System.Windows.Forms.CheckBox chkPermethylated;
         private System.Windows.Forms.Button button3;
+        private System.Windows.Forms.ToolStripMenuItem eluctionProfileViewerToolStripMenuItem;
+        private System.Windows.Forms.PictureBox pictureBox1;
+        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem2;
+        private System.Windows.Forms.ToolStripMenuItem batchModeToolStripMenuItem;
+        private System.Windows.Forms.GroupBox groupBox8;
+        private System.Windows.Forms.Label label11;
+        private System.Windows.Forms.TextBox txtLCTime;
+        private System.Windows.Forms.TextBox txtLCTolerance;
+        private System.Windows.Forms.Label label12;
+        private System.Windows.Forms.CheckBox chkApplyLinearRegLC;
+        private System.Windows.Forms.Label lblLastScanTime;
+        private System.Windows.Forms.Label label13;
+        private System.Windows.Forms.TextBox txtMinPeakHeight;
+        private System.DirectoryServices.DirectoryEntry directoryEntry1;
+        private System.Windows.Forms.CheckBox chkForceProtonated;
     }
 }

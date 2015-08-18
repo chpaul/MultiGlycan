@@ -33,11 +33,11 @@
             this.lblScan = new System.Windows.Forms.Label();
             this.progressBar1 = new System.Windows.Forms.ProgressBar();
             this.lblPercentage = new System.Windows.Forms.Label();
-            this.label1 = new System.Windows.Forms.Label();
-            this.lblNumberOfCluster = new System.Windows.Forms.Label();
             this.lblStatus = new System.Windows.Forms.Label();
-            this.label2 = new System.Windows.Forms.Label();
             this.lblNumberOfMerge = new System.Windows.Forms.Label();
+            this.label2 = new System.Windows.Forms.Label();
+            this.lblNumberOfCluster = new System.Windows.Forms.Label();
+            this.label1 = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // bgWorker_Process
@@ -82,24 +82,6 @@
             this.lblPercentage.TabIndex = 3;
             this.lblPercentage.Text = "0 %";
             // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(0, 67);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(80, 13);
-            this.label1.TabIndex = 4;
-            this.label1.Text = "Found Clusters:";
-            // 
-            // lblNumberOfCluster
-            // 
-            this.lblNumberOfCluster.AutoSize = true;
-            this.lblNumberOfCluster.Location = new System.Drawing.Point(76, 67);
-            this.lblNumberOfCluster.Name = "lblNumberOfCluster";
-            this.lblNumberOfCluster.Size = new System.Drawing.Size(13, 13);
-            this.lblNumberOfCluster.TabIndex = 5;
-            this.lblNumberOfCluster.Text = "0";
-            // 
             // lblStatus
             // 
             this.lblStatus.AutoSize = true;
@@ -109,23 +91,41 @@
             this.lblStatus.TabIndex = 6;
             this.lblStatus.Text = "Status: Preparing process";
             // 
-            // label2
-            // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(114, 67);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(81, 13);
-            this.label2.TabIndex = 7;
-            this.label2.Text = "Merged Cluster:";
-            // 
             // lblNumberOfMerge
             // 
             this.lblNumberOfMerge.AutoSize = true;
-            this.lblNumberOfMerge.Location = new System.Drawing.Point(193, 67);
+            this.lblNumberOfMerge.Location = new System.Drawing.Point(198, 67);
             this.lblNumberOfMerge.Name = "lblNumberOfMerge";
             this.lblNumberOfMerge.Size = new System.Drawing.Size(13, 13);
-            this.lblNumberOfMerge.TabIndex = 8;
+            this.lblNumberOfMerge.TabIndex = 12;
             this.lblNumberOfMerge.Text = "0";
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(119, 67);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(81, 13);
+            this.label2.TabIndex = 11;
+            this.label2.Text = "Merged Cluster:";
+            // 
+            // lblNumberOfCluster
+            // 
+            this.lblNumberOfCluster.AutoSize = true;
+            this.lblNumberOfCluster.Location = new System.Drawing.Point(81, 67);
+            this.lblNumberOfCluster.Name = "lblNumberOfCluster";
+            this.lblNumberOfCluster.Size = new System.Drawing.Size(13, 13);
+            this.lblNumberOfCluster.TabIndex = 10;
+            this.lblNumberOfCluster.Text = "0";
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(5, 67);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(80, 13);
+            this.label1.TabIndex = 9;
+            this.label1.Text = "Found Clusters:";
             // 
             // frmProcessing
             // 
@@ -134,9 +134,9 @@
             this.ClientSize = new System.Drawing.Size(351, 89);
             this.Controls.Add(this.lblNumberOfMerge);
             this.Controls.Add(this.label2);
-            this.Controls.Add(this.lblStatus);
             this.Controls.Add(this.lblNumberOfCluster);
             this.Controls.Add(this.label1);
+            this.Controls.Add(this.lblStatus);
             this.Controls.Add(this.lblPercentage);
             this.Controls.Add(this.progressBar1);
             this.Controls.Add(this.lblScan);
@@ -160,10 +160,10 @@
         private System.Windows.Forms.Label lblScan;
         private System.Windows.Forms.ProgressBar progressBar1;
         private System.Windows.Forms.Label lblPercentage;
-        private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.Label lblNumberOfCluster;
         private System.Windows.Forms.Label lblStatus;
-        private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label lblNumberOfMerge;
+        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.Label lblNumberOfCluster;
+        private System.Windows.Forms.Label label1;
     }
 }

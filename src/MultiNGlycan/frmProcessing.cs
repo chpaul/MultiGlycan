@@ -7,6 +7,7 @@ using System.Text;
 using System.Windows.Forms;
 using System.IO;
 using COL.GlycoLib;
+using ZedGraph;
 
 namespace COL.MultiGlycan
 {
@@ -89,7 +90,7 @@ namespace COL.MultiGlycan
                 //        }
                 //    }
                 //}
-            }
+           }
             catch(Exception EcpMsG)
             {
                 throw new Exception(EcpMsG.Message);
@@ -130,6 +131,8 @@ namespace COL.MultiGlycan
                 //{
                    // _MultiNGlycan.MergeCluster();
                 _MultiNGlycan.MergeSingleScanResultToPeak();
+                _MultiNGlycan.SolveDuplicateAssignment();
+                _MultiNGlycan.MergeSingleScanResultToPeak();
                 //}
                 
 
@@ -150,11 +153,12 @@ namespace COL.MultiGlycan
                 if (_MultiNGlycan.LabelingMethod == GlycoLib.enumGlycanLabelingMethod.MultiplexPermethylated)
                 {
                     _MultiNGlycan.EstimatePurity();
+                    ZedGraphControl zedGraph = new ZedGraphControl();
                     foreach (GlycoLib.enumLabelingTag tag in _MultiNGlycan.LabelingRatio.Keys)
                     {
                         if (tag == enumLabelingTag.MP_CH3 || !_MultiNGlycan.HasEstimatePurity((tag)))
                             continue;
-                        _MultiNGlycan.GetPurityEstimateImage(tag).Save(_MultiNGlycan.ExportFilePath + "\\Pic\\EstimatePurity_" + tag.ToString() + ".png", System.Drawing.Imaging.ImageFormat.Png); 
+                        _MultiNGlycan.GetPurityEstimateImage(ref zedGraph, tag).Save(_MultiNGlycan.ExportFilePath + "\\Pic\\EstimatePurity_" + tag.ToString() + ".png", System.Drawing.Imaging.ImageFormat.Png); 
                     }          
           
                     //Correct Intensity;
@@ -167,6 +171,29 @@ namespace COL.MultiGlycan
                 }
                 lblStatus.Text = "Exporting";
                 _MultiNGlycan.ExportToCSV();
+
+                //Get individual image
+                if (_MultiNGlycan.IndividualImgs &&
+                    File.Exists(_MultiNGlycan.ExportFilePath + "\\" + Path.GetFileName(_MultiNGlycan.ExportFilePath) +
+                                "_FullList.csv"))
+                {
+                    //GenerateImages.GenGlycanLcImg(
+                    //    _MultiNGlycan.ExportFilePath + "\\" + Path.GetFileName(_MultiNGlycan.ExportFilePath) +"_FullList.csv",
+                    //    _MultiNGlycan.ExportFilePath);
+                    GenerateImages.GenGlycanLcImg(_MultiNGlycan);
+                }
+                //Get Quant Image
+                if (_MultiNGlycan.LabelingMethod != enumGlycanLabelingMethod.None && _MultiNGlycan.QuantificationImgs
+                    && File.Exists(_MultiNGlycan.ExportFilePath + "\\" + Path.GetFileName(_MultiNGlycan.ExportFilePath) +
+                                "_Quant.csv"))
+                {
+                    GenerateImages.GenQuantImg(
+                        _MultiNGlycan.ExportFilePath + "\\" + Path.GetFileName(_MultiNGlycan.ExportFilePath) +"_Quant.csv", 
+                        _MultiNGlycan.LabelingMethod, 
+                        _MultiNGlycan.ExportFilePath);
+                }
+
+
                 //_MultiNGlycan.ExportToExcel();
                 if (DoLog)
                 {
@@ -174,7 +201,7 @@ namespace COL.MultiGlycan
                 }
                 TimeSpan TDiff = DateTime.Now.Subtract(Start);
                 lblStatus.Text = "Finish in " + TDiff.TotalMinutes.ToString("0.00") + " mins";
-                lblNumberOfMerge.Text = _MultiNGlycan.MergedPeak.Count.ToString();
+                lblNumberOfMerge.Text = _MultiNGlycan.MergedResultList.Count.ToString();
                 progressBar1.Value = 100;
                 lblPercentage.Text = "100%";
                 FlashWindow.Flash(this);

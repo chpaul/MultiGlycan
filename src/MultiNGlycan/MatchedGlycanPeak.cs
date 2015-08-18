@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.DirectoryServices.ActiveDirectory;
 using System.Text;
 using COL.MassLib;
 using COL.GlycoLib;
@@ -13,18 +14,9 @@ namespace COL.MultiGlycan
         List<MSPoint> _Points;
         private GlycanCompound _glycanComposition;
         //private double _MergedIntensity;
-        private string _adduct;
-        private int _adductCount;
+
         private double _CorrectedIntensity = 0;
-        public MatchedGlycanPeak(int argScanNum,double argTime, MSPeak argPeak, GlycanCompound argGlycanComp, string argAddcut, int argAdductCount)
-        {
-            _ScanNum = argScanNum;
-            _Time = argTime;
-            _MSPeak = argPeak;
-            _glycanComposition = argGlycanComp;
-            _adduct = argAddcut;
-            _adductCount = argAdductCount;
-        }
+
         public MatchedGlycanPeak(int argScanNum, double argTime, MSPeak argPeak, GlycanCompound argGlycanComp)
         {
             _ScanNum = argScanNum;
@@ -37,14 +29,20 @@ namespace COL.MultiGlycan
             get { return _Points; }
             set { _Points = value; }
         }
-        //public string Adduct
-        //{
-        //    get { return _adduct; }
-        //}
-        //public int AdductCount
-        //{
-        //    get { return _adductCount; }
-        //}
+        public string AdductString
+        {
+            get
+            {
+                string tmp = "";
+                foreach (Tuple<string, float, int> adduct in _glycanComposition.Adducts)
+                {
+                    tmp = tmp + adduct.Item1 + " * " + adduct.Item3 + ";";
+                }
+                tmp = tmp.Substring(0, tmp.Length - 1);
+                return tmp;
+            }
+        }
+
         public int Charge
         {
             get { return (int) _MSPeak.ChargeState; }

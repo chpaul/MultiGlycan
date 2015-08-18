@@ -13,6 +13,8 @@ namespace COL.MultiGlycan
         private List<MatchedGlycanPeak> _MatchedPeaksInScan;
         private LCPeak _LCPeak;
         private List<MSPoint> _RawPoint;
+        private float _ApexTime = 0;
+
         //private List<MSPeak> _MSPeak;
         //private double _StatrTime;
         //private double _EndTime;
@@ -113,7 +115,7 @@ namespace COL.MultiGlycan
         {
             get
             {
-                
+                _MatchedPeaksInScan.Sort((a, b) => a.ScanNum.CompareTo(b.ScanNum));
                 return Math.Round(_MatchedPeaksInScan[0].ScanTime,5);
             }  
         }
@@ -121,7 +123,7 @@ namespace COL.MultiGlycan
         {
             get
             {
-         
+                _MatchedPeaksInScan.Sort((a, b) => a.ScanNum.CompareTo(b.ScanNum));
                 return Math.Round( _MatchedPeaksInScan[_MatchedPeaksInScan.Count-1].ScanTime,5);
             }
         }
@@ -163,11 +165,19 @@ namespace COL.MultiGlycan
         }
         public int StartScan
         {
-            get { return _MatchedPeaksInScan[0].ScanNum; }
+            get
+            {
+                _MatchedPeaksInScan.Sort((a, b) => a.ScanNum.CompareTo(b.ScanNum));
+                return _MatchedPeaksInScan[0].ScanNum;
+            }
         }
         public int EndScan
         {
-            get { return _MatchedPeaksInScan[_MatchedPeaksInScan.Count-1].ScanNum; }
+            get
+            {
+                _MatchedPeaksInScan.Sort((a, b) => a.ScanNum.CompareTo(b.ScanNum));
+                return _MatchedPeaksInScan[_MatchedPeaksInScan.Count-1].ScanNum;
+            }
         }
         //public double mz
         //{
