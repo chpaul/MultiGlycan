@@ -260,7 +260,7 @@
             this.txtMinPeakHeight.Name = "txtMinPeakHeight";
             this.txtMinPeakHeight.Size = new System.Drawing.Size(25, 20);
             this.txtMinPeakHeight.TabIndex = 53;
-            this.txtMinPeakHeight.Text = "5";
+            this.txtMinPeakHeight.Text = "2";
             // 
             // label13
             // 
@@ -561,7 +561,7 @@
             this.txtIsotopeEnvTolerence.Name = "txtIsotopeEnvTolerence";
             this.txtIsotopeEnvTolerence.Size = new System.Drawing.Size(32, 20);
             this.txtIsotopeEnvTolerence.TabIndex = 50;
-            this.txtIsotopeEnvTolerence.Text = "6";
+            this.txtIsotopeEnvTolerence.Text = "15";
             // 
             // label8
             // 

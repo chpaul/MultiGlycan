@@ -167,8 +167,8 @@ namespace COL.MultiGlycan
                 ESI.MaxLCBackMin = Convert.ToSingle(txtMaxLCTime.Text);
                 ESI.MaxLCFrontMin = Convert.ToSingle(txtMinLCTime.Text);
                 ESI.IsotopePPM = Convert.ToSingle(txtIsotopeEnvTolerence.Text);
-                ESI.MininumPeakCount = Convert.ToInt32(txtIsotopeEnvMinPeakCount.Text);
-                ESI.PeakSN = Convert.ToSingle(txtSN.Text);
+                ESI.MininumIsotopePeakCount = Convert.ToInt32(txtIsotopeEnvMinPeakCount.Text);
+                ESI.PeakSNRatio = Convert.ToSingle(txtSN.Text);
                 ESI.IsMatchMonoisotopicOnly = chkMonoOnly.Checked;
                 ESI.ApplyLinearRegLC = chkApplyLinearRegLC.Checked;
                 ESI.ForceProtonatedGlycan = chkForceProtonated.Checked;

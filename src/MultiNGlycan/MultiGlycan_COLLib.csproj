@@ -81,12 +81,12 @@
     </ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="CSMSL, Version=0.3.0.0, Culture=neutral, processorArchitecture=x86">
+    <Reference Include="CSMSL, Version=0.3.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\lib\CSMSL.dll</HintPath>
     </Reference>
     <Reference Include="CSMSL.Thermo">
-      <HintPath>..\..\..\COL_Lib\lib\CSMSL.Thermo.dll</HintPath>
+      <HintPath>..\..\lib\CSMSL.Thermo.dll</HintPath>
     </Reference>
     <Reference Include="ElutionViewer">
       <HintPath>..\..\lib\ElutionViewer.dll</HintPath>
@@ -98,7 +98,8 @@
     <Reference Include="GlycoLib">
       <HintPath>..\..\lib\GlycoLib.dll</HintPath>
     </Reference>
-    <Reference Include="MassLib">
+    <Reference Include="MassLib, Version=1.0.0.11, Culture=neutral, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\lib\MassLib.dll</HintPath>
     </Reference>
     <Reference Include="ProtLib">
@@ -257,7 +258,7 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties BuildVersion_BuildVersioningStyle="None.None.Increment.None" BuildVersion_UpdateAssemblyVersion="True" />
+      <UserProperties BuildVersion_UpdateAssemblyVersion="True" BuildVersion_BuildVersioningStyle="None.None.Increment.None" />
     </VisualStudio>
   </ProjectExtensions>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -66,8 +66,8 @@ namespace COL.MultiGlycan
         List<GlycanCompound> _identifiedGlycan;
         bool DoLog = false;
         private float _IsotopePPM = 8.5f;  //6 PPM suggested by Shiyue
-        private float _SN = 2;
-        private int _MinPeakCount = 3;
+        private float _PeakSNRatio = 2;
+        private int _MinIsotopePeakCount = 3;
         Dictionary<int, string> _GlycanLCodrer;
         List<Color> LstColor = new List<Color>() { Color.DarkCyan, Color.DarkGoldenrod, Color.DarkGray, Color.DarkGreen, Color.DarkKhaki, Color.DarkMagenta, Color.DarkOliveGreen, Color.DarkOrchid, Color.DarkRed, Color.DarkSalmon, Color.DarkSeaGreen, Color.DarkSlateBlue, Color.DarkSlateGray, Color.DarkTurquoise, Color.DarkViolet, Color.DeepPink, Color.DeepSkyBlue };
         List<ZedGraph.SymbolType> LstSymbol= new List<ZedGraph.SymbolType>(){SymbolType.Circle,SymbolType.Diamond,SymbolType.HDash,SymbolType.Plus,SymbolType.Square,SymbolType.Star,SymbolType.Triangle,SymbolType.TriangleDown,SymbolType.VDash,SymbolType.XCross};
@@ -223,20 +223,20 @@ namespace COL.MultiGlycan
             get { return _LabelingMethod; }
             set { _LabelingMethod = value; }
         }
-        public float PeakSN
+        public float PeakSNRatio
         {
-            get { return _SN; }
-            set { _SN = value; }
+            get { return _PeakSNRatio; }
+            set { _PeakSNRatio = value; }
         }
         public float IsotopePPM
         {
             get { return _IsotopePPM; }
             set { _IsotopePPM = value; }
         }
-        public int MininumPeakCount
+        public int MininumIsotopePeakCount
         {
-            get { return _MinPeakCount; }
-            set { _MinPeakCount = value; }
+            get { return _MinIsotopePeakCount; }
+            set { _MinIsotopePeakCount = value; }
         }
         public bool IsMatchMonoisotopicOnly
         {
@@ -361,7 +361,7 @@ namespace COL.MultiGlycan
                     Logger.WriteLog("\tStart read raw file: " + argScanNo.ToString());
                 }
                 //Get MS Scan                
-                MSScan GMSScan = rawReader.ReadScan(argScanNo, _SN);
+                MSScan GMSScan = rawReader.ReadScan(argScanNo);
                 if (DoLog)
                 {
                     Logger.WriteLog("\tEnd read raw file: " + argScanNo.ToString());
@@ -940,7 +940,7 @@ namespace COL.MultiGlycan
             //parameters
             string version =  Assembly.GetEntryAssembly().GetName().Version.ToString();
             sw.WriteLine("Program Version:" + version);
-            sw.WriteLine("Parameters");
+            sw.WriteLine("----------Parameters----------");
             sw.WriteLine("Raw Files:" + _rawFile);
             sw.WriteLine("Range:" + _StartScan + "~" + _EndScan);
             sw.WriteLine("Glycan List:" + _glycanFile);
@@ -962,8 +962,16 @@ namespace COL.MultiGlycan
                 SearchSia = SearchSia + "; NeuGc";
             }
             sw.WriteLine("Sia:" + SearchSia);
+            sw.WriteLine("----------Peak Processing----------");
+            sw.WriteLine("Isotope envelop tolerence:" + _IsotopePPM + "PPM");
+            sw.WriteLine("Mininum peak count for isotope envelope:" + _MinIsotopePeakCount.ToString());
+            sw.WriteLine("Single / Noise tolerence" + _PeakSNRatio.ToString());
+            sw.WriteLine("----------Search Threshould----------");
             sw.WriteLine("Mass tolerance (PPM):" + _massPPM.ToString());
-            // sw.WriteLine("Include m/z match only peak:" + _IncludeMZMatch.ToString());
+            sw.WriteLine("Min peak height:" + _minPeakHeightPrecentage + "%");
+            sw.WriteLine("Only monoisotopic peak:" + _isMatchMonoPeakOnly.ToString());
+            sw.WriteLine("Must have protonated adduct:" + _forceProtonatedGlycan.ToString());
+            sw.WriteLine("----------Filter and export----------");
             sw.WriteLine("Max minute in front of LC apex  (a):" + _maxLCFrontMin.ToString());
             sw.WriteLine("Max minute in back of LC apex  (b):" + _maxLCBackMin.ToString());
             sw.WriteLine("Merge different charge glycan:" + _MergeDifferentCharge.ToString());
@@ -2366,7 +2374,7 @@ namespace COL.MultiGlycan
         //}
         private List<MatchedGlycanPeak> FindClusterWGlycanList(MSScan argScan)
         {
-            if (argScan.ScanNo == 2151)
+            if (argScan.ScanNo == 3204)
             {
                 int a = 1;
             }
@@ -2377,10 +2385,6 @@ namespace COL.MultiGlycan
             Dictionary<float,List<MatchedGlycanPeak>> tmpDuplicateGlycan = new Dictionary<float, List<MatchedGlycanPeak>>();
             foreach (GlycanCompound Candidate in _GlycanList)
             {
-                if (Candidate.GlycanKey == "3-5-0-1-0")
-                {
-                    int a = 1;
-                }
                 if (argScan.MZs.Length == 0)
                 {
                     continue;
@@ -2393,8 +2397,9 @@ namespace COL.MultiGlycan
                 {
                     continue;
                 }
+                //Find in m/z
                 List<int> Peak = FindPeakIdx(argScan.MZs, ClosedIdx, Candidate.Charge);
-                if (Peak.Count < _MinPeakCount) //Peak Count is not enough
+                if (Peak.Count < _MinIsotopePeakCount) //Peak Count is not enough
                 {
                     continue;
                 }
@@ -2498,6 +2503,11 @@ namespace COL.MultiGlycan
             //    MatchedPeaks.Add(newMatchedPeak);
             //}
             return MatchedPeaks;
+        }
+        private MSPeak FindPeak(List<MSPeak> argMSPeaks, double argMZ)
+        {
+            double closedDistance = (argMSPeaks.Min(n => Math.Abs(argMZ - n.MonoisotopicMZ)));
+            return argMSPeaks.First(n=> Math.Abs(argMZ - n.MonoisotopicMZ) ==closedDistance);
         }
         private List<int> FindPeakIdx(float[] argMZAry, int argTargetIdx, int argCharge)
         {

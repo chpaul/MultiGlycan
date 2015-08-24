@@ -89,8 +89,8 @@ namespace COL.MultiGlycan
                 multiGlycan.MaxLCBackMin = _MultiNGlycan.MaxLCBackMin;
                 multiGlycan.MaxLCFrontMin = _MultiNGlycan.MaxLCFrontMin;
                 multiGlycan.IsotopePPM = _MultiNGlycan.IsotopePPM;
-                multiGlycan.MininumPeakCount = _MultiNGlycan.MininumPeakCount;
-                multiGlycan.PeakSN = _MultiNGlycan.PeakSN;
+                multiGlycan.MininumIsotopePeakCount = _MultiNGlycan.MininumIsotopePeakCount;
+                multiGlycan.PeakSNRatio = _MultiNGlycan.PeakSNRatio;
                 multiGlycan.IsMatchMonoisotopicOnly = _MultiNGlycan.IsMatchMonoisotopicOnly;
                 multiGlycan.MinAbundance = _MultiNGlycan.MinAbundance;
                 multiGlycan.MinLengthOfLC = _MultiNGlycan.MinLengthOfLC;
@@ -99,6 +99,7 @@ namespace COL.MultiGlycan
                 multiGlycan.QuantificationImgs = _MultiNGlycan.QuantificationImgs;
                 multiGlycan.GlycanList = _MultiNGlycan.GlycanList;
                 multiGlycan.CandidateMzList = _MultiNGlycan.CandidateMzList;
+                multiGlycan.MinPeakHeightPrecentage = _MultiNGlycan.MinPeakHeightPrecentage;
                 if (_MultiNGlycan.ApplyLinearRegLC)
                 {
                     multiGlycan.ApplyLinearRegLC = _MultiNGlycan.ApplyLinearRegLC;
