@@ -284,7 +284,7 @@ namespace COL.MultiGlycan
             #region Export Merge result
             //Fetch Files
             List<string> ResultFiles = new List<string>();
-
+            List<string> AllGlycans = new List<string>();
             foreach (string filename in _RawFilesList)
             {
                 if (!Directory.Exists(_MultiNGlycan.ExportFilePath + "\\" +
@@ -297,34 +297,89 @@ namespace COL.MultiGlycan
                         Directory.GetFiles(_MultiNGlycan.ExportFilePath + "\\" +
                                            Path.GetFileNameWithoutExtension(filename)))
                 {
-                    if (files.EndsWith(".csv") && !files.Contains("_FullLis") && !files.Contains("_Quant"))
+                    if (files.EndsWith(".csv") && files.Contains("_FullLis") && !files.Contains("_Quant"))
                     {
                         ResultFiles.Add(files);
                     }
                 }
             }
-            //Read Files
-            Dictionary<string, Dictionary<string, float>> AllResult = new Dictionary<string, Dictionary<string, float>>();
+            //Read Files  
+            // Dictionary<GlycanKey, List<QuantitationPeak>>
+            Dictionary<string, List<QuantitationPeak>> AllResult = new Dictionary<string,List<QuantitationPeak>>();
             for (int i = 0; i < ResultFiles.Count; i++)
             {
-                Dictionary<string, Dictionary<string, float>> Result = ReadResultCSV(ResultFiles[i]);
-                foreach (string GlycanKey in Result.Keys)
+                //Glycan, Adduct
+               Dictionary<string, Dictionary<string, List<Tuple<float, float>>>> Result = ReadFullResultCSV(ResultFiles[i]);
+               //Impute data 
+
+               ImputationData(Result);
+               foreach (string glycanKey in Result.Keys)
+               {
+                   if(!AllGlycans.Contains(glycanKey))
+                   {
+                       AllGlycans.Add(glycanKey);
+                   }
+                   if (!AllResult.ContainsKey(glycanKey))
+                   {
+                       AllResult.Add(glycanKey, new List<QuantitationPeak>());
+                   }
+                   QuantitationPeak qPeak = new QuantitationPeak(Path.GetFileNameWithoutExtension(ResultFiles[i]).Replace("_FullList", ""),glycanKey);
+                   qPeak.AssignPeaks(Result[glycanKey]);
+
+                   if (!AllResult.ContainsKey(glycanKey))
+                   {
+                       AllResult.Add(glycanKey, new List<QuantitationPeak>());
+                   }
+                   AllResult[glycanKey].Add(qPeak);
+               }              
+            }
+           
+            //Debug
+            if (true)
+            {
+                StreamWriter swDebug = new StreamWriter(_MultiNGlycan.ExportFilePath + "\\MergeResult_Debug.csv");
+                string tmpDebugStr = "";
+                tmpDebugStr = "Glycan,";
+                //Title
+                foreach (string filename in _RawFilesList)
                 {
-                    if (!AllResult.ContainsKey(GlycanKey))
+                    tmpDebugStr = tmpDebugStr + Path.GetFileNameWithoutExtension(filename) + "_Time," + Path.GetFileNameWithoutExtension(filename) + "_Intensity,";
+                }
+                swDebug.WriteLine(tmpDebugStr);
+                foreach (string GlycanKey in AllResult.Keys)
+                {
+                    GetBalanceData(AllResult[GlycanKey]);
+                    swDebug.WriteLine(GlycanKey+" Protonated");
+                    int ProtonatedPeakCount = AllResult[GlycanKey][0].ProtonatedPeaks.Count;
+
+                    for (int i = 0; i < ProtonatedPeakCount; i++)
                     {
-                        AllResult.Add(GlycanKey, new Dictionary<string, float>());
-                    }
-                    foreach (string DataSetName in Result[GlycanKey].Keys)
-                    {
-                        AllResult[GlycanKey].Add(DataSetName, Result[GlycanKey][DataSetName]);
+                        tmpDebugStr = ",";
+                        int fileIdx = 0;
+                        for (int j = 0; j < ResultFiles.Count; j++)
+                        {
+                            if (AllResult[GlycanKey][fileIdx].DataSetName != Path.GetFileNameWithoutExtension(ResultFiles[fileIdx]).Replace("_FullList", ""))
+                            {
+                                tmpDebugStr += "N/A,N/A";
+                            }
+                            else
+                            {
+                                tmpDebugStr += AllResult[GlycanKey][fileIdx].ProtonatedPeaks[i].Item1.ToString("0.00") + "," + AllResult[GlycanKey][fileIdx].ProtonatedPeaks[i].Item2.ToString("0.00") + ",";
+                                fileIdx++;
+                            }
+                        }
+                        swDebug.WriteLine(tmpDebugStr);
                     }
                 }
+                swDebug.Close();
             }
+
 
             //Export File
             StreamWriter sw = new StreamWriter(_MultiNGlycan.ExportFilePath + "\\MergeResult.csv");
             string tmpStr = "";
             tmpStr = "Glycan,";
+            //Title
             foreach (string filename in _RawFilesList)
             {
                 tmpStr = tmpStr + Path.GetFileNameWithoutExtension(filename) + ",";
@@ -333,19 +388,103 @@ namespace COL.MultiGlycan
 
             foreach (string GlycanKey in AllResult.Keys)
             {
-                tmpStr = GlycanKey + ",";
-                foreach (string filename in _RawFilesList)
+                GetBalanceData(AllResult[GlycanKey]);
+                //Protonated
+                tmpStr = GlycanKey + " Protonated,";
+                int ZeroAndNACount = 0;
+                double smallestIntensity = 9999999999999;
+                int fileIdx = 0;
+                for(int i = 0;i< AllResult[GlycanKey].Count;i++)
                 {
-                    if (AllResult[GlycanKey].ContainsKey(Path.GetFileNameWithoutExtension(filename)))
-                    {
-                        tmpStr = tmpStr + AllResult[GlycanKey][Path.GetFileNameWithoutExtension(filename)] + ",";
-                    }
-                    else
+                    while (AllResult[GlycanKey][i].DataSetName != Path.GetFileNameWithoutExtension(ResultFiles[fileIdx]).Replace("_FullList", ""))
                     {
                         tmpStr = tmpStr + "N/A,";
+                        fileIdx++;
+                        ZeroAndNACount++;
+                    }
+                    tmpStr = tmpStr + AllResult[GlycanKey][i].TotalProtonatedIntensity.ToString("0.00") + ",";
+                    if (AllResult[GlycanKey][i].TotalProtonatedIntensity == 0)
+                    {
+                        ZeroAndNACount++;
+                    }
+                    fileIdx++;
+
+                    if (smallestIntensity >= AllResult[GlycanKey][i].TotalProtonatedIntensity && AllResult[GlycanKey][i].TotalProtonatedIntensity>0)
+                    {
+                        smallestIntensity = AllResult[GlycanKey][i].TotalProtonatedIntensity;
                     }
                 }
+                while (tmpStr.Count(t => t == ',') < ResultFiles.Count + 1)
+                {
+                    tmpStr += "N/A,";
+                    ZeroAndNACount++;
+                }
+                if (ZeroAndNACount == ResultFiles.Count)
+                {
+                    continue;
+                }
                 sw.WriteLine(tmpStr);
+                tmpStr = GlycanKey + " Protonated Ratio,";
+                fileIdx = 0;
+                for (int i = 0; i < AllResult[GlycanKey].Count; i++)
+                {
+                    while (AllResult[GlycanKey][i].DataSetName != Path.GetFileNameWithoutExtension(ResultFiles[fileIdx]).Replace("_FullList", ""))
+                    {
+                        tmpStr = tmpStr + "N/A,";
+                        fileIdx++;
+                    }
+                    tmpStr = tmpStr + (AllResult[GlycanKey][i].TotalProtonatedIntensity / smallestIntensity).ToString("0.00") + ",";
+                    fileIdx++;
+                }
+                while (tmpStr.Count(t => t == ',') < ResultFiles.Count + 1)
+                {
+                    tmpStr += "N/A,";
+                }
+                sw.WriteLine(tmpStr);
+                //All
+                tmpStr = GlycanKey + " All Adducts,";
+
+                smallestIntensity = 9999999999999;
+                fileIdx = 0;
+                for (int i = 0; i < AllResult[GlycanKey].Count; i++)
+                {
+                    while (AllResult[GlycanKey][i].DataSetName != Path.GetFileNameWithoutExtension(ResultFiles[fileIdx]).Replace("_FullList", ""))
+                    {
+                        tmpStr = tmpStr + "N/A,";
+                        fileIdx++;
+                    }
+                    tmpStr = tmpStr + AllResult[GlycanKey][i].TotalIntensity.ToString("0.00") + ",";
+                    fileIdx++;
+
+                    if (smallestIntensity >= AllResult[GlycanKey][i].TotalIntensity && AllResult[GlycanKey][i].TotalIntensity>0)
+                    {
+                        smallestIntensity = AllResult[GlycanKey][i].TotalIntensity;
+                    }
+                }
+                while (tmpStr.Count(t => t == ',') < ResultFiles.Count + 1)
+                {
+                    tmpStr += "N/A,";
+                }
+                sw.WriteLine(tmpStr);
+                tmpStr = GlycanKey + " All Ratio,";
+                fileIdx = 0;
+                for (int i = 0; i < AllResult[GlycanKey].Count; i++)
+                {
+                    while (AllResult[GlycanKey][i].DataSetName != Path.GetFileNameWithoutExtension(ResultFiles[fileIdx]).Replace("_FullList", ""))
+                    {
+                        tmpStr = tmpStr + "N/A,";
+                        fileIdx++;
+                    }
+                    tmpStr = tmpStr + (AllResult[GlycanKey][i].TotalIntensity / smallestIntensity).ToString("0.00") + ",";
+                    fileIdx++;
+                }
+                while (tmpStr.Count(t => t == ',') < ResultFiles.Count + 1)
+                {
+                    tmpStr += "N/A,";
+                }
+                sw.WriteLine(tmpStr);
+
+
             }
             sw.Close();
             #endregion
@@ -361,7 +500,123 @@ namespace COL.MultiGlycan
             MessageBox.Show("Finished files:" + SucceedFileCount.ToString() + Environment.NewLine + ErrMsg);
             this.Close();
         }
+        private void GetBalanceData(List<QuantitationPeak> argQuantPeaks)
+        {
+            int minScanCount = argQuantPeaks.Where(x => x.ProtonatedPeaks.Count > 0).Min(x => x.ProtonatedPeaks.Count);
+            foreach (QuantitationPeak qPeak in argQuantPeaks)
+            {
+                while (qPeak.ProtonatedPeaks.Count > minScanCount)
+                {
+                    if (qPeak.ProtonatedPeaks[0].Item2 > qPeak.ProtonatedPeaks[qPeak.ProtonatedPeaks.Count - 1].Item2)
+                    {
+                        qPeak.ProtonatedPeaks.RemoveAt(qPeak.ProtonatedPeaks.Count - 1);
+                    }
+                    else
+                    {
+                        qPeak.ProtonatedPeaks.RemoveAt(0);
+                    }
+                }
+            }
+        }
+        private void ImputationData(Dictionary<string, Dictionary<string, List<Tuple<float, float>>>> argResult)
+        {
+            foreach (string GlycanKey in argResult.Keys)
+            {
+                if (!argResult[GlycanKey].ContainsKey("H"))
+                {
+                    continue;
+                }
+                List<Tuple<float,float>> ProtonatedPeak = argResult[GlycanKey]["H"];
+                List<Tuple<float, float>> AddedPeak = new List<Tuple<float, float>>();
 
+                for (int i = 0; i < ProtonatedPeak.Count - 1; i++)
+                {
+                    float TimeDifference = Convert.ToSingle(Math.Floor((ProtonatedPeak[i+1].Item1 - ProtonatedPeak[i].Item1) * 100) / 100 );
+                    if (TimeDifference > 0.5 || TimeDifference <= 0.07f)
+                    {
+                        continue;
+                    }
+                    else //Imputation needed
+                    {
+                        int TimeIntervalCount = (int)Math.Ceiling(TimeDifference / 0.07) -1;
+                        float AvgIntensity = (ProtonatedPeak[i].Item2 + ProtonatedPeak[i + 1].Item2 )/ 2;
+                        for (int j = 1; j <= TimeIntervalCount; j++)
+                        {
+                            AddedPeak.Add(new Tuple<float, float>(ProtonatedPeak[i].Item1 + j * 0.07f,AvgIntensity));
+                        }
+                    }
+                }
+                ProtonatedPeak.AddRange(AddedPeak);
+                ProtonatedPeak = ProtonatedPeak.OrderBy(i => i.Item1).ToList();              
+            }          
+        }
+        private Dictionary<string, Dictionary<string, List<Tuple<float, float>>>> ReadFullResultCSV(string argFile)
+        {
+            StreamReader sr = null;
+            //Time	Scan Num	Abundance	m/z	HexNac-Hex-deHex-NeuAc-NeuGc	Adduct	Composition mono
+            //34.21	3605	53598.02	1093.567	2-8-0-0-0	H * 2; 	2185.118885
+
+            try
+            {                
+                Dictionary<string, Dictionary<string, List<Tuple<float, float>>>> Result = new Dictionary<string, Dictionary<string, List<Tuple<float, float>>>>();
+                //Key 1: Glycan, Key 2: Adduct
+                sr = new StreamReader(argFile);
+                sr.ReadLine(); // Title
+                string tmp = "";
+                do
+                {
+                    tmp = sr.ReadLine();
+                    if (tmp == null)
+                    {
+                        break;
+                    }
+                    string[] tmpAry = tmp.Split(',');
+                    string GlycanKey = tmpAry[4];
+                    string[] Adducts = tmpAry[5].Trim().Substring(0, tmpAry[5].Trim().Length - 1).Split(';');
+                    string AdductKey = "";
+
+                    for (int i = 0; i < Adducts.Length; i++)
+                    {
+                        AdductKey = AdductKey + Adducts[i].Trim().Split('*')[0].Trim() + "+";
+                    }
+                    AdductKey = AdductKey.Substring(0, AdductKey.Length - 1);
+                    if (!Result.ContainsKey(GlycanKey))
+                    {
+                        Result.Add(GlycanKey, new Dictionary<string, List<Tuple<float, float>>>());
+                    }
+                    if (!Result[GlycanKey].ContainsKey(AdductKey))
+                    {
+                        Result[GlycanKey].Add(AdductKey, new List<Tuple<float, float>>());
+                    }
+
+                    List<Tuple<float, float>> sameLCTime = Result[GlycanKey][AdductKey].Where(t => t.Item1 == Convert.ToSingle(tmpAry[0])).ToList();
+                    if (sameLCTime.Count!=0  )
+                    {
+                        float LCTime = sameLCTime[0].Item1;
+                        float NewIntensity = sameLCTime[0].Item2 + Convert.ToSingle(tmpAry[2]);
+                        int RemoveIdx = Result[GlycanKey][AdductKey].IndexOf(sameLCTime[0]);
+                        Result[GlycanKey][AdductKey].RemoveAt(RemoveIdx);
+                        Result[GlycanKey][AdductKey].Insert(RemoveIdx, new Tuple<float, float>(LCTime, NewIntensity));                        
+                    }                    
+                    else
+                    {
+                        Result[GlycanKey][AdductKey].Add(new Tuple<float, float>(Convert.ToSingle(tmpAry[0]), Convert.ToSingle(tmpAry[2])));
+                    }                    
+                } while (!sr.EndOfStream);
+                return Result;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                if (sr != null)
+                {
+                    sr.Close();
+                }
+            }
+        }
         private Dictionary<string, Dictionary<string, float>> ReadResultCSV(string argFile)
         {
             StreamReader sr = null;
