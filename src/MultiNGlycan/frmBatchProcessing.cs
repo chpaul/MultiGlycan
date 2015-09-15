@@ -18,6 +18,7 @@ namespace COL.MultiGlycan
 {
     public partial class frmBatchProcessing : Form
     {
+        private StreamWriter debugWriter = new StreamWriter(Environment.CurrentDirectory+"\\debug.txt");
         private int NumberOfParallel = 1;
         private string ErrMsg = "";
         private MultiGlycanESI _MultiNGlycan;
@@ -31,7 +32,7 @@ namespace COL.MultiGlycan
         private Dictionary<string, int> TotalScanNum;
         private string[] ProcessingFile;  //Save filename for each processing slot
         private string[] ProcessingStatus;  //Save status for each processing slot
-       
+        private bool _protonatedResult = false;
         public frmBatchProcessing(MultiGlycanESI argMultiNGlycan, List<string> argRawFiles, int argConCurrent, bool argLog)
         {
             NumberOfParallel = argConCurrent;
@@ -55,6 +56,12 @@ namespace COL.MultiGlycan
             lblCurrentFile.Text = "0 / " + _RawFilesList.Count.ToString();
             bgWorker_Process.RunWorkerAsync();
         }
+
+        public bool ProtonatedResult
+        {
+            set { _protonatedResult = value; }
+        }
+
         private void ProcessMultiGlycanAsync(string argFile)
         {
             int runningSlot = -1;
@@ -71,6 +78,7 @@ namespace COL.MultiGlycan
             ZedGraphControl zedGraphControl = new ZedGraphControl();
             try
             {
+                debugWriter.WriteLine("---------------------Process file:" + argFile + "------------------------");
                 ProcessingStatus[runningSlot] = "Status: Reading Raw file";
                 bgWorker_Process.ReportProgress(0);
                 ProgressUpdate.Add(argFile, 0);
@@ -83,6 +91,7 @@ namespace COL.MultiGlycan
                 {
                     multiGlycan = new MultiGlycanESI(argFile, 1, 99999, _MultiNGlycan.GlycanFile, _MultiNGlycan.MassPPM, _MultiNGlycan.GlycanPPM, _MultiNGlycan.IsPermethylated, _MultiNGlycan.IsReducedReducingEnd, _MultiNGlycan.SiaType, _MultiNGlycan.DoLOG);
                 }
+                debugWriter.WriteLine("init finish");
                 multiGlycan.LabelingMethod = _MultiNGlycan.LabelingMethod;
                 multiGlycan.MergeDifferentChargeIntoOne = _MultiNGlycan.MergeDifferentChargeIntoOne;
                 multiGlycan.ExportFilePath = _MultiNGlycan.ExportFilePath + "\\" + Path.GetFileNameWithoutExtension(argFile);
@@ -121,6 +130,7 @@ namespace COL.MultiGlycan
                 //            multiGlycan.ProcessSingleScan(i);
                 //        }
                 //    });
+                debugWriter.WriteLine("Start processing");
                 for (int i = 1; i <= multiGlycan.RawReader.NumberOfScans; i++)
                 {
                     ProgressUpdate[argFile] = ProgressUpdate[argFile] + 1;
@@ -128,12 +138,15 @@ namespace COL.MultiGlycan
                     if (multiGlycan.RawReader.GetMsLevel(i) == 1)
                     {
                         multiGlycan.ProcessSingleScan(i);
+                        debugWriter.WriteLine("Processed scen:" + i.ToString());
                     }
                 }
+                debugWriter.WriteLine("Merge");
                 ProcessingStatus[runningSlot] = "Status:  Mergeing Result";
                 multiGlycan.MergeSingleScanResultToPeak();
                 multiGlycan.SolveDuplicateAssignment();
                 multiGlycan.MergeSingleScanResultToPeak();
+                debugWriter.WriteLine("Merge completed");
                 if (multiGlycan.GlycanLCorderExist)
                 {
                     multiGlycan.ApplyLCordrer();
@@ -161,10 +174,14 @@ namespace COL.MultiGlycan
               
                 ProcessingStatus[runningSlot] = "Status:  Exporting";
                 bgWorker_Process.ReportProgress(0);
+                debugWriter.WriteLine("Export to CSV");
                 multiGlycan.ExportToCSV();
                 ProcessingStatus[runningSlot] = "Export completed";
+                debugWriter.WriteLine("Export completed");
                 bgWorker_Process.ReportProgress(0);
                 SucceedFileCount = SucceedFileCount + 1;
+                debugWriter.WriteLine("Finish");
+                debugWriter.Flush();
             }
             catch (Exception e)
             {
@@ -185,6 +202,126 @@ namespace COL.MultiGlycan
             {
                 ProcessMultiGlycanAsync(rawFile);
             });
+            debugWriter.WriteLine("\n\n-----------------Error:" + ErrMsg);
+            debugWriter.Close();
+            //string currentFile = "";
+            //try
+            //{
+            //    foreach (string argFile in _RawFilesList)
+            //    {
+            //        currentFile = argFile;
+            //        int runningSlot = -1;
+            //        for (int i = 0; i < 3; i++)
+            //        {
+            //            if (ProcessingFile[i] == "0")
+            //            {
+            //                ProcessingFile[i] = argFile;
+            //                runningSlot = i;
+            //                break;
+            //            }
+            //        }
+            //        MultiGlycanESI multiGlycan = null;
+            //        ZedGraphControl zedGraphControl = new ZedGraphControl();
+
+                    
+            //        ProcessingStatus[runningSlot] = "Status: Reading Raw file";
+            //        bgWorker_Process.ReportProgress(0);
+            //        ProgressUpdate.Add(argFile, 0);
+            //        TotalScanNum.Add(argFile, 99999);
+            //        if (_MultiNGlycan.LabelingRatio.Count != 0)
+            //        {
+            //            multiGlycan = new MultiGlycanESI(argFile, 1, 99999, _MultiNGlycan.GlycanFile,
+            //                _MultiNGlycan.MassPPM, _MultiNGlycan.GlycanPPM, _MultiNGlycan.IsPermethylated,
+            //                _MultiNGlycan.IsReducedReducingEnd, _MultiNGlycan.SiaType, _MultiNGlycan.LabelingRatio,
+            //                _MultiNGlycan.AdductMassToLabel, _MultiNGlycan.AdductMass, _MultiNGlycan.DoLOG);
+            //        }
+            //        else
+            //        {
+            //            multiGlycan = new MultiGlycanESI(argFile, 1, 99999, _MultiNGlycan.GlycanFile,
+            //                _MultiNGlycan.MassPPM, _MultiNGlycan.GlycanPPM, _MultiNGlycan.IsPermethylated,
+            //                _MultiNGlycan.IsReducedReducingEnd, _MultiNGlycan.SiaType, _MultiNGlycan.DoLOG);
+            //        }
+                    
+            //        multiGlycan.LabelingMethod = _MultiNGlycan.LabelingMethod;
+            //        multiGlycan.MergeDifferentChargeIntoOne = _MultiNGlycan.MergeDifferentChargeIntoOne;
+            //        multiGlycan.ExportFilePath = _MultiNGlycan.ExportFilePath + "\\" +
+            //                                     Path.GetFileNameWithoutExtension(argFile);
+            //        multiGlycan.MaxLCBackMin = _MultiNGlycan.MaxLCBackMin;
+            //        multiGlycan.MaxLCFrontMin = _MultiNGlycan.MaxLCFrontMin;
+            //        multiGlycan.IsotopePPM = _MultiNGlycan.IsotopePPM;
+            //        multiGlycan.MininumIsotopePeakCount = _MultiNGlycan.MininumIsotopePeakCount;
+            //        multiGlycan.PeakSNRatio = _MultiNGlycan.PeakSNRatio;
+            //        multiGlycan.IsMatchMonoisotopicOnly = _MultiNGlycan.IsMatchMonoisotopicOnly;
+            //        multiGlycan.MinAbundance = _MultiNGlycan.MinAbundance;
+            //        multiGlycan.MinLengthOfLC = _MultiNGlycan.MinLengthOfLC;
+            //        multiGlycan.IncludeMZMatch = _MultiNGlycan.IncludeMZMatch;
+            //        multiGlycan.IndividualImgs = _MultiNGlycan.IndividualImgs;
+            //        multiGlycan.QuantificationImgs = _MultiNGlycan.QuantificationImgs;
+            //        multiGlycan.GlycanList = _MultiNGlycan.GlycanList;
+            //        multiGlycan.CandidateMzList = _MultiNGlycan.CandidateMzList;
+            //        multiGlycan.MinPeakHeightPrecentage = _MultiNGlycan.MinPeakHeightPrecentage;
+            //        if (_MultiNGlycan.ApplyLinearRegLC)
+            //        {
+            //            multiGlycan.ApplyLinearRegLC = _MultiNGlycan.ApplyLinearRegLC;
+            //            multiGlycan.TotalLCTime = _MultiNGlycan.TotalLCTime;
+            //            multiGlycan.LCTimeTolerance = _MultiNGlycan.LCTimeTolerance;
+            //        }
+            //        TotalScanNum[argFile] = multiGlycan.RawReader.NumberOfScans;
+                    
+            //        for (int i = 1; i <= multiGlycan.RawReader.NumberOfScans; i++)
+            //        {
+            //            ProgressUpdate[argFile] = ProgressUpdate[argFile] + 1;
+            //            bgWorker_Process.ReportProgress(Convert.ToInt32(ProgressUpdate[argFile] / TotalScanNum[argFile]));
+            //            if (multiGlycan.RawReader.GetMsLevel(i) == 1)
+            //            {
+            //                multiGlycan.ProcessSingleScan(i);
+                            
+            //            }
+            //        }
+            //        multiGlycan.MergeSingleScanResultToPeak();
+            //        multiGlycan.SolveDuplicateAssignment();
+            //        multiGlycan.MergeSingleScanResultToPeak();
+            //        if (multiGlycan.GlycanLCorderExist)
+            //        {
+            //            multiGlycan.ApplyLCordrer();
+            //        }
+            //        if (!Directory.Exists(multiGlycan.ExportFilePath + "\\Pic"))
+            //        {
+            //            Directory.CreateDirectory(multiGlycan.ExportFilePath + "\\Pic");
+            //        }
+            //        if (multiGlycan.LabelingMethod == GlycoLib.enumGlycanLabelingMethod.MultiplexPermethylated)
+            //        {
+            //            multiGlycan.EstimatePurity();
+            //            ZedGraphControl zedGraph = new ZedGraphControl();
+            //            foreach (GlycoLib.enumLabelingTag tag in multiGlycan.LabelingRatio.Keys)
+            //            {
+            //                if (tag == enumLabelingTag.MP_CH3 || !multiGlycan.HasEstimatePurity((tag)))
+            //                    continue;
+            //                multiGlycan.GetPurityEstimateImage(ref zedGraph, tag)
+            //                    .Save(multiGlycan.ExportFilePath + "\\Pic\\EstimatePurity_" + tag.ToString() + ".png",
+            //                        System.Drawing.Imaging.ImageFormat.Png);
+            //            }
+            //            zedGraph.Dispose();
+            //            zedGraph = null;
+            //        }
+            //        multiGlycan.ExportToCSV();
+            //        bgWorker_Process.ReportProgress(0);
+            //        SucceedFileCount = SucceedFileCount + 1;
+
+                    
+            //    }
+            //}
+            //catch (Exception ex)
+            //{
+            //    ErrMsg = ErrMsg + (currentFile + "  error.  ErrMSG:" + ex.Message + "\n");
+                
+            //}
+            //finally
+            //{
+            //    debugWriter.WriteLine("Error" +ErrMsg);
+            //    debugWriter.Close();
+            //    ProcessedFileCount = ProcessedFileCount + 1;
+            //}
         }
 
         private void bgWorker_Process_ProgressChanged(object sender, ProgressChangedEventArgs e)
@@ -267,6 +404,10 @@ namespace COL.MultiGlycan
 
         private void bgWorker_Process_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
+            while (bgWorker_Process.IsBusy)
+            {
+                Thread.Sleep(1000);
+            }
             lblCurrentFile.Text = ProcessedFileCount.ToString() + " /  " + _RawFilesList.Count.ToString();
             lblFileName1.Text = "FileName:";
             lblStatus1.Text = "Status: Ready";
@@ -280,6 +421,8 @@ namespace COL.MultiGlycan
             lblStatus3.Text = "Status: Ready";
             progressBar3.Value = 0;
             lblPercentage3.Text = "0%";
+
+            MessageBox.Show("Finish jobs; Start merge");
 
             #region Export Merge result
             //Fetch Files
@@ -335,7 +478,7 @@ namespace COL.MultiGlycan
             }
            
             //Debug
-            if (true)
+            if (_protonatedResult)
             {
                 StreamWriter swDebug = new StreamWriter(_MultiNGlycan.ExportFilePath + "\\MergeResult_Debug.csv");
                 string tmpDebugStr = "";
@@ -352,15 +495,16 @@ namespace COL.MultiGlycan
                     swDebug.WriteLine(GlycanKey+" Protonated");
                     int ProtonatedPeakCount = AllResult[GlycanKey][0].ProtonatedPeaks.Count;
 
+                    
                     for (int i = 0; i < ProtonatedPeakCount; i++)
                     {
                         tmpDebugStr = ",";
                         int fileIdx = 0;
                         for (int j = 0; j < ResultFiles.Count; j++)
                         {
-                            if (AllResult[GlycanKey][fileIdx].DataSetName != Path.GetFileNameWithoutExtension(ResultFiles[fileIdx]).Replace("_FullList", ""))
+                            if (AllResult[GlycanKey].Count <=fileIdx   || AllResult[GlycanKey][fileIdx].DataSetName != Path.GetFileNameWithoutExtension(ResultFiles[fileIdx]).Replace("_FullList", "") || AllResult[GlycanKey][fileIdx].ProtonatedPeaks.Count==0)
                             {
-                                tmpDebugStr += "N/A,N/A";
+                                tmpDebugStr += "N/A,N/A,";
                             }
                             else
                             {
@@ -489,6 +633,7 @@ namespace COL.MultiGlycan
             sw.Close();
             #endregion
             #region Get Images
+            MessageBox.Show("Finish merge; Start generate pictures");
             frmBatchGenImg frmBatchGenerateImages = new frmBatchGenImg(
                 ResultFiles,
                 _MultiNGlycan.ExportFilePath,
@@ -502,20 +647,34 @@ namespace COL.MultiGlycan
         }
         private void GetBalanceData(List<QuantitationPeak> argQuantPeaks)
         {
-            int minScanCount = argQuantPeaks.Where(x => x.ProtonatedPeaks.Count > 0).Min(x => x.ProtonatedPeaks.Count);
-            foreach (QuantitationPeak qPeak in argQuantPeaks)
+            QuantitationPeak processingGlycan =null;
+            try
             {
-                while (qPeak.ProtonatedPeaks.Count > minScanCount)
+                int minScanCount = 0;
+                List<QuantitationPeak> qPeaks =   argQuantPeaks.Where(x => x.ProtonatedPeaks.Count > 0).ToList();
+                if (qPeaks.Count > 0)
                 {
-                    if (qPeak.ProtonatedPeaks[0].Item2 > qPeak.ProtonatedPeaks[qPeak.ProtonatedPeaks.Count - 1].Item2)
+                    minScanCount = qPeaks.Min(x => x.ProtonatedPeaks.Count);
+                    foreach (QuantitationPeak qPeak in argQuantPeaks)
                     {
-                        qPeak.ProtonatedPeaks.RemoveAt(qPeak.ProtonatedPeaks.Count - 1);
-                    }
-                    else
-                    {
-                        qPeak.ProtonatedPeaks.RemoveAt(0);
+                        processingGlycan = qPeak;
+                        while (qPeak.ProtonatedPeaks.Count > minScanCount)
+                        {
+                            if (qPeak.ProtonatedPeaks[0].Item2 > qPeak.ProtonatedPeaks[qPeak.ProtonatedPeaks.Count - 1].Item2)
+                            {
+                                qPeak.ProtonatedPeaks.RemoveAt(qPeak.ProtonatedPeaks.Count - 1);
+                            }
+                            else
+                            {
+                                qPeak.ProtonatedPeaks.RemoveAt(0);
+                            }
+                        }
                     }
                 }
+            }
+            catch
+            {
+                throw new InvalidDataException("GetBalanceData exception " + processingGlycan.GlycanKey);
             }
         }
         private void ImputationData(Dictionary<string, Dictionary<string, List<Tuple<float, float>>>> argResult)

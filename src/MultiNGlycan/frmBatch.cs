@@ -20,7 +20,7 @@ namespace COL.MultiGlycan
         frmPeakParameters frmPeakpara;
         bool DoLog = false;
         private int _endScan = 0;
-        COL.MassLib.ThermoRawReader raw;
+        ThermoRawReader raw;
         public frmBatch()
         {
             InitializeComponent();
@@ -204,6 +204,7 @@ namespace COL.MultiGlycan
                 this.Visible = false;
                 int concurrent = Convert.ToInt32(cboConcurrent.Text);
                 frmBatchProcessing frmProcess = new frmBatchProcessing(ESI, argRawFiles,  concurrent,DoLog);
+                frmProcess.ProtonatedResult = chkProtonatedResult.Checked;
                 if (concurrent == 1)
                 {
                     frmProcess.Size = new Size(370, 120);

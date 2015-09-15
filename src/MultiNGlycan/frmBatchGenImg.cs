@@ -38,16 +38,21 @@ namespace COL.MultiGlycan
         {
             foreach (string resultFile in ResultFiles)
             {
+
                 currentFile = resultFile;
+                if (resultFile.Contains("_FullList.csv"))
+                {
+                    currentFile = resultFile.Remove(resultFile.IndexOf("_FullList.csv"))+".csv";
+                }
                 bgWorkerGenerateImages.ReportProgress(0);
-                string FullListFile = resultFile.Replace(".csv", "_FullList.csv");
-                string QuantFile = resultFile.Replace(".csv", "_Quant.csv");
+                string FullListFile = currentFile.Replace(".csv", "_FullList.csv");
+                string QuantFile = currentFile.Replace(".csv", "_Quant.csv");
                 //Get individual image
                 if (isIndividualImg && File.Exists(FullListFile))
                 {
                     GenerateImages.GenGlycanLcImg(
                         FullListFile,
-                        ExportFilePath + "\\" + Path.GetFileNameWithoutExtension(resultFile));
+                        ExportFilePath + "\\" + Path.GetFileNameWithoutExtension(currentFile));
                 }
                 //Get Quant Image
                 if (isQuantImg && File.Exists(QuantFile))
@@ -55,7 +60,7 @@ namespace COL.MultiGlycan
                     GenerateImages.GenQuantImg(
                         QuantFile,
                         LabelingMethod,
-                        ExportFilePath + "\\" + Path.GetFileNameWithoutExtension(resultFile));
+                        ExportFilePath + "\\" + Path.GetFileNameWithoutExtension(currentFile));
                 }
                 CompletedCount = CompletedCount + 1;
                 bgWorkerGenerateImages.ReportProgress(0);

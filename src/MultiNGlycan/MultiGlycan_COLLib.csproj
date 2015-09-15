@@ -80,13 +80,12 @@
     <ApplicationIcon>
     </ApplicationIcon>
   </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+  </PropertyGroup>
   <ItemGroup>
-    <Reference Include="CSMSL, Version=0.3.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="CSMSL">
       <HintPath>..\..\lib\CSMSL.dll</HintPath>
-    </Reference>
-    <Reference Include="CSMSL.Thermo">
-      <HintPath>..\..\lib\CSMSL.Thermo.dll</HintPath>
     </Reference>
     <Reference Include="ElutionViewer">
       <HintPath>..\..\lib\ElutionViewer.dll</HintPath>
@@ -98,9 +97,8 @@
     <Reference Include="GlycoLib">
       <HintPath>..\..\lib\GlycoLib.dll</HintPath>
     </Reference>
-    <Reference Include="MassLib, Version=1.0.0.11, Culture=neutral, processorArchitecture=x86">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\lib\MassLib.dll</HintPath>
+    <Reference Include="MassLib">
+      <HintPath>..\..\..\COL_Lib\src\MassLibNative\bin\Release\MassLib.dll</HintPath>
     </Reference>
     <Reference Include="ProtLib">
       <HintPath>..\..\lib\ProtLib.dll</HintPath>
@@ -225,6 +223,7 @@
       <DesignTime>True</DesignTime>
     </Compile>
     <None Include="app.config" />
+    <None Include="app.manifest" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -259,7 +258,7 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties BuildVersion_BuildVersioningStyle="None.None.Increment.None" BuildVersion_UpdateAssemblyVersion="True" />
+      <UserProperties BuildVersion_UpdateAssemblyVersion="True" BuildVersion_BuildVersioningStyle="None.None.Increment.None" />
     </VisualStudio>
   </ProjectExtensions>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

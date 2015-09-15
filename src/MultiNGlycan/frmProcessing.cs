@@ -44,7 +44,15 @@ namespace COL.MultiGlycan
             {
                 Logger.WriteLog("Start process each scan");
             }
-            bgWorker_Process.RunWorkerAsync();
+            try
+            {
+                bgWorker_Process.RunWorkerAsync();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+            
         }
         //public frmProcessing(MultiNGlycanESIMultiThreads argMultiNGlycan, int argExportScanFilter)
         //{

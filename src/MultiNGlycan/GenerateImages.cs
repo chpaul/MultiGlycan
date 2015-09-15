@@ -228,6 +228,10 @@ namespace COL.MultiGlycan
             do
             {
                 tmp = sr.ReadLine();
+                if (tmp == null)
+                {
+                    break;
+                }
                 string[] tmpAry = tmp.Split(',');
                 string GlycanKey = tmpAry[dictTitle["HexNac-Hex-deHex-NeuAc-NeuGc"]];
                 string Adduct = "";

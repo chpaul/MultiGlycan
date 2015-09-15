@@ -134,8 +134,13 @@ namespace COL.MultiGlycan
             get {
                 double sum = 0;
                 float protonatedIntensity = TotalProtonatedIntensity;
-                float protonatedStart = _protonatedPeaks[0].Item1;
-                float protonatedEnd = _protonatedPeaks[_protonatedPeaks.Count-1].Item1;
+                float protonatedStart = 0;
+                float protonatedEnd = 9999;
+                if (_protonatedPeaks.Count != 0)
+                {
+                    protonatedStart = _protonatedPeaks[0].Item1;
+                     protonatedEnd = _protonatedPeaks[_protonatedPeaks.Count - 1].Item1;
+                }
                 sum += protonatedIntensity;
                 foreach (string adductKey in _otherAdductsPeaks.Keys)
                 {

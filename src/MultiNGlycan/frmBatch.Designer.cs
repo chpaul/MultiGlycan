@@ -122,6 +122,7 @@
             this.rdoMultiplePemrthylated = new System.Windows.Forms.RadioButton();
             this.btnQuan = new System.Windows.Forms.Button();
             this.folderBrowserDialog1 = new System.Windows.Forms.FolderBrowserDialog();
+            this.chkProtonatedResult = new System.Windows.Forms.CheckBox();
             this.groupBox1.SuspendLayout();
             this.groupBox5.SuspendLayout();
             this.groupBox6.SuspendLayout();
@@ -686,6 +687,7 @@
             // 
             // tabQuan
             // 
+            this.tabQuan.Controls.Add(this.chkProtonatedResult);
             this.tabQuan.Controls.Add(this.label9);
             this.tabQuan.Controls.Add(this.cboConcurrent);
             this.tabQuan.Controls.Add(this.groupBox3);
@@ -1133,6 +1135,16 @@
             this.btnQuan.UseVisualStyleBackColor = true;
             this.btnQuan.Click += new System.EventHandler(this.btnQuan_Click);
             // 
+            // chkProtonatedResult
+            // 
+            this.chkProtonatedResult.AutoSize = true;
+            this.chkProtonatedResult.Location = new System.Drawing.Point(561, 501);
+            this.chkProtonatedResult.Name = "chkProtonatedResult";
+            this.chkProtonatedResult.Size = new System.Drawing.Size(130, 17);
+            this.chkProtonatedResult.TabIndex = 53;
+            this.chkProtonatedResult.Text = "Export Protonated File";
+            this.chkProtonatedResult.UseVisualStyleBackColor = true;
+            // 
             // frmBatch
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -1271,5 +1283,6 @@
         private System.Windows.Forms.CheckBox chkForceProtonated;
         private System.Windows.Forms.TextBox txtMinPeakHeight;
         private System.Windows.Forms.Label label13;
+        private System.Windows.Forms.CheckBox chkProtonatedResult;
     }
 }

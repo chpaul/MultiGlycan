@@ -56,6 +56,7 @@ namespace COL.MultiGlycan
         private float _minPeakHeightPrecentage = 5;
         private bool _forceProtonatedGlycan = true;
         private Dictionary<string,List<MatchedGlycanPeak>> _OnePeakTwoGlycan;
+
         ThermoRawReader rawReader;
         List<int> MSScanList;
         //List<CandidatePeak> _lstCandidatePeak; //Store candidate glycan m/z
@@ -2374,7 +2375,7 @@ namespace COL.MultiGlycan
         //}
         private List<MatchedGlycanPeak> FindClusterWGlycanList(MSScan argScan)
         {
-            if (argScan.ScanNo == 3204)
+            if (argScan.ScanNo == 3771)
             {
                 int a = 1;
             }
