@@ -101,9 +101,6 @@ namespace COL.MultiGlycan
 
             if (saveFileDialog1.ShowDialog() == DialogResult.OK)
             {
-
-          
-
                 string glycanlist = System.Windows.Forms.Application.StartupPath + "\\Default_Combination.csv";
                 if (!rdoDefaultList.Checked)
                 {

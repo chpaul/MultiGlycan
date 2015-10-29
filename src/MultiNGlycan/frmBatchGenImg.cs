@@ -21,6 +21,7 @@ namespace COL.MultiGlycan
         private string currentFile;
         private string ExportFilePath;
         private enumGlycanLabelingMethod LabelingMethod;
+        List<string> lstImgErrors = new List<string>();
         public frmBatchGenImg(List<string>  argResultFiles, string argExportRootPath, enumGlycanLabelingMethod argLabelingMethod, bool argIndividualImg, bool argQuantImg)
         {
             InitializeComponent();
@@ -47,12 +48,14 @@ namespace COL.MultiGlycan
                 bgWorkerGenerateImages.ReportProgress(0);
                 string FullListFile = currentFile.Replace(".csv", "_FullList.csv");
                 string QuantFile = currentFile.Replace(".csv", "_Quant.csv");
+             
                 //Get individual image
                 if (isIndividualImg && File.Exists(FullListFile))
                 {
                     GenerateImages.GenGlycanLcImg(
                         FullListFile,
-                        ExportFilePath + "\\" + Path.GetFileNameWithoutExtension(currentFile));
+                        ExportFilePath + "\\" + Path.GetFileNameWithoutExtension(currentFile),
+                        out lstImgErrors);
                 }
                 //Get Quant Image
                 if (isQuantImg && File.Exists(QuantFile))
@@ -71,11 +74,20 @@ namespace COL.MultiGlycan
         {
             progressBar1.Value = Convert.ToInt32( CompletedCount/(float) ResultFiles.Count* 100);
             lblPercentage.Text = (CompletedCount/(float) ResultFiles.Count*100).ToString("00") + "%";
-            lblFileName.Text = "FileName:" + currentFile + "\t(" + CompletedCount.ToString() + "/" +ResultFiles.Count.ToString() + ")";
+            lblFileName.Text = "FileName:" + Path.GetFileNameWithoutExtension(currentFile) + "\t(" + CompletedCount.ToString() + "/" +ResultFiles.Count.ToString() + ")";
         }
 
         private void bgWorkerGenerateImages_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
+            if(lstImgErrors.Count>0)
+            {
+                string outStr = "";
+                foreach (string tmp in lstImgErrors)
+                {
+                    outStr += tmp + Environment.NewLine;
+                }
+                MessageBox.Show("Errors:" + Environment.NewLine + outStr);
+            }
             this.Close();
         }
     }

@@ -2,14 +2,13 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
-using System.Linq;
-using System.Net.Mail;
-using System.Text;
 using System.Threading.Tasks;
 using System.IO;
-using System.Windows.Forms;
 using COL.GlycoLib;
 using ZedGraph;
+using System.Diagnostics;
+using System.Windows.Forms;
+using System.Windows.Forms.DataVisualization.Charting;
 namespace COL.MultiGlycan
 {
     public static class GenerateImages
@@ -37,22 +36,11 @@ namespace COL.MultiGlycan
             Parallel.ForEach(dictCluster.Keys, new ParallelOptions() {MaxDegreeOfParallelism = MaxDegreeParallelism},Gkey =>
             //foreach (string Gkey in dictCluster.Keys)
             {
-
-                ZedGraphControl zgcGlycan = null;
+              
                 string ProcessingGlycanKey = "";
                 try
                 {
-                    zgcGlycan = new ZedGraphControl();
-                    ProcessingGlycanKey = Gkey;
-
-                    zgcGlycan.Width = 2400;
-                    zgcGlycan.Height = 1200;
-
-                    GraphPane GP = zgcGlycan.GraphPane;
-                    GP.Title.Text = "Glycan: " + Gkey;
-                    GP.XAxis.Title.Text = "Scan time (min)";
-                    GP.YAxis.Title.Text = "Abundance";
-                    GP.CurveList.Clear();
+                 
                     Dictionary<string, PointPairList> dictAdductPoints = new Dictionary<string, PointPairList>();
                     Dictionary<float, float> MergeIntensity = new Dictionary<float, float>();
                     List<float> Time = new List<float>();
@@ -87,118 +75,122 @@ namespace COL.MultiGlycan
                     }
 
                     #region LC Images
-                    //---------------Generate Graph-----------------
-                    int ColorIdx = 0;
-                    int SymbolIdx = 0;
-                    foreach (string Adduct in dictAdductPoints.Keys)
+                    using (ZedGraphControl zgcGlycan = new ZedGraphControl())
                     {
+                        //---------------Generate Graph-----------------                        
+                        ProcessingGlycanKey = Gkey;
 
-                        dictAdductPoints[Adduct].Sort(delegate(PointPair M1, PointPair M2) { return M1.X.CompareTo(M2.X); }); //Sort by time
-                        List<double> Mzs = new List<double>();
-                        List<double> Intensities = new List<double>();
-                        foreach (PointPair pp in dictAdductPoints[Adduct])
+                        zgcGlycan.Width = 2400;
+                        zgcGlycan.Height = 1200;
+
+                        GraphPane GP = zgcGlycan.GraphPane;
+                        GP.Title.Text = "Glycan: " + Gkey;
+                        GP.XAxis.Title.Text = "Scan time (min)";
+                        GP.YAxis.Title.Text = "Abundance";
+                        GP.CurveList.Clear();
+                        int ColorIdx = 0;
+                        int SymbolIdx = 0;
+                        foreach (string Adduct in dictAdductPoints.Keys)
                         {
-                            if (Mzs.Contains(pp.X))
+
+                            dictAdductPoints[Adduct].Sort(delegate(PointPair M1, PointPair M2) { return M1.X.CompareTo(M2.X); }); //Sort by time
+                            List<double> Mzs = new List<double>();
+                            List<double> Intensities = new List<double>();
+                            foreach (PointPair pp in dictAdductPoints[Adduct])
                             {
-                                int idx = Mzs.IndexOf(pp.X);
-                                Intensities[idx] = Intensities[idx] + pp.Y;
+                                if (Mzs.Contains(pp.X))
+                                {
+                                    int idx = Mzs.IndexOf(pp.X);
+                                    Intensities[idx] = Intensities[idx] + pp.Y;
+                                }
+                                else
+                                {
+                                    Mzs.Add(pp.X);
+                                    Intensities.Add(pp.Y);
+                                }
                             }
-                            else
-                            {
-                                Mzs.Add(pp.X);
-                                Intensities.Add(pp.Y);
-                            }
+                            LineItem Lne = GP.AddCurve(Adduct, Mzs.ToArray(), Intensities.ToArray(), LstColor[ColorIdx], LstSymbol[SymbolIdx]);
+                            Lne.Line.IsSmooth = true;
+                            Lne.Line.SmoothTension = 0.15f;
+                            Lne.Symbol.Size = 3.0f;
+                            Lne.Symbol.Fill = new Fill(LstColor[ColorIdx]);
+                            Lne.Symbol.Fill.Type = FillType.Solid;
+                            ColorIdx = (ColorIdx + 1) % LstColor.Count;
+                            SymbolIdx = (SymbolIdx + 1) % LstSymbol.Count;
+
                         }
-                        LineItem Lne = GP.AddCurve(Adduct, Mzs.ToArray(), Intensities.ToArray(), LstColor[ColorIdx], LstSymbol[SymbolIdx]);
-                        Lne.Line.IsSmooth = true;
-                        Lne.Line.SmoothTension = 0.15f;
-                        Lne.Symbol.Size = 3.0f;
-                        Lne.Symbol.Fill = new Fill(LstColor[ColorIdx]);
-                        Lne.Symbol.Fill.Type = FillType.Solid;
-                        ColorIdx = (ColorIdx + 1) % LstColor.Count;
-                        SymbolIdx = (SymbolIdx + 1) % LstSymbol.Count;
+                        //Merge Intensity
+                        Time.Sort();
+                        PointPairList PPLMerge = new PointPairList();
+                        foreach (float tim in Time)
+                        {
+                            PPLMerge.Add(Convert.ToSingle(tim.ToString("0.00")), MergeIntensity[tim]);
+                        }
+                        LineItem Merge = GP.AddCurve("Merge", PPLMerge, Color.Black, SymbolType.Star);
+                        Merge.Symbol.Size = 3.0f;
+                        Merge.Symbol.Fill = new Fill(Color.Black);
+                        Merge.Symbol.Fill.Type = FillType.Solid;
+                        Merge.Line.Style = DashStyle.Custom;
+                        Merge.Line.DashOff = 1;
+                        Merge.Line.DashOn = 1;
+                        Merge.Line.Width = 3.0f;
+                        Merge.Line.IsSmooth = true;
+                        Merge.Line.SmoothTension = 0.15f;
 
+                        //Peak Margin 
+
+                        for (int i = 0; i < lstPeakMargin.Count; i++)
+                        {
+                            PointPairList PPLL = new PointPairList();
+                            PPLL.Add(lstPeakMargin[i].Item1, 0);
+                            PPLL.Add(lstPeakMargin[i].Item1, maxIntensity);
+                            LineItem MarginL = GP.AddCurve("Margin" + i.ToString() + "Left", PPLL, Color.HotPink);
+                            MarginL.Line.Style = DashStyle.Custom;
+                            MarginL.Symbol.IsVisible = false;
+                            MarginL.Line.Width = 3;
+                            MarginL.Line.DashOn = 5;
+                            MarginL.Line.DashOff = 10;
+                            MarginL.Label.IsVisible = false;
+
+                            PointPairList PPLR = new PointPairList();
+                            PPLR.Add(lstPeakMargin[i].Item2, 0);
+                            PPLR.Add(lstPeakMargin[i].Item2, maxIntensity);
+                            LineItem MarginR = GP.AddCurve("Margin" + i.ToString() + "Right", PPLR, Color.HotPink);
+                            MarginR.Line.Style = DashStyle.Custom;
+                            MarginR.Symbol.IsVisible = false;
+                            MarginR.Line.Width = 3;
+                            MarginR.Line.DashOn = 5;
+                            MarginR.Line.DashOff = 10;
+                            MarginR.Label.IsVisible = false;
+
+                            PointPairList PPLH = new PointPairList();
+                            PPLH.Add(lstPeakMargin[i].Item1, maxIntensity);
+                            PPLH.Add(lstPeakMargin[i].Item2, maxIntensity);
+                            LineItem MarginH = GP.AddCurve("Margin" + i.ToString() + "H", PPLH, Color.Cyan);
+                            MarginH.Line.Style = DashStyle.Custom;
+                            MarginH.Symbol.Type = SymbolType.VDash;
+                            MarginH.Line.Width = 3;
+                            MarginH.Line.DashOn = 1;
+                            MarginH.Line.DashOff = 3;
+                            MarginH.Label.IsVisible = false;
+                        }
+                        zgcGlycan.AxisChange();
+                        zgcGlycan.Refresh();
+                        zgcGlycan.Validate();
+                        using(Bitmap pic = new Bitmap(zgcGlycan.GraphPane.GetImage()))
+                        {                        
+                           pic .Save(dir + "\\" + Gkey + ".png", System.Drawing.Imaging.ImageFormat.Png);
+                        }
                     }
-                    //Merge Intensity
-                    Time.Sort();
-                    PointPairList PPLMerge = new PointPairList();
-                    foreach (float tim in Time)
-                    {
-                        PPLMerge.Add(Convert.ToSingle(tim.ToString("0.00")), MergeIntensity[tim]);
-                    }
-                    LineItem Merge = GP.AddCurve("Merge", PPLMerge, Color.Black, SymbolType.Star);
-                    Merge.Symbol.Size = 3.0f;
-                    Merge.Symbol.Fill = new Fill(Color.Black);
-                    Merge.Symbol.Fill.Type = FillType.Solid;
-                    Merge.Line.Style = DashStyle.Custom;
-                    Merge.Line.DashOff = 1;
-                    Merge.Line.DashOn = 1;
-                    Merge.Line.Width = 3.0f;
-                    Merge.Line.IsSmooth = true;
-                    Merge.Line.SmoothTension = 0.15f;
-
-                    //Peak Margin 
-                    
-                    for(int i =0 ;i<lstPeakMargin.Count;i++)
-                    {
-                        PointPairList PPLL = new PointPairList();
-                        PPLL.Add(lstPeakMargin[i].Item1, 0);
-                        PPLL.Add(lstPeakMargin[i].Item1, maxIntensity);
-                        LineItem MarginL = GP.AddCurve("Margin" + i.ToString()+"Left", PPLL, Color.HotPink);
-                        MarginL.Line.Style = DashStyle.Custom;
-                        MarginL.Symbol.IsVisible = false;
-                        MarginL.Line.Width = 3;
-                        MarginL.Line.DashOn = 5;
-                        MarginL.Line.DashOff = 10;
-                        MarginL.Label.IsVisible = false;
-
-                        PointPairList PPLR= new PointPairList();
-                        PPLR.Add(lstPeakMargin[i].Item2, 0);
-                        PPLR.Add(lstPeakMargin[i].Item2, maxIntensity);
-                        LineItem MarginR = GP.AddCurve("Margin" + i.ToString() + "Right", PPLR, Color.HotPink);
-                        MarginR.Line.Style = DashStyle.Custom;
-                        MarginR.Symbol.IsVisible = false;
-                        MarginR.Line.Width = 3;
-                        MarginR.Line.DashOn = 5;
-                        MarginR.Line.DashOff = 10;
-                        MarginR.Label.IsVisible = false;
-
-                        PointPairList PPLH = new PointPairList();
-                        PPLH.Add(lstPeakMargin[i].Item1, maxIntensity);
-                        PPLH.Add(lstPeakMargin[i].Item2, maxIntensity);
-                        LineItem MarginH = GP.AddCurve("Margin" + i.ToString() + "H", PPLH, Color.Cyan);
-                        MarginH.Line.Style = DashStyle.Custom;
-                        MarginH.Symbol.Type = SymbolType.VDash;
-                        MarginH.Line.Width = 3;
-                        MarginH.Line.DashOn = 1;
-                        MarginH.Line.DashOff = 3;
-                        MarginH.Label.IsVisible = false;
-
-                    }
-                    zgcGlycan.AxisChange();
-                    zgcGlycan.Refresh();
-                    zgcGlycan.MasterPane.GetImage()
-                        .Save(dir + "\\" + Gkey + ".png", System.Drawing.Imaging.ImageFormat.Png);
-
                     #endregion
-
                 }
                 catch (Exception ex)
                 {
                     throw new Exception("GetLC Pic failed " + ProcessingGlycanKey + "  Err Msg:" + ex.ToString());
-                }
-                finally
-                {
-                    if (zgcGlycan != null)
-                    {
-                        zgcGlycan.Dispose();
-                        zgcGlycan = null;
-                    }
-                }
+                }      
             });
-
         }
-        public static void GenGlycanLcImg(string argAllFile, string argExportFolder)
+        public static void GenGlycanLcImg(string argAllFile, string argExportFolder, out List<string> errorMsgs)
         {
             string Dir = argExportFolder + "\\Pic";
             if (!Directory.Exists(Dir))
@@ -273,23 +265,14 @@ namespace COL.MultiGlycan
 
             #region Get Data
 
+            List<string> imgErrorMsg = new List<string>();
             //foreach (string Gkey in dictData.Keys)
             Parallel.ForEach(dictData.Keys, new ParallelOptions() { MaxDegreeOfParallelism = MaxDegreeParallelism }, Gkey =>
             {
-                ZedGraphControl zgcGlycan = null;
+                
                 try
                 {
-                    zgcGlycan = new ZedGraphControl();
-                    ProcessingGlycanKey = Gkey;
-
-                    zgcGlycan.Width = 2400;
-                    zgcGlycan.Height = 1200;
-
-                    GraphPane GP = zgcGlycan.GraphPane;
-                    GP.Title.Text = "Glycan: " + Gkey;
-                    GP.XAxis.Title.Text = "Scan time (min)";
-                    GP.YAxis.Title.Text = "Abundance";
-                    GP.CurveList.Clear();
+                    
                     Dictionary<string, PointPairList> dictAdductPoints = new Dictionary<string, PointPairList>();
                     Dictionary<float, float> MergeIntensity = new Dictionary<float, float>();
                     List<float> Time = new List<float>();
@@ -322,76 +305,90 @@ namespace COL.MultiGlycan
             #endregion
 
                     #region LC Images
+    
 
-                    //---------------Generate Graph-----------------
-                    int ColorIdx = 0;
-                    int SymbolIdx = 0;
-                    foreach (string Adduct in dictAdductPoints.Keys)
+                    using (ZedGraphControl zgcGlycan = new ZedGraphControl())
                     {
-                        dictAdductPoints[Adduct].Sort(delegate(PointPair M1, PointPair M2)
-                        {
-                            return M1.X.CompareTo(M2.X);
-                        }
-                            );
-                        List<double> Mzs = new List<double>();
-                        List<double> Intensities = new List<double>();
-                        foreach (PointPair pp in dictAdductPoints[Adduct])
-                        {
-                            if (Mzs.Contains(pp.X))
-                            {
-                                int idx = Mzs.IndexOf(pp.X);
-                                Intensities[idx] = Intensities[idx] + pp.Y;
-                            }
-                            else
-                            {
-                                Mzs.Add(pp.X);
-                                Intensities.Add(pp.Y);
-                            }
-                        }
-                        LineItem Lne = GP.AddCurve(Adduct, Mzs.ToArray(), Intensities.ToArray(), LstColor[ColorIdx % 17], LstSymbol[SymbolIdx % 9]);
-                        Lne.Line.IsSmooth = true;
-                        Lne.Line.SmoothTension = 0.15f;
-                        Lne.Symbol.Size = 3.0f;
-                        Lne.Symbol.Fill = new Fill(LstColor[ColorIdx % 17]);
-                        Lne.Symbol.Fill.Type = FillType.Solid;
-                        ColorIdx = ColorIdx + 1;
-                        SymbolIdx = SymbolIdx + 1;
-                    }
-                    //Merge Intensity
-                    Time.Sort();
-                    PointPairList PPLMerge = new PointPairList();
-                    foreach (float tim in Time)
-                    {
-                        PPLMerge.Add(Convert.ToSingle(tim.ToString("0.00")), MergeIntensity[tim]);
-                    }
-                    LineItem Merge = GP.AddCurve("Merge", PPLMerge, Color.Black, SymbolType.Star);
-                    Merge.Symbol.Size = 3.0f;
-                    Merge.Symbol.Fill = new Fill(Color.Black);
-                    Merge.Symbol.Fill.Type = FillType.Solid;
-                    Merge.Line.Width = 3.0f;
-                    Merge.Line.IsSmooth = true;
-                    Merge.Line.SmoothTension = 0.15f;
-                    zgcGlycan.AxisChange();
-                    zgcGlycan.Refresh();
-                    zgcGlycan.MasterPane.GetImage()
-                        .Save(Dir + "\\" + Gkey + ".png", System.Drawing.Imaging.ImageFormat.Png);
+                        ProcessingGlycanKey = Gkey;
 
+                        zgcGlycan.Width = 2400;
+                        zgcGlycan.Height = 1200;
+
+                        GraphPane GP = zgcGlycan.GraphPane;
+                        GP.Title.Text = "Glycan: " + Gkey;
+                        GP.XAxis.Title.Text = "Scan time (min)";
+                        GP.YAxis.Title.Text = "Abundance";
+                        GP.CurveList.Clear();
+                        //---------------Generate Graph-----------------
+                        int ColorIdx = 0;
+                        int SymbolIdx = 0;
+                        foreach (string Adduct in dictAdductPoints.Keys)
+                        {
+                            dictAdductPoints[Adduct].Sort(delegate(PointPair M1, PointPair M2)
+                            {
+                                return M1.X.CompareTo(M2.X);
+                            }
+                                );
+                            List<double> Mzs = new List<double>();
+                            List<double> Intensities = new List<double>();
+                            foreach (PointPair pp in dictAdductPoints[Adduct])
+                            {
+                                if (Mzs.Contains(pp.X))
+                                {
+                                    int idx = Mzs.IndexOf(pp.X);
+                                    Intensities[idx] = Intensities[idx] + pp.Y;
+                                }
+                                else
+                                {
+                                    Mzs.Add(pp.X);
+                                    Intensities.Add(pp.Y);
+                                }
+                            }
+                            LineItem Lne = GP.AddCurve(Adduct, Mzs.ToArray(), Intensities.ToArray(), LstColor[ColorIdx % 17], LstSymbol[SymbolIdx % 9]);
+                            Lne.Line.IsSmooth = true;
+                            Lne.Line.SmoothTension = 0.15f;
+                            Lne.Symbol.Size = 3.0f;
+                            Lne.Symbol.Fill = new Fill(LstColor[ColorIdx % 17]);
+                            Lne.Symbol.Fill.Type = FillType.Solid;
+                            ColorIdx = ColorIdx + 1;
+                            SymbolIdx = SymbolIdx + 1;
+                        }
+                        //Merge Intensity
+                        Time.Sort();
+                        PointPairList PPLMerge = new PointPairList();
+                        foreach (float tim in Time)
+                        {
+                            PPLMerge.Add(Convert.ToSingle(tim.ToString("0.00")), MergeIntensity[tim]);
+                        }
+                        LineItem Merge = GP.AddCurve("Merge", PPLMerge, Color.Black, SymbolType.Star);
+                        Merge.Symbol.Size = 3.0f;
+                        Merge.Symbol.Fill = new Fill(Color.Black);
+                        Merge.Symbol.Fill.Type = FillType.Solid;
+                        Merge.Line.Width = 3.0f;
+                        Merge.Line.IsSmooth = true;
+                        Merge.Line.SmoothTension = 0.15f;
+                        zgcGlycan.AxisChange();
+                        zgcGlycan.Refresh();
+                        zgcGlycan.Invalidate();
+                        using (Bitmap pic = new Bitmap( zgcGlycan.GraphPane.GetImage()))
+                        {
+                            pic.Save(Dir + "\\" + Gkey + ".png", System.Drawing.Imaging.ImageFormat.Png);
+                        }
+                    }
                     #endregion
 
                 }
                 catch (Exception ex)
                 {
-                    throw new Exception("GetLC Pic failed " + ProcessingGlycanKey + "  Err Msg:" + ex.ToString());
-                }
-                finally
-                {
-                    if (zgcGlycan != null)
-                    {
-                        zgcGlycan.Dispose();
-                        zgcGlycan = null;
-                    }
-                }
-            });
+                    var st = new StackTrace(ex, true);
+                    // Get the top stack frame
+                    var frame = st.GetFrame(0);
+                    // Get the line number from the stack frame
+                    var line = frame.GetFileLineNumber();
+                    imgErrorMsg.Add("GetLC Pic failed "+Dir+"\\" + ProcessingGlycanKey + "  @ " + line + "  Err Msg:" + ex.ToString());
+                } 
+            });            
+            errorMsgs = imgErrorMsg;
         }
 
         public static void GenQuantImg(string argQuantFile, enumGlycanLabelingMethod argLabelingMethod,

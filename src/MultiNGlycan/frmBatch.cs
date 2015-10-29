@@ -98,7 +98,13 @@ namespace COL.MultiGlycan
                 }
                 return;
             }
-            folderBrowserDialog1.SelectedPath = txtRawFile.Text;
+            //folderBrowserDialog1.SelectedPath = txtRawFile.Text;
+            string defaultOutputFolder = txtRawFile.Text + "\\" +DateTime.Now.ToString("yyMMdd-HHmm");
+            if (!Directory.Exists(defaultOutputFolder))
+            {
+                Directory.CreateDirectory(defaultOutputFolder);
+            }
+            folderBrowserDialog1.SelectedPath = defaultOutputFolder;
             if (folderBrowserDialog1.ShowDialog() == DialogResult.OK)
             {
                 string glycanlist = System.Windows.Forms.Application.StartupPath + "\\Default_Combination.csv";

@@ -83,6 +83,7 @@
             this.txtRawFile = new System.Windows.Forms.TextBox();
             this.btnBrowseRaw = new System.Windows.Forms.Button();
             this.tabQuan = new System.Windows.Forms.TabPage();
+            this.chkProtonatedResult = new System.Windows.Forms.CheckBox();
             this.label9 = new System.Windows.Forms.Label();
             this.cboConcurrent = new System.Windows.Forms.ComboBox();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
@@ -122,7 +123,6 @@
             this.rdoMultiplePemrthylated = new System.Windows.Forms.RadioButton();
             this.btnQuan = new System.Windows.Forms.Button();
             this.folderBrowserDialog1 = new System.Windows.Forms.FolderBrowserDialog();
-            this.chkProtonatedResult = new System.Windows.Forms.CheckBox();
             this.groupBox1.SuspendLayout();
             this.groupBox5.SuspendLayout();
             this.groupBox6.SuspendLayout();
@@ -706,6 +706,16 @@
             this.tabQuan.Text = "Quantification";
             this.tabQuan.UseVisualStyleBackColor = true;
             // 
+            // chkProtonatedResult
+            // 
+            this.chkProtonatedResult.AutoSize = true;
+            this.chkProtonatedResult.Location = new System.Drawing.Point(561, 501);
+            this.chkProtonatedResult.Name = "chkProtonatedResult";
+            this.chkProtonatedResult.Size = new System.Drawing.Size(130, 17);
+            this.chkProtonatedResult.TabIndex = 53;
+            this.chkProtonatedResult.Text = "Export Protonated File";
+            this.chkProtonatedResult.UseVisualStyleBackColor = true;
+            // 
             // label9
             // 
             this.label9.AutoSize = true;
@@ -1134,16 +1144,6 @@
             this.btnQuan.Text = "Search";
             this.btnQuan.UseVisualStyleBackColor = true;
             this.btnQuan.Click += new System.EventHandler(this.btnQuan_Click);
-            // 
-            // chkProtonatedResult
-            // 
-            this.chkProtonatedResult.AutoSize = true;
-            this.chkProtonatedResult.Location = new System.Drawing.Point(561, 501);
-            this.chkProtonatedResult.Name = "chkProtonatedResult";
-            this.chkProtonatedResult.Size = new System.Drawing.Size(130, 17);
-            this.chkProtonatedResult.TabIndex = 53;
-            this.chkProtonatedResult.Text = "Export Protonated File";
-            this.chkProtonatedResult.UseVisualStyleBackColor = true;
             // 
             // frmBatch
             // 

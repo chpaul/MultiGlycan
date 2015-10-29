@@ -18,7 +18,7 @@ namespace COL.MultiGlycan
 {
     public partial class frmBatchProcessing : Form
     {
-        private StreamWriter debugWriter = new StreamWriter(Environment.CurrentDirectory+"\\debug.txt");
+       // private StreamWriter debugWriter = new StreamWriter(Environment.CurrentDirectory+"\\debug.txt");
         private int NumberOfParallel = 1;
         private string ErrMsg = "";
         private MultiGlycanESI _MultiNGlycan;
@@ -78,7 +78,7 @@ namespace COL.MultiGlycan
             ZedGraphControl zedGraphControl = new ZedGraphControl();
             try
             {
-                debugWriter.WriteLine("---------------------Process file:" + argFile + "------------------------");
+                //debugWriter.WriteLine("---------------------Process file:" + argFile + "------------------------");
                 ProcessingStatus[runningSlot] = "Status: Reading Raw file";
                 bgWorker_Process.ReportProgress(0);
                 ProgressUpdate.Add(argFile, 0);
@@ -91,7 +91,7 @@ namespace COL.MultiGlycan
                 {
                     multiGlycan = new MultiGlycanESI(argFile, 1, 99999, _MultiNGlycan.GlycanFile, _MultiNGlycan.MassPPM, _MultiNGlycan.GlycanPPM, _MultiNGlycan.IsPermethylated, _MultiNGlycan.IsReducedReducingEnd, _MultiNGlycan.SiaType, _MultiNGlycan.DoLOG);
                 }
-                debugWriter.WriteLine("init finish");
+                //debugWriter.WriteLine("init finish");
                 multiGlycan.LabelingMethod = _MultiNGlycan.LabelingMethod;
                 multiGlycan.MergeDifferentChargeIntoOne = _MultiNGlycan.MergeDifferentChargeIntoOne;
                 multiGlycan.ExportFilePath = _MultiNGlycan.ExportFilePath + "\\" + Path.GetFileNameWithoutExtension(argFile);
@@ -130,7 +130,7 @@ namespace COL.MultiGlycan
                 //            multiGlycan.ProcessSingleScan(i);
                 //        }
                 //    });
-                debugWriter.WriteLine("Start processing");
+               // debugWriter.WriteLine("Start processing");
                 for (int i = 1; i <= multiGlycan.RawReader.NumberOfScans; i++)
                 {
                     ProgressUpdate[argFile] = ProgressUpdate[argFile] + 1;
@@ -138,15 +138,15 @@ namespace COL.MultiGlycan
                     if (multiGlycan.RawReader.GetMsLevel(i) == 1)
                     {
                         multiGlycan.ProcessSingleScan(i);
-                        debugWriter.WriteLine("Processed scen:" + i.ToString());
+               //         debugWriter.WriteLine("Processed scen:" + i.ToString());
                     }
                 }
-                debugWriter.WriteLine("Merge");
+                //debugWriter.WriteLine("Merge");
                 ProcessingStatus[runningSlot] = "Status:  Mergeing Result";
                 multiGlycan.MergeSingleScanResultToPeak();
                 multiGlycan.SolveDuplicateAssignment();
                 multiGlycan.MergeSingleScanResultToPeak();
-                debugWriter.WriteLine("Merge completed");
+                //debugWriter.WriteLine("Merge completed");
                 if (multiGlycan.GlycanLCorderExist)
                 {
                     multiGlycan.ApplyLCordrer();
@@ -174,14 +174,14 @@ namespace COL.MultiGlycan
               
                 ProcessingStatus[runningSlot] = "Status:  Exporting";
                 bgWorker_Process.ReportProgress(0);
-                debugWriter.WriteLine("Export to CSV");
+                //debugWriter.WriteLine("Export to CSV");
                 multiGlycan.ExportToCSV();
                 ProcessingStatus[runningSlot] = "Export completed";
-                debugWriter.WriteLine("Export completed");
+                //debugWriter.WriteLine("Export completed");
                 bgWorker_Process.ReportProgress(0);
                 SucceedFileCount = SucceedFileCount + 1;
-                debugWriter.WriteLine("Finish");
-                debugWriter.Flush();
+                //debugWriter.WriteLine("Finish");
+                //debugWriter.Flush();
             }
             catch (Exception e)
             {
@@ -202,8 +202,8 @@ namespace COL.MultiGlycan
             {
                 ProcessMultiGlycanAsync(rawFile);
             });
-            debugWriter.WriteLine("\n\n-----------------Error:" + ErrMsg);
-            debugWriter.Close();
+            //debugWriter.WriteLine("\n\n-----------------Error:" + ErrMsg);
+            //debugWriter.Close();
             //string currentFile = "";
             //try
             //{

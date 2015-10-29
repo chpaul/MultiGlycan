@@ -345,11 +345,17 @@
 		<row><td>ElutionViewer.dll</td><td>{71932414-A1BA-4B52-BBEF-65567E43543F}</td><td>AppDataFolder</td><td>2</td><td/><td>elutionviewer.dll</td><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 		<row><td>GlycoLib.dll</td><td>{A10F6930-12B0-46A9-81E3-893DE9C0CC1E}</td><td>AppDataFolder</td><td>2</td><td/><td>glycolib.dll</td><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 		<row><td>ISX_DEFAULTCOMPONENT</td><td>{6779935D-F19C-4E26-A9C1-7F10F0840F56}</td><td>AppDataFolder</td><td>2</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
+		<row><td>ISX_DEFAULTCOMPONENT1</td><td>{FA59032E-7FDD-40EF-AD12-F4B3644F9DE7}</td><td>THERMO</td><td>2</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
+		<row><td>ISX_DEFAULTCOMPONENT2</td><td>{9897903F-1762-4314-853E-1EE6293D1820}</td><td>MSFILEREADER</td><td>2</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
+		<row><td>ISX_DEFAULTCOMPONENT3</td><td>{8571B1D1-AD17-4571-BAA6-37DD2DAB2B0E}</td><td>INSTALLDIR</td><td>2</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 		<row><td>MassLib.dll</td><td>{8B2DE9D2-5F10-4D4D-BC6C-1876381E21A9}</td><td>AppDataFolder</td><td>2</td><td/><td>masslib.dll</td><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 		<row><td>MultiGlycan_COLLib.Primary_output</td><td>{FB35F24A-A175-4648-ADEC-B5D972D8333A}</td><td>AppDataFolder</td><td>2</td><td/><td>multiglycan_collib.primary_o</td><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 		<row><td>NewComponent1</td><td>{7DC944CC-8B77-4336-9DE5-6FAB901C3938}</td><td>INSTALLDIR</td><td>2</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 		<row><td>ProtLib.dll</td><td>{515DDB9D-0599-46E6-99D7-4B478C311202}</td><td>AppDataFolder</td><td>2</td><td/><td>protlib.dll</td><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
+		<row><td>XRawfile2.dll</td><td>{DA6C4FDE-BDE5-4913-B62F-0FDE3BD7F53C}</td><td>MSFILEREADER</td><td>2</td><td/><td>xrawfile2.dll</td><td>20</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 		<row><td>ZedGraph.dll</td><td>{52E11B3F-4CA3-4860-A258-40AD33693CB8}</td><td>AppDataFolder</td><td>2</td><td/><td>zedgraph.dll</td><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
+		<row><td>fileio.dll</td><td>{FC3D62A7-0B01-488D-B67E-923AE414834F}</td><td>MSFILEREADER</td><td>2</td><td/><td>fileio.dll</td><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
+		<row><td>fregistry.dll</td><td>{096C03A0-DC4A-4E15-9E2C-47B97A862A1A}</td><td>MSFILEREADER</td><td>2</td><td/><td>fregistry.dll</td><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 	</table>
 
 	<table name="Condition">
@@ -1058,7 +1064,10 @@
 	<table name="CreateFolder">
 		<col key="yes" def="s72">Directory_</col>
 		<col key="yes" def="s72">Component_</col>
+		<row><td>INSTALLDIR</td><td>ISX_DEFAULTCOMPONENT3</td></row>
 		<row><td>INSTALLDIR</td><td>NewComponent1</td></row>
+		<row><td>MSFILEREADER</td><td>ISX_DEFAULTCOMPONENT2</td></row>
+		<row><td>THERMO</td><td>ISX_DEFAULTCOMPONENT1</td></row>
 	</table>
 
 	<table name="CustomAction">
@@ -1156,6 +1165,7 @@
 		<row><td>ISMyProductDir</td><td>ISMyCompanyDir</td><td>MYPROD~1|My Product Name</td><td/><td>0</td><td/></row>
 		<row><td>ISYourDataBaseDir</td><td>INSTALLDIR</td><td>Database</td><td/><td>0</td><td/></row>
 		<row><td>LocalAppDataFolder</td><td>TARGETDIR</td><td>.:LocalA~1|LocalAppData</td><td/><td>0</td><td/></row>
+		<row><td>MSFILEREADER</td><td>THERMO</td><td>MSFILE~1|MSFileReader</td><td/><td>0</td><td/></row>
 		<row><td>MULTIGLYCAN</td><td>INDIANA_UNIVERSITY</td><td>MULTIG~1|MultiGlycan</td><td/><td>0</td><td/></row>
 		<row><td>MULTIGLYCAN1</td><td>INDIANA_UNIVERSITY_COL_</td><td>MULTIG~1|MultiGlycan</td><td/><td>0</td><td/></row>
 		<row><td>MY_PRODUCT_NAME</td><td>INDIANA_UNIVERSITY</td><td>MYPROD~1|My Product Name</td><td/><td>0</td><td/></row>
@@ -1175,6 +1185,7 @@
 		<row><td>System64Folder</td><td>TARGETDIR</td><td>.:System64</td><td/><td>0</td><td/></row>
 		<row><td>SystemFolder</td><td>TARGETDIR</td><td>.:System32</td><td/><td>0</td><td/></row>
 		<row><td>TARGETDIR</td><td/><td>SourceDir</td><td/><td>0</td><td/></row>
+		<row><td>THERMO</td><td>ProgramFilesFolder</td><td>Thermo</td><td/><td>0</td><td/></row>
 		<row><td>TempFolder</td><td>TARGETDIR</td><td>.:Temp</td><td/><td>0</td><td/></row>
 		<row><td>TemplateFolder</td><td>TARGETDIR</td><td>.:ShellNew</td><td/><td>0</td><td/></row>
 		<row><td>USERPROFILE</td><td>TARGETDIR</td><td>.:USERPR~1|UserProfile</td><td/><td>0</td><td/></row>
@@ -1878,11 +1889,17 @@
 		<row><td>AlwaysInstall</td><td>ElutionViewer.dll</td></row>
 		<row><td>AlwaysInstall</td><td>GlycoLib.dll</td></row>
 		<row><td>AlwaysInstall</td><td>ISX_DEFAULTCOMPONENT</td></row>
+		<row><td>AlwaysInstall</td><td>ISX_DEFAULTCOMPONENT1</td></row>
+		<row><td>AlwaysInstall</td><td>ISX_DEFAULTCOMPONENT2</td></row>
+		<row><td>AlwaysInstall</td><td>ISX_DEFAULTCOMPONENT3</td></row>
 		<row><td>AlwaysInstall</td><td>MassLib.dll</td></row>
 		<row><td>AlwaysInstall</td><td>MultiGlycan_COLLib.Primary_output</td></row>
 		<row><td>AlwaysInstall</td><td>NewComponent1</td></row>
 		<row><td>AlwaysInstall</td><td>ProtLib.dll</td></row>
+		<row><td>AlwaysInstall</td><td>XRawfile2.dll</td></row>
 		<row><td>AlwaysInstall</td><td>ZedGraph.dll</td></row>
+		<row><td>AlwaysInstall</td><td>fileio.dll</td></row>
+		<row><td>AlwaysInstall</td><td>fregistry.dll</td></row>
 	</table>
 
 	<table name="File">
@@ -1901,10 +1918,13 @@
 		<row><td>csmsl.thermo.dll</td><td>CSMSL.Thermo.dll</td><td>CSMSLT~1.DLL|CSMSL.Thermo.dll</td><td>0</td><td/><td/><td/><td>1</td><td>D:\!Git\MultiGlycan\lib\CSMSL.Thermo.dll</td><td>1</td><td/></row>
 		<row><td>default_combination.csv</td><td>ISX_DEFAULTCOMPONENT</td><td>DEFAUL~1.CSV|Default_Combination.csv</td><td>0</td><td/><td/><td/><td>1</td><td>D:\!Git\MultiGlycan\lib\Default_Combination.csv</td><td>1</td><td/></row>
 		<row><td>elutionviewer.dll</td><td>ElutionViewer.dll</td><td>ELUTIO~1.DLL|ElutionViewer.dll</td><td>0</td><td/><td/><td/><td>1</td><td>D:\!Git\MultiGlycan\lib\ElutionViewer.dll</td><td>1</td><td/></row>
+		<row><td>fileio.dll</td><td>fileio.dll</td><td>fileio.dll</td><td>0</td><td/><td/><td/><td>1</td><td>E:\Multiglycan Issue\RawFileReader\fileio.dll</td><td>1</td><td/></row>
+		<row><td>fregistry.dll</td><td>fregistry.dll</td><td>FREGIS~1.DLL|fregistry.dll</td><td>0</td><td/><td/><td/><td>1</td><td>E:\Multiglycan Issue\RawFileReader\fregistry.dll</td><td>1</td><td/></row>
 		<row><td>glycolib.dll</td><td>GlycoLib.dll</td><td>GlycoLib.dll</td><td>0</td><td/><td/><td/><td>1</td><td>D:\!Git\MultiGlycan\lib\GlycoLib.dll</td><td>1</td><td/></row>
 		<row><td>masslib.dll</td><td>MassLib.dll</td><td>MassLib.dll</td><td>0</td><td/><td/><td/><td>1</td><td>D:\!Git\MultiGlycan\lib\MassLib.dll</td><td>1</td><td/></row>
 		<row><td>multiglycan_collib.primary_o</td><td>MultiGlycan_COLLib.Primary_output</td><td>MultiGlycan_COLLib.Primary output</td><td>0</td><td/><td/><td/><td>1</td><td>&lt;MultiGlycan_COLLib&gt;|Built</td><td>3</td><td/></row>
 		<row><td>protlib.dll</td><td>ProtLib.dll</td><td>ProtLib.dll</td><td>0</td><td/><td/><td/><td>1</td><td>D:\!Git\MultiGlycan\lib\ProtLib.dll</td><td>1</td><td/></row>
+		<row><td>xrawfile2.dll</td><td>XRawfile2.dll</td><td>XRAWFI~1.DLL|XRawfile2.dll</td><td>0</td><td/><td/><td/><td>1</td><td>E:\Multiglycan Issue\RawFileReader\XRawfile2.dll</td><td>1</td><td/></row>
 		<row><td>zedgraph.dll</td><td>ZedGraph.dll</td><td>ZedGraph.dll</td><td>0</td><td/><td/><td/><td>1</td><td>D:\!Git\MultiGlycan\lib\ZedGraph.dll</td><td>1</td><td/></row>
 	</table>
 
@@ -2054,11 +2074,17 @@
 		<row><td>ElutionViewer.dll</td><td/><td/><td>_279D68A5_2D4D_4074_9F5A_58FE26BE42FB_FILTER</td><td/><td/><td/><td/></row>
 		<row><td>GlycoLib.dll</td><td/><td/><td>_2AB09659_F5C5_4A95_A41E_2480E03D8697_FILTER</td><td/><td/><td/><td/></row>
 		<row><td>ISX_DEFAULTCOMPONENT</td><td/><td/><td>_93D5C786_88B4_4E64_8419_B0FF41202CD4_FILTER</td><td/><td/><td/><td/></row>
+		<row><td>ISX_DEFAULTCOMPONENT1</td><td/><td/><td>_AC6187C5_6E33_40EA_8E10_70C5A7556C97_FILTER</td><td/><td/><td/><td/></row>
+		<row><td>ISX_DEFAULTCOMPONENT2</td><td/><td/><td>_AEB444C1_3E2B_43B9_8DB0_E2912871873E_FILTER</td><td/><td/><td/><td/></row>
+		<row><td>ISX_DEFAULTCOMPONENT3</td><td/><td/><td>_80CEEF89_DA20_4172_A9B6_F56E057D7163_FILTER</td><td/><td/><td/><td/></row>
 		<row><td>MassLib.dll</td><td/><td/><td>_EB826696_1AEA_45B9_945E_15BA85C90BBD_FILTER</td><td/><td/><td/><td/></row>
 		<row><td>MultiGlycan_COLLib.Primary_output</td><td/><td/><td>_0C452404_EB65_4885_8F40_10879361FB10_FILTER</td><td/><td/><td/><td/></row>
 		<row><td>NewComponent1</td><td/><td/><td>_BC51BBCD_64B9_44C2_8F02_8E8384AB381F_FILTER</td><td/><td/><td/><td/></row>
 		<row><td>ProtLib.dll</td><td/><td/><td>_6299EC4A_BE42_440C_916A_C596B1F22621_FILTER</td><td/><td/><td/><td/></row>
+		<row><td>XRawfile2.dll</td><td/><td/><td>_C5A3BEDE_6EA7_4E2E_8901_414D6FC48B14_FILTER</td><td/><td/><td/><td/></row>
 		<row><td>ZedGraph.dll</td><td/><td/><td>_44661A9D_9514_44AC_A3E9_9F73CF50297A_FILTER</td><td/><td/><td/><td/></row>
+		<row><td>fileio.dll</td><td/><td/><td>_477226D9_F246_438B_869E_D91C989BBD28_FILTER</td><td/><td/><td/><td/></row>
+		<row><td>fregistry.dll</td><td/><td/><td>_59BEE642_862B_4CF3_8B5D_15A966799D89_FILTER</td><td/><td/><td/><td/></row>
 	</table>
 
 	<table name="ISCustomActionReference">
@@ -4024,7 +4050,7 @@ UwBpAG4AZwBsAGUASQBtAGEAZwBlAAEARQB4AHAAcgBlAHMAcwA=
 		<row><td>ISTheme</td><td>InstallShield Blue.theme</td></row>
 		<row><td>ISUSLock</td><td>{65DBF0BD-52CB-4366-9051-62BBAC07A495}</td></row>
 		<row><td>ISUSSignature</td><td>{8BE09AF9-A3CF-4A2E-B06C-E02A2357BD56}</td></row>
-		<row><td>ISVisitedViews</td><td>viewAssistant,viewISToday,viewAppV,viewUpgradePaths,viewUpdateService,viewSetupTypes,viewSetupDesign,viewRealSetupDesign,viewProject,viewObjects,viewDependencies,viewShortcuts,viewAppFiles,viewFeatureFiles,viewSystemSearch,viewTextMessages,viewSupportFiles</td></row>
+		<row><td>ISVisitedViews</td><td>viewAssistant,viewISToday,viewAppV,viewUpgradePaths,viewUpdateService,viewSetupTypes,viewSetupDesign,viewRealSetupDesign,viewProject,viewObjects,viewDependencies,viewShortcuts,viewAppFiles,viewFeatureFiles,viewSystemSearch,viewTextMessages,viewSupportFiles,viewRegistry,viewTextFiles,viewXMLConfig</td></row>
 		<row><td>Limited</td><td>1</td></row>
 		<row><td>LockPermissionMode</td><td>1</td></row>
 		<row><td>MsiExecCmdLineOptions</td><td/></row>
@@ -4469,6 +4495,9 @@ UwBpAG4AZwBsAGUASQBtAGEAZwBlAAEARQB4AHAAcgBlAHMAcwA=
 		<col def="S0">Value</col>
 		<col def="s72">Component_</col>
 		<col def="I4">ISAttributes</col>
+		<row><td>Registry1</td><td>2</td><td>SOFTWARE\SOFTWARE\Thermo Fisher Scientific</td><td/><td/><td>ISX_DEFAULTCOMPONENT3</td><td>0</td></row>
+		<row><td>Registry2</td><td>2</td><td>SOFTWARE\SOFTWARE\Thermo Fisher Scientific\Thermo MSFileReader</td><td/><td/><td>ISX_DEFAULTCOMPONENT3</td><td>0</td></row>
+		<row><td>Registry3</td><td>2</td><td>SOFTWARE\SOFTWARE\Thermo Fisher Scientific\Thermo MSFileReader\2.2.62</td><td/><td/><td>ISX_DEFAULTCOMPONENT3</td><td>0</td></row>
 	</table>
 
 	<table name="RemoveFile">
