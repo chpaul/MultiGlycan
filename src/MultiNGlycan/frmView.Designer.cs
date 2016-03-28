@@ -29,8 +29,13 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend1 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.Title title1 = new System.Windows.Forms.DataVisualization.Charting.Title();
             this.btnLoad = new System.Windows.Forms.Button();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
+            this.chkGetAbundance = new System.Windows.Forms.CheckBox();
             this.chkMergeCharge = new System.Windows.Forms.CheckBox();
             this.btnSaveWholeProfile = new System.Windows.Forms.Button();
             this.rdoSingle = new System.Windows.Forms.RadioButton();
@@ -40,7 +45,6 @@
             this.splitContainer3 = new System.Windows.Forms.SplitContainer();
             this.splitContainer2 = new System.Windows.Forms.SplitContainer();
             this.eluctionViewer1 = new COL.ElutionViewer.EluctionViewer();
-            this.zgcGlycan = new ZedGraph.ZedGraphControl();
             this.splitContainer4 = new System.Windows.Forms.SplitContainer();
             this.dgvPeakList = new System.Windows.Forms.DataGridView();
             this.ctxMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
@@ -51,24 +55,30 @@
             this.btnUpdate = new System.Windows.Forms.Button();
             this.chkboxlstPeak = new System.Windows.Forms.CheckedListBox();
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
-            this.chkGetAbundance = new System.Windows.Forms.CheckBox();
+            this.cht = new System.Windows.Forms.DataVisualization.Charting.Chart();
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
             this.splitContainer1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer3)).BeginInit();
             this.splitContainer3.Panel1.SuspendLayout();
             this.splitContainer3.Panel2.SuspendLayout();
             this.splitContainer3.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer2)).BeginInit();
             this.splitContainer2.Panel1.SuspendLayout();
             this.splitContainer2.Panel2.SuspendLayout();
             this.splitContainer2.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer4)).BeginInit();
             this.splitContainer4.Panel1.SuspendLayout();
             this.splitContainer4.Panel2.SuspendLayout();
             this.splitContainer4.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvPeakList)).BeginInit();
             this.ctxMenuStrip.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer5)).BeginInit();
             this.splitContainer5.Panel1.SuspendLayout();
             this.splitContainer5.Panel2.SuspendLayout();
             this.splitContainer5.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.cht)).BeginInit();
             this.SuspendLayout();
             // 
             // btnLoad
@@ -106,6 +116,17 @@
             this.splitContainer1.Size = new System.Drawing.Size(1290, 773);
             this.splitContainer1.SplitterDistance = 30;
             this.splitContainer1.TabIndex = 1;
+            // 
+            // chkGetAbundance
+            // 
+            this.chkGetAbundance.AutoSize = true;
+            this.chkGetAbundance.Location = new System.Drawing.Point(579, 6);
+            this.chkGetAbundance.Name = "chkGetAbundance";
+            this.chkGetAbundance.Size = new System.Drawing.Size(101, 17);
+            this.chkGetAbundance.TabIndex = 5;
+            this.chkGetAbundance.Text = "Get Abundance";
+            this.chkGetAbundance.UseVisualStyleBackColor = true;
+            this.chkGetAbundance.CheckedChanged += new System.EventHandler(this.chkGetAbundance_CheckedChanged);
             // 
             // chkMergeCharge
             // 
@@ -208,7 +229,7 @@
             // 
             // splitContainer2.Panel2
             // 
-            this.splitContainer2.Panel2.Controls.Add(this.zgcGlycan);
+            this.splitContainer2.Panel2.Controls.Add(this.cht);
             this.splitContainer2.Size = new System.Drawing.Size(852, 739);
             this.splitContainer2.SplitterDistance = 347;
             this.splitContainer2.TabIndex = 1;
@@ -221,22 +242,6 @@
             this.eluctionViewer1.Size = new System.Drawing.Size(852, 347);
             this.eluctionViewer1.TabIndex = 0;
             this.eluctionViewer1.StatusUpdated += new System.EventHandler(this.ReSizeZedGraphForm3DPlot);
-            // 
-            // zgcGlycan
-            // 
-            this.zgcGlycan.BackColor = System.Drawing.SystemColors.Control;
-            this.zgcGlycan.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.zgcGlycan.Location = new System.Drawing.Point(0, 0);
-            this.zgcGlycan.Name = "zgcGlycan";
-            this.zgcGlycan.ScrollGrace = 0D;
-            this.zgcGlycan.ScrollMaxX = 0D;
-            this.zgcGlycan.ScrollMaxY = 0D;
-            this.zgcGlycan.ScrollMaxY2 = 0D;
-            this.zgcGlycan.ScrollMinX = 0D;
-            this.zgcGlycan.ScrollMinY = 0D;
-            this.zgcGlycan.ScrollMinY2 = 0D;
-            this.zgcGlycan.Size = new System.Drawing.Size(852, 388);
-            this.zgcGlycan.TabIndex = 0;
             // 
             // splitContainer4
             // 
@@ -346,16 +351,24 @@
             // 
             this.openFileDialog1.FileName = "openFileDialog1";
             // 
-            // chkGetAbundance
+            // cht
             // 
-            this.chkGetAbundance.AutoSize = true;
-            this.chkGetAbundance.Location = new System.Drawing.Point(579, 6);
-            this.chkGetAbundance.Name = "chkGetAbundance";
-            this.chkGetAbundance.Size = new System.Drawing.Size(101, 17);
-            this.chkGetAbundance.TabIndex = 5;
-            this.chkGetAbundance.Text = "Get Abundance";
-            this.chkGetAbundance.UseVisualStyleBackColor = true;
-            this.chkGetAbundance.CheckedChanged += new System.EventHandler(this.chkGetAbundance_CheckedChanged);
+            chartArea1.Name = "Default";
+            this.cht.ChartAreas.Add(chartArea1);
+            this.cht.Dock = System.Windows.Forms.DockStyle.Fill;
+            legend1.Name = "Default";
+            this.cht.Legends.Add(legend1);
+            this.cht.Location = new System.Drawing.Point(0, 0);
+            this.cht.Name = "cht";
+            series1.ChartArea = "Default";
+            series1.Legend = "Default";
+            series1.Name = "Series1";
+            this.cht.Series.Add(series1);
+            this.cht.Size = new System.Drawing.Size(852, 388);
+            this.cht.TabIndex = 0;
+            this.cht.Text = "chart1";
+            title1.Name = "Default";
+            this.cht.Titles.Add(title1);
             // 
             // frmView
             // 
@@ -368,22 +381,28 @@
             this.splitContainer1.Panel1.ResumeLayout(false);
             this.splitContainer1.Panel1.PerformLayout();
             this.splitContainer1.Panel2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
             this.splitContainer1.ResumeLayout(false);
             this.splitContainer3.Panel1.ResumeLayout(false);
             this.splitContainer3.Panel2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer3)).EndInit();
             this.splitContainer3.ResumeLayout(false);
             this.splitContainer2.Panel1.ResumeLayout(false);
             this.splitContainer2.Panel2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer2)).EndInit();
             this.splitContainer2.ResumeLayout(false);
             this.splitContainer4.Panel1.ResumeLayout(false);
             this.splitContainer4.Panel2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer4)).EndInit();
             this.splitContainer4.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.dgvPeakList)).EndInit();
             this.ctxMenuStrip.ResumeLayout(false);
             this.splitContainer5.Panel1.ResumeLayout(false);
             this.splitContainer5.Panel1.PerformLayout();
             this.splitContainer5.Panel2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer5)).EndInit();
             this.splitContainer5.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.cht)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -393,7 +412,6 @@
         private System.Windows.Forms.Button btnLoad;
         private System.Windows.Forms.SplitContainer splitContainer1;
         private System.Windows.Forms.ComboBox cboGlycan;
-        private ZedGraph.ZedGraphControl zgcGlycan;
         private System.Windows.Forms.OpenFileDialog openFileDialog1;
         private System.Windows.Forms.Button btnSaveAll;
         private System.Windows.Forms.RadioButton rdoSingle;
@@ -413,5 +431,6 @@
         private System.Windows.Forms.ToolStripMenuItem mergeToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem deleteToolStripMenuItem;
         private System.Windows.Forms.CheckBox chkGetAbundance;
+        private System.Windows.Forms.DataVisualization.Charting.Chart cht;
     }
 }

@@ -10,10 +10,6 @@ using System.IO;
 using System.Reflection;
 using COL.GlycoLib;
 using COL.MassLib;
-using Microsoft.Win32;
-using ZedGraph;
-using CSMSL.Chemistry;
-using CSMSL.Spectral;
 namespace COL.MultiGlycan
 {
     public partial class frmMainESI : Form
@@ -146,11 +142,11 @@ namespace COL.MultiGlycan
                 MultiGlycanESI ESI = null;
                 if (argLabeling.Count != 0)
                 {
-                    ESI = new MultiGlycanESI(txtRawFile.Text, Convert.ToInt32(txtStartScan.Text), Convert.ToInt32(txtEndScan.Text), glycanlist, Convert.ToDouble(txtPPM.Text), Convert.ToDouble(txtGlycanPPM.Text), chkPermethylated.Checked, chkReducedReducingEnd.Checked,cboSia.SelectedIndex, argLabeling, AdductLabel,AdductMasses, DoLog);
+                    ESI = new MultiGlycanESI(txtRawFile.Text, Convert.ToInt32(txtStartScan.Text), Convert.ToInt32(txtEndScan.Text), glycanlist, Convert.ToDouble(txtPPM.Text), Convert.ToDouble(txtGlycanPPM.Text), chkPermethylated.Checked, chkReducedReducingEnd.Checked,cboSia.SelectedIndex, argLabeling, AdductLabel,AdductMasses, DoLog, rdoPositive.Checked);
                 }
                 else
                 {
-                    ESI = new MultiGlycanESI(txtRawFile.Text, Convert.ToInt32(txtStartScan.Text), Convert.ToInt32(txtEndScan.Text), glycanlist, Convert.ToDouble(txtPPM.Text), Convert.ToDouble(txtGlycanPPM.Text), chkPermethylated.Checked, chkReducedReducingEnd.Checked, cboSia.SelectedIndex, DoLog);
+                    ESI = new MultiGlycanESI(txtRawFile.Text, Convert.ToInt32(txtStartScan.Text), Convert.ToInt32(txtEndScan.Text), glycanlist, Convert.ToDouble(txtPPM.Text), Convert.ToDouble(txtGlycanPPM.Text), chkPermethylated.Checked, chkReducedReducingEnd.Checked, cboSia.SelectedIndex, DoLog, rdoPositive.Checked);
                 }
                 ESI.LabelingMethod = GlycoLib.enumGlycanLabelingMethod.None;
                 if (rdoDRAG.Checked)
@@ -161,7 +157,7 @@ namespace COL.MultiGlycan
                 {
                     ESI.LabelingMethod = GlycoLib.enumGlycanLabelingMethod.MultiplexPermethylated;
                 }
-
+                ESI.PositiveChargeMode = rdoPositive.Checked;
                 ESI.MergeDifferentChargeIntoOne = chkMergeDffCharge.Checked;  
                 ESI.ExportFilePath = saveFileDialog1.FileName;
                 ESI.MaxLCBackMin = Convert.ToSingle(txtMaxLCTime.Text);
@@ -380,119 +376,6 @@ namespace COL.MultiGlycan
         }
         #endregion
 
-        private void button1_Click(object sender, EventArgs e)
-        {
-            if (openFileDialog1.ShowDialog() == System.Windows.Forms.DialogResult.OK)
-            {
-                
-                StreamReader sr = new StreamReader( openFileDialog1.FileName);
-                sr.ReadLine();//Title
-
-                Dictionary<string, List<PeaksFromResult>> dictAllPeaks = new Dictionary<string,List<PeaksFromResult>>();
-                do
-                {
-                    string[] tmpAry = sr.ReadLine().Split(',');
-                    PeaksFromResult PKResult = new PeaksFromResult(Convert.ToSingle(tmpAry[0]),
-                                                                                                               Convert.ToSingle(tmpAry[3]),
-                                                                                                               tmpAry[6]);
-                    string GlycanKey = tmpAry[5];
-
-                    if (!dictAllPeaks.ContainsKey(GlycanKey))
-                    {
-                        dictAllPeaks.Add(GlycanKey, new List<PeaksFromResult>());
-                    }
-                    dictAllPeaks[GlycanKey].Add(PKResult);
-                    
-                } while (!sr.EndOfStream);
-
-                ZedGraph.ZedGraphControl zgcGlycan = new ZedGraphControl();
-                zgcGlycan.Width = 2400;
-                zgcGlycan.Height = 1200;
-
-                foreach (string GKey in dictAllPeaks.Keys)
-                {
-                    GraphPane GP = zgcGlycan.GraphPane;
-                    GP.Title.Text = "Glycan: " + GKey;
-                    GP.XAxis.Title.Text = "Scan time (min)";
-                    GP.YAxis.Title.Text = "Abundance";
-                    GP.CurveList.Clear();
-
-
-                    Dictionary<string, PointPairList> dictAdductPoints = new Dictionary<string, PointPairList>();
-
-                    Dictionary<float, float> MergeIntensity = new Dictionary<float, float>();
-                    List<float> Time = new List<float>();
-                    foreach (PeaksFromResult PKR in dictAllPeaks[GKey])
-                    {
-                        if (!dictAdductPoints.ContainsKey(PKR.Adduct))
-                        {
-                            dictAdductPoints.Add(PKR.Adduct, new PointPairList());
-                        }
-                        dictAdductPoints[PKR.Adduct].Add(PKR.Time, PKR.Intensity);
-
-                        if (!MergeIntensity.ContainsKey(PKR.Time))
-                        {
-                            MergeIntensity.Add(PKR.Time, 0);
-                        }
-                        MergeIntensity[PKR.Time] = MergeIntensity[PKR.Time] + PKR.Intensity;
-
-                        if (!Time.Contains(PKR.Time))
-                        {
-                            Time.Add(PKR.Time);
-                        }
-                    }
-                    List<Color> LstColor = new List<Color>();
-                    LstColor.Add(Color.DarkCyan);
-                    LstColor.Add(Color.DarkGoldenrod);
-                    LstColor.Add(Color.DarkGray);
-                    LstColor.Add(Color.DarkGreen);
-                    LstColor.Add(Color.DarkKhaki);
-                    LstColor.Add(Color.DarkMagenta);
-                    LstColor.Add(Color.DarkOliveGreen);
-                    LstColor.Add(Color.DarkOrchid);
-                    LstColor.Add(Color.DarkRed);
-                    LstColor.Add(Color.DarkSalmon);
-                    LstColor.Add(Color.DarkSeaGreen);
-                    LstColor.Add(Color.DarkSlateBlue);
-                    LstColor.Add(Color.DarkSlateGray);
-                    LstColor.Add(Color.DarkTurquoise);
-                    LstColor.Add(Color.DarkViolet);
-                    LstColor.Add(Color.DeepPink);
-                    LstColor.Add(Color.DeepSkyBlue);
-                    int ColorIdx = 0;
-                    foreach (string Adduct in dictAdductPoints.Keys)
-                    {
-                        LineItem Lne = GP.AddCurve(Adduct, dictAdductPoints[Adduct], LstColor[ColorIdx]);
-                        Lne.Symbol.Size = 2.0f;
-                        ColorIdx = ColorIdx + 1;
-                    }
-
-                    //Merge Intensity
-                    Time.Sort();
-                    PointPairList PPLMerge = new PointPairList();
-                    foreach (float tim in Time)
-                    {
-                        PPLMerge.Add(tim, MergeIntensity[tim]);
-                    }
-                    LineItem Merge = GP.AddCurve("Merge", PPLMerge, Color.Black);
-                    Merge.Symbol.Size = 2.0f;
-                    Merge.Line.Width = 3.0f;
-
-
-
-
-                    zgcGlycan.AxisChange();
-                    zgcGlycan.Refresh();
-                    string StorePath = Path.GetDirectoryName(openFileDialog1.FileName) + "\\" + Path.GetFileNameWithoutExtension(openFileDialog1.FileName);
-                    if (!Directory.Exists(StorePath))
-                    {
-                        Directory.CreateDirectory(StorePath);
-                    }
-
-                    zgcGlycan.MasterPane.GetImage().Save(StorePath+"\\"+GKey+".bmp");
-                }
-            }
-        }
         private class PeaksFromResult
         {
             float _Time;
@@ -831,6 +714,14 @@ namespace COL.MultiGlycan
             this.Visible = false;
             BatchMode.ShowDialog();
             this.Visible = true;
+        }
+
+        private void rdoPositive_CheckedChanged(object sender, EventArgs e)
+        {
+            chkAdductK.Enabled = rdoPositive.Checked;
+            chkAdductNa.Enabled = rdoPositive.Checked;
+            chkAdductNH4.Enabled = rdoPositive.Checked;
+            chkAdductUser.Enabled = rdoPositive.Checked;
         }
 
        

@@ -9,10 +9,7 @@ using System.Windows.Forms;
 using System.IO;
 using System.Reflection;
 using COL.MassLib;
-using Microsoft.Win32;
-using ZedGraph;
-using CSMSL.Chemistry;
-using CSMSL.Spectral;
+
 namespace COL.MultiGlycan
 {
     public partial class frmBatch : Form
@@ -604,6 +601,134 @@ namespace COL.MultiGlycan
             btnRemoveFile.Enabled = false;
             btnAddAllFiles.Enabled = true;
             btnAddFile.Enabled = true;
+        }
+        Dictionary<string, string> MergeResultfiles = new Dictionary<string, string>();
+        private void btnMergeBrowseRaw_Click(object sender, EventArgs e)
+        {
+            if (folderBrowserDialog1.ShowDialog() == DialogResult.OK)
+            {
+                txtMergeRawFile.Text = folderBrowserDialog1.SelectedPath;
+                lstMergeFileList.Items.Clear();
+                lstMergeFileToProcess.Items.Clear();
+                btnMergeRemoveFile.Enabled = false;
+                btnMergeRemoveAllFiles.Enabled = false;
+         
+                foreach (string strFile in System.IO.Directory.GetFiles(folderBrowserDialog1.SelectedPath,"*.csv", System.IO.SearchOption.AllDirectories))
+                {
+                    if (strFile.EndsWith("_FullList.csv"))
+                    {
+                        MergeResultfiles.Add(Path.GetFileName(strFile), strFile);
+                        lstMergeFileList.Items.Add(Path.GetFileName(strFile));
+                    }
+                }
+
+                btnMergeAddFile.Enabled = false;
+                btnMergeAddAllFiles.Enabled = false;
+                if (lstMergeFileList.Items.Count != 0)
+                {
+                    btnMergeAddFile.Enabled = true;
+                    btnMergeAddAllFiles.Enabled = true;
+                }
+            }
+        }
+
+        private void btnMergeAddAllFiles_Click(object sender, EventArgs e)
+        {
+            lstMergeFileToProcess.Items.AddRange(lstMergeFileList.Items);
+            lstMergeFileList.Items.Clear();
+            btnMergeRemoveAllFiles.Enabled = true;
+            btnMergeRemoveFile.Enabled = true;
+            btnMergeAddAllFiles.Enabled = false;
+            btnMergeAddFile.Enabled = false;
+        }
+
+        private void btnMergeAddFile_Click(object sender, EventArgs e)
+        {
+            int[] AddIdxs = new int[lstMergeFileList.SelectedIndices.Count];
+            int AddIdx = 0;
+            foreach (int selectIdx in lstMergeFileList.SelectedIndices)
+            {
+                lstMergeFileToProcess.Items.Add(lstMergeFileList.Items[selectIdx]);
+                AddIdxs[AddIdx] = selectIdx;
+                AddIdx = AddIdx + 1;
+            }
+            for (int i = AddIdxs.Length - 1; i >= 0; i--)
+            {
+                lstMergeFileList.Items.RemoveAt(AddIdxs[i]);
+            }
+            if (lstMergeFileList.Items.Count == 0)
+            {
+                btnMergeAddAllFiles.Enabled = false;
+                btnMergeAddFile.Enabled = false;
+            }
+            if (lstMergeFileToProcess.Items.Count != 0)
+            {
+                btnMergeRemoveAllFiles.Enabled = true;
+                btnMergeRemoveFile.Enabled = true;
+            }
+        }
+
+        private void btnMergeRemoveFile_Click(object sender, EventArgs e)
+        {
+            int[] RemoveIdxs = new int[lstMergeFileToProcess.SelectedIndices.Count];
+            int rveIdx = 0;
+            foreach (int selectIdx in lstMergeFileToProcess.SelectedIndices)
+            {
+                lstMergeFileList.Items.Add(lstMergeFileToProcess.Items[selectIdx]);
+                RemoveIdxs[rveIdx] = selectIdx;
+                rveIdx = rveIdx + 1;
+            }
+            for (int i = RemoveIdxs.Length - 1; i >= 0; i--)
+            {
+                lstMergeFileToProcess.Items.RemoveAt(RemoveIdxs[i]);
+            }
+            if (lstMergeFileList.Items.Count != 0)
+            {
+                btnMergeAddAllFiles.Enabled = true;
+                btnMergeAddFile.Enabled = true;
+            }
+            if (lstMergeFileToProcess.Items.Count == 0)
+            {
+                btnMergeRemoveAllFiles.Enabled = false;
+                btnMergeRemoveFile.Enabled = false;
+            }
+        }
+
+        private void btnMergeRemoveAllFiles_Click(object sender, EventArgs e)
+        {
+            lstMergeFileList.Items.AddRange(lstMergeFileToProcess.Items);
+            lstMergeFileToProcess.Items.Clear();
+            btnMergeRemoveAllFiles.Enabled = false;
+            btnMergeRemoveFile.Enabled = false;
+            btnMergeAddAllFiles.Enabled = true;
+            btnMergeAddFile.Enabled = true;
+
+        }
+
+        private void btnReMerge_Click(object sender, EventArgs e)
+        {
+            saveFileDialog1.FileName = folderBrowserDialog1.SelectedPath + "\\MergeResult_FullList.csv";
+            saveFileDialog1.Filter = "CSV Files (*.csv)|*.csv";
+            if (saveFileDialog1.ShowDialog() == DialogResult.OK)
+            {
+                List<string> files = new List<string>();
+                foreach (string file in lstMergeFileToProcess.Items)
+                {
+                    files.Add(MergeResultfiles[file]);
+                }
+                MergeQuantitationResults.MergeFullList(files, saveFileDialog1.FileName);
+
+                files.Clear();
+                foreach (string file in lstMergeFileToProcess.Items)
+                {
+                    files.Add(MergeResultfiles[file].Replace("_FullList.csv", ".csv"));
+                }
+                MergeQuantitationResults.MergeConservedList(files,saveFileDialog1.FileName.Replace("_FullList.csv",".csv"));
+
+
+                MessageBox.Show("Merge Complete");
+            }
+
         }
 
 

@@ -7,7 +7,8 @@ using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
 using System.IO;
-using ZedGraph;
+using System.Linq;
+using System.Windows.Forms.DataVisualization.Charting;
 namespace COL.MultiGlycan
 {
     public partial class frmView : Form
@@ -30,8 +31,8 @@ namespace COL.MultiGlycan
             //    LstColor.Add( Color.FromKnownColor(knowColor));
             //}            
 
-            zgcGlycan.PointValueFormat = "0.000";
-            zgcGlycan.PointDateFormat = "d";
+            //zgcGlycan.PointValueFormat = "0.000";
+            //zgcGlycan.PointDateFormat = "d";
             LstColor.Add(Color.DarkCyan);
             LstColor.Add(Color.DarkGoldenrod);
             LstColor.Add(Color.DarkGray);
@@ -195,9 +196,9 @@ namespace COL.MultiGlycan
 
         public void ReSizeZedGraphForm3DPlot(object sender, EventArgs e)
         {
-            zgcGlycan.MasterPane.PaneList[0].XAxis.Scale.Max = ((COL.ElutionViewer.RegionSize)e).RightBound;
-            zgcGlycan.MasterPane.PaneList[0].XAxis.Scale.Min = ((COL.ElutionViewer.RegionSize)e).LeftBound;
-            zgcGlycan.AxisChange();
+            //zgcGlycan.MasterPane.PaneList[0].XAxis.Scale.Max = ((COL.ElutionViewer.RegionSize)e).RightBound;
+            //zgcGlycan.MasterPane.PaneList[0].XAxis.Scale.Min = ((COL.ElutionViewer.RegionSize)e).LeftBound;
+            //zgcGlycan.AxisChange();
         }
 
 
@@ -205,33 +206,62 @@ namespace COL.MultiGlycan
         {
             cboGlycan.Items.Clear();
         }
-        private void DrawZedGraph(string argKey)
+        private void DrawChart(string argKey)
         {
             Dictionary<float, List<string>> keyValue = dictValue[argKey];
             
             string[] tmpLst = null;
-            #region zedgraph
-            GraphPane GP = zgcGlycan.GraphPane;
-            GP.Title.Text = "Glycan: " + argKey;
-            GP.XAxis.Title.Text = "Scan time (min)";
-            GP.YAxis.Title.Text = "Abundance";
-            GP.CurveList.Clear();
+            #region chart
+
+            if (cht.ChartAreas.Count == 0)
+            {
+                cht.ChartAreas.Add("Default");
+            }
+            cht.ChartAreas["Default"].AxisX.Title = "Scan time (min)";
+            cht.ChartAreas["Default"].AxisX.TitleFont = new Font("Arial", 10, FontStyle.Bold);
+            cht.ChartAreas["Default"].AxisX.LabelStyle.Format = "{F2}";
+            cht.ChartAreas["Default"].AxisX.LabelStyle.Font = new Font("Arial", 10, FontStyle.Bold);
+            cht.ChartAreas["Default"].AxisX.MajorGrid.LineDashStyle = ChartDashStyle.Dash;
+            cht.ChartAreas["Default"].AxisX.IsMarginVisible = true;
+            cht.ChartAreas["Default"].AxisY.Title = "Abundance";
+            cht.ChartAreas["Default"].AxisY.TitleFont = new Font("Arial", 10, FontStyle.Bold);
+            cht.ChartAreas["Default"].AxisY.LabelStyle.Format = "{0.#E+00}";
+            cht.ChartAreas["Default"].AxisY.LabelStyle.Font = new Font("Arial", 10, FontStyle.Bold);
+            cht.ChartAreas["Default"].AxisY.MajorGrid.LineDashStyle = ChartDashStyle.Dash;
+            cht.ChartAreas["Default"].AxisY.IsMarginVisible = true;
+
+            if (cht.Titles.Count == 0)
+            {
+                cht.Titles.Add("Default");
+            }
+            cht.Titles[0].Text = "Glycan: " + argKey;
+            cht.Titles[0].Font = new Font("Arial", 16, FontStyle.Bold);
+            if (cht.Legends.Count == 0)
+            {
+                cht.Legends.Add("Default");
+            }
+            cht.Legends["Default"].Docking = Docking.Bottom;
+            cht.Legends["Default"].Alignment = StringAlignment.Center;
+            cht.Legends["Default"].LegendStyle = LegendStyle.Row;
+            cht.Legends["Default"].Font = new Font("Arial", 12, FontStyle.Bold);
+
+            cht.Series.Clear();
             double MaxIntensity = 0.0;
-            Dictionary<float, PointPairList> _ZedgraphRaw = new Dictionary<float, PointPairList>();
+            Dictionary<float, List<LCPointPair>> ChartRaw = new Dictionary<float, List<LCPointPair>>();
             Dictionary<float, float> _SumIntensities = new Dictionary<float, float>();
             List<float> lstmz = new List<float>();
 
             ////Gather Data
             foreach (float mz in keyValue.Keys)
             {
-                PointPairList RawPPL = new PointPairList();
+                List<LCPointPair> RawPPL = new List<LCPointPair>();
                 foreach (string tmp in keyValue[mz])
                 {
                     tmpLst = tmp.Split('-');
                     float time = Convert.ToSingle(tmpLst[0]);
                     float intensity = Convert.ToSingle(tmpLst[1]);
 
-                    RawPPL.Add(new PointPair(time, intensity));
+                    RawPPL.Add(new LCPointPair(time, intensity));
                     if (MaxIntensity <= Convert.ToDouble(tmpLst[1]))
                     {
                         MaxIntensity = Convert.ToDouble(tmpLst[1]);
@@ -242,7 +272,14 @@ namespace COL.MultiGlycan
                     }
                     _SumIntensities[time] = _SumIntensities[time] + intensity;
                 }
-                _ZedgraphRaw.Add(mz, RawPPL);
+                Series series = cht.Series.Add(mz.ToString());
+                series.ChartType= SeriesChartType.Spline;
+                for (int i = 0; i < RawPPL.Count; i++)
+                {
+                    series.Points.AddXY(RawPPL[i].Time,RawPPL[i].Intensity);
+                }
+                series.MarkerSize = 5;
+                series.MarkerStyle = MarkerStyle.Circle;
                 lstmz.Add(mz);
             }
             lstmz.Sort();
@@ -253,59 +290,71 @@ namespace COL.MultiGlycan
             {
                 chkboxlstPeak.Items.Add("Merge Smooth", true);
             }
-            if (!chkboxlstPeak.Items.Contains("Peak Area"))
-            {
-                chkboxlstPeak.Items.Add("Peak Area", true);
-            }
+            //if (!chkboxlstPeak.Items.Contains("Peak Area"))
+            //{
+            //    chkboxlstPeak.Items.Add("Peak Area", true);
+            //}
             foreach (float mz in lstmz)
             {
                 List<string> lstGlycanAdductCharges = mz2GlycanAdductCharge[mz];
                 foreach (string GlycanAdductCharge in lstGlycanAdductCharges)
                 {
                     string[] tmpAry = GlycanAdductCharge.Split(' ');
-                    if (chkboxlstPeak.Items.Contains(mz.ToString() + " [" + tmpAry[0] + " + " + tmpAry[2] + "]" + tmpAry[3].Replace("z=","") + "+")) 
+                    if (chkboxlstPeak.Items.Contains(mz.ToString() + " [" + tmpAry[0] + " + " + tmpAry[2] + "]" + tmpAry[3].Replace("z=", "") + "+")) 
                     {
                         continue;
                     }
-                    
                     if (tmpAry[0] == argKey)
                     {
                         chkboxlstPeak.Items.Add(mz.ToString() + " [" + tmpAry[0] + " + " + tmpAry[2] + "]" + tmpAry[3].Replace("z=", "") + "+", true);
                     }
                 }
             }
-
+            //Create Series
 
             //Smoothed
-            if (chkboxlstPeak.CheckedItems.Contains("Merge Smooth"))
+            List<MassLib.MSPoint> lstSmoothPnts = new List<MassLib.MSPoint>();
+            foreach (float time in _SumIntensities.Keys)
             {
-                List<MassLib.MSPoint> lstSmoothPnts = new List<MassLib.MSPoint>();
-                foreach (float time in _SumIntensities.Keys)
-                {
-                    lstSmoothPnts.Add(new MassLib.MSPoint(time, _SumIntensities[time]));
-                }
-                lstSmoothPnts.Sort(delegate(MassLib.MSPoint Pnt1, MassLib.MSPoint Pnt2)
-                {
-                    return Pnt1.Mass.CompareTo(Pnt2.Mass);
-                });
-                lstSmoothPnts = MassLib.Smooth.SavitzkyGolay.Smooth(lstSmoothPnts, MassLib.Smooth.SavitzkyGolay.FILTER_WIDTH.FILTER_WIDTH_7);
-                PointPairList pplSmooth = new PointPairList();
-                foreach (MassLib.MSPoint MSPoint in lstSmoothPnts)
-                {
-                    pplSmooth.Add(MSPoint.Mass, MSPoint.Intensity);
-                }
-                LineItem MergeSmoothLine = null;
-                MergeSmoothLine = GP.AddCurve("Merge Smooth", pplSmooth, Color.DarkGreen);
-                MergeSmoothLine.Line.Width = 3.0f;
-                MergeSmoothLine.Symbol.Size = 2.0f;
+                lstSmoothPnts.Add(new MassLib.MSPoint(time, _SumIntensities[time]));
             }
-            else
+            lstSmoothPnts.Sort(delegate(MassLib.MSPoint Pnt1, MassLib.MSPoint Pnt2)
             {
-                if (GP.CurveList.Contains(GP.CurveList["Merge Smooth"]))
-                {
-                    GP.CurveList.Remove(GP.CurveList["Merge Smooth"]);
-                }
+                return Pnt1.Mass.CompareTo(Pnt2.Mass);
+            });
+            lstSmoothPnts = MassLib.Smooth.SavitzkyGolay.Smooth(lstSmoothPnts, MassLib.Smooth.SavitzkyGolay.FILTER_WIDTH.FILTER_WIDTH_7);
+
+            Series seriesSmooth = cht.Series.Add("Merge Smooth");
+            seriesSmooth.ChartType = SeriesChartType.Spline;
+            foreach (MassLib.MSPoint MSPoint in lstSmoothPnts)
+            {
+                seriesSmooth.Points.AddXY(MSPoint.Mass, MSPoint.Intensity);
             }
+            seriesSmooth.Color = Color.DarkGreen;
+            seriesSmooth.BorderWidth = 2;
+            seriesSmooth.MarkerSize = 5;
+            seriesSmooth.MarkerStyle = MarkerStyle.Circle;
+            cht.Series["Merge Smooth"].Enabled =chkboxlstPeak.CheckedItems.Contains("Merge Smooth");
+
+            //Add Each Charge and adduct
+            int ColorIdx = 0;
+            foreach (float mz in lstmz)
+            {
+                string Key = "";
+                //Get Key
+                List<string> lstGlycanAdductCharges = mz2GlycanAdductCharge[mz];
+                foreach (string GlycanAdductCharge in lstGlycanAdductCharges)
+                {
+                    string[] tmpAry = GlycanAdductCharge.Split(' ');
+                    if (tmpAry[0] == argKey)
+                    {
+                        Key = mz.ToString() + " [" + tmpAry[0] + " + " + tmpAry[2] + "]" + tmpAry[3].Replace("z=", "") + "+";
+                    }
+                }
+                cht.Series[mz.ToString()].Enabled = chkboxlstPeak.CheckedItems.Contains(Key);
+            }
+
+
             //Data Table           
             dtPeakList.Rows.Clear();
             if(MergeResult.ContainsKey(argKey))
@@ -465,91 +514,46 @@ namespace COL.MultiGlycan
             //}
            
 
-            //Add Each Charge and adduct
-            int ColorIdx = 0;
-            foreach (float mz in lstmz)
-            {                
-                string Key="";
-                //Get Key
-                List<string> lstGlycanAdductCharges = mz2GlycanAdductCharge[mz];
-                foreach (string GlycanAdductCharge in lstGlycanAdductCharges)
-                {
-                     string[] tmpAry = GlycanAdductCharge.Split(' ');
-                    if (tmpAry[0] == argKey)
-                    {
-                        Key = mz.ToString() + " [" + tmpAry[0] + " + " + tmpAry[2] + "]" + tmpAry[3].Replace("z=", "") + "+";
-                    }
-                }
+          
 
-                if (!chkboxlstPeak.CheckedItems.Contains(Key))
-                {
-                    if (GP.CurveList.Contains(GP.CurveList[mz.ToString()]))
-                    {
-                        GP.CurveList.Remove(GP.CurveList[mz.ToString()]);
-                    }
-                }
-                else
-                {
-                    PointPairList pplMZ = new PointPairList();
-                    for(int i = 0;i<dtPeakList.Rows.Count-1;i++)
-                    {
-                        foreach (PointPair pt in _ZedgraphRaw[mz])
-                        {
-                            if (pt.X >= Convert.ToSingle(dtPeakList.Rows[i][0]) && pt.X <= Convert.ToSingle(dtPeakList.Rows[i][1]))
-                            {
-                                pplMZ.Add(pt);
-                            }
-                        }
-                    }
-
-                    LineItem RawLine = GP.AddCurve(mz.ToString(), pplMZ, LstColor[ColorIdx]);
-                    RawLine.Symbol.Size = 8.0f;
-                    RawLine.Symbol.Type = SymbolType.XCross;
-                    RawLine.Symbol.Fill.Color = LstColor[ColorIdx];
-                    RawLine.Symbol.Fill.IsVisible = true;
-                    RawLine.Line.IsVisible = true;
-                    RawLine.Line.Width = 2.0f;                        
-                    ColorIdx = (ColorIdx + 1) % 17;
-                }
-            }
-
-            if (!chkboxlstPeak.CheckedItems.Contains("Peak Area"))
-            {
-                if (GP.CurveList.Contains(GP.CurveList["Peak Area"]))
-                {
-                    GP.CurveList.Remove(GP.CurveList["Peak Area"]);
-                }
-            }
-            else
-            {
-                if(MergeResult.ContainsKey(argKey))
-                {
-                    //Plot Peak Area
-                    ColorIdx = 0;
-                    foreach (string strMerge in MergeResult[argKey])
-                    {
-                        PointPairList pplArea = new PointPairList();
-                        float StartTime = Convert.ToSingle(strMerge.Split(':')[0]);
-                        float EndTime = Convert.ToSingle(strMerge.Split(':')[1]);
-
-                        foreach (float time in _SumIntensities.Keys)
-                        {
-                            if (time >= StartTime && time <= EndTime)
-                            {
-                                pplArea.Add(new PointPair(time, _SumIntensities[time]));
-                            }
-                        }
-                        pplArea.Sort();
-                        LineItem lItemPeakArea = GP.AddCurve("Peak Area", pplArea, LstColor[ColorIdx]);
-                        lItemPeakArea.Line.Fill = new Fill(Color.FromArgb(100, LstColor[ColorIdx].R, LstColor[ColorIdx].G, LstColor[ColorIdx].B));
-                        lItemPeakArea.Line.Color = Color.White;
-                        lItemPeakArea.Symbol.Fill.IsVisible = false;
-                        lItemPeakArea.Symbol.IsVisible = false;
-                        lItemPeakArea.Label.IsVisible = false;
-                        ColorIdx = (ColorIdx + 1) % 17;
-                    }
-                }
-            }
+            //if (!chkboxlstPeak.CheckedItems.Contains("Peak Area"))
+            //{
+            //    if (cht.Series.Contains(cht.Series["Peak Area"]))
+            //    {
+            //        cht.Series.Remove(cht.Series["Peak Area"]);
+            //    }
+            //}
+            //else
+            //{
+            //    if(MergeResult.ContainsKey(argKey))
+            //    {
+            //        //Plot Peak Area
+            //        ColorIdx = 0;
+            //        foreach (string strMerge in MergeResult[argKey])
+            //        {
+            //            List<LCPointPair> pplArea = new List<LCPointPair>();
+            //            float StartTime = Convert.ToSingle(strMerge.Split(':')[0]);
+            //            float EndTime = Convert.ToSingle(strMerge.Split(':')[1]);
+            //            Series ItemPeakArea = cht.Series.Add("Peak Area");
+            //            foreach (float time in _SumIntensities.Keys)
+            //            {
+            //                if (time >= StartTime && time <= EndTime)
+            //                {
+            //                    ItemPeakArea.Points.AddXY(time, _SumIntensities[time]);
+            //                }
+            //            }
+            //            ItemPeakArea.Points.OrderBy(x => x.XValue);
+            //            ItemPeakArea.Color = LstColor[ColorIdx];
+                        
+            //            lItemPeakArea.Line.Fill = new Fill(Color.FromArgb(100, LstColor[ColorIdx].R, LstColor[ColorIdx].G, LstColor[ColorIdx].B));
+            //            lItemPeakArea.Line.Color = Color.White;
+            //            lItemPeakArea.Symbol.Fill.IsVisible = false;
+            //            lItemPeakArea.Symbol.IsVisible = false;
+            //            lItemPeakArea.Label.IsVisible = false;
+            //            ColorIdx = (ColorIdx + 1) % 17;
+            //        }
+            //    }
+            //}
 
             //    //Plot Apex
             //    PointPairList PeakApx = new PointPairList();
@@ -564,8 +568,7 @@ namespace COL.MultiGlycan
             //    PeakedPeak.Symbol.Fill.Color = Color.DarkOrange;
             //    PeakedPeak.Symbol.Type = SymbolType.Circle;
             //}
-            zgcGlycan.AxisChange();
-            zgcGlycan.Refresh();
+          
             #endregion zedgraph
         }
         private int GetCheckListBoxIdx(string argKey)
@@ -586,7 +589,6 @@ namespace COL.MultiGlycan
             string[] tmpLst = null;
             foreach (float mz in keyValue.Keys)
             {
-                PointPairList RawPPL = new PointPairList();
                 foreach (string tmp in keyValue[mz])
                 {
                     tmpLst = tmp.Split('-');
@@ -604,7 +606,7 @@ namespace COL.MultiGlycan
                 return;
             }
             string key = cboGlycan.SelectedItem.ToString();
-            DrawZedGraph(key);
+            DrawChart(key);
             DrawE3D(key);
             #region Eluction3D
 
@@ -900,6 +902,28 @@ namespace COL.MultiGlycan
         private void chkGetAbundance_CheckedChanged(object sender, EventArgs e)
         {
             eluctionViewer1.UseMousrGetAbundance = chkGetAbundance.Checked;
+        }
+        public struct LCPointPair
+        {
+            private double _time;
+            private double _intensity;
+
+            public LCPointPair(double argTime, double argIntensity)
+            {
+                _time = argTime;
+                _intensity = argIntensity;
+            }
+            public double Time
+            {
+                get { return _time; }
+                set { _time = value; }
+            }
+
+            public double Intensity
+            {
+                get { return _intensity; }
+                set { _intensity = value; }
+            }
         }
     }
 }

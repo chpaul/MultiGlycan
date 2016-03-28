@@ -123,6 +123,19 @@
             this.rdoMultiplePemrthylated = new System.Windows.Forms.RadioButton();
             this.btnQuan = new System.Windows.Forms.Button();
             this.folderBrowserDialog1 = new System.Windows.Forms.FolderBrowserDialog();
+            this.tabMerge = new System.Windows.Forms.TabPage();
+            this.groupBox9 = new System.Windows.Forms.GroupBox();
+            this.label14 = new System.Windows.Forms.Label();
+            this.label15 = new System.Windows.Forms.Label();
+            this.btnMergeRemoveAllFiles = new System.Windows.Forms.Button();
+            this.btnMergeAddAllFiles = new System.Windows.Forms.Button();
+            this.btnMergeAddFile = new System.Windows.Forms.Button();
+            this.btnMergeRemoveFile = new System.Windows.Forms.Button();
+            this.lstMergeFileToProcess = new System.Windows.Forms.ListBox();
+            this.lstMergeFileList = new System.Windows.Forms.ListBox();
+            this.txtMergeRawFile = new System.Windows.Forms.TextBox();
+            this.btnMergeBrowseRaw = new System.Windows.Forms.Button();
+            this.btnReMerge = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             this.groupBox5.SuspendLayout();
             this.groupBox6.SuspendLayout();
@@ -136,6 +149,8 @@
             this.groupBox4.SuspendLayout();
             this.grpDRAG.SuspendLayout();
             this.grpMultiplexPreM.SuspendLayout();
+            this.tabMerge.SuspendLayout();
+            this.groupBox9.SuspendLayout();
             this.SuspendLayout();
             // 
             // openFileDialog1
@@ -392,6 +407,7 @@
             // 
             this.tabControl1.Controls.Add(this.tabIden);
             this.tabControl1.Controls.Add(this.tabQuan);
+            this.tabControl1.Controls.Add(this.tabMerge);
             this.tabControl1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tabControl1.Location = new System.Drawing.Point(0, 0);
             this.tabControl1.Name = "tabControl1";
@@ -1145,6 +1161,139 @@
             this.btnQuan.UseVisualStyleBackColor = true;
             this.btnQuan.Click += new System.EventHandler(this.btnQuan_Click);
             // 
+            // tabMerge
+            // 
+            this.tabMerge.Controls.Add(this.btnReMerge);
+            this.tabMerge.Controls.Add(this.groupBox9);
+            this.tabMerge.Location = new System.Drawing.Point(4, 22);
+            this.tabMerge.Name = "tabMerge";
+            this.tabMerge.Size = new System.Drawing.Size(699, 526);
+            this.tabMerge.TabIndex = 1;
+            this.tabMerge.Text = "Merge previous result";
+            this.tabMerge.UseVisualStyleBackColor = true;
+            // 
+            // groupBox9
+            // 
+            this.groupBox9.Controls.Add(this.label14);
+            this.groupBox9.Controls.Add(this.label15);
+            this.groupBox9.Controls.Add(this.btnMergeRemoveAllFiles);
+            this.groupBox9.Controls.Add(this.btnMergeAddAllFiles);
+            this.groupBox9.Controls.Add(this.btnMergeAddFile);
+            this.groupBox9.Controls.Add(this.btnMergeRemoveFile);
+            this.groupBox9.Controls.Add(this.lstMergeFileToProcess);
+            this.groupBox9.Controls.Add(this.lstMergeFileList);
+            this.groupBox9.Controls.Add(this.txtMergeRawFile);
+            this.groupBox9.Controls.Add(this.btnMergeBrowseRaw);
+            this.groupBox9.Location = new System.Drawing.Point(0, 3);
+            this.groupBox9.Name = "groupBox9";
+            this.groupBox9.Size = new System.Drawing.Size(680, 275);
+            this.groupBox9.TabIndex = 18;
+            this.groupBox9.TabStop = false;
+            this.groupBox9.Text = "Raw File";
+            // 
+            // label14
+            // 
+            this.label14.AutoSize = true;
+            this.label14.Location = new System.Drawing.Point(2, 35);
+            this.label14.Name = "label14";
+            this.label14.Size = new System.Drawing.Size(67, 13);
+            this.label14.TabIndex = 9;
+            this.label14.Text = "Raw File List";
+            // 
+            // label15
+            // 
+            this.label15.AutoSize = true;
+            this.label15.Location = new System.Drawing.Point(341, 35);
+            this.label15.Name = "label15";
+            this.label15.Size = new System.Drawing.Size(97, 13);
+            this.label15.TabIndex = 8;
+            this.label15.Text = "Processing File List";
+            // 
+            // btnMergeRemoveAllFiles
+            // 
+            this.btnMergeRemoveAllFiles.Location = new System.Drawing.Point(272, 182);
+            this.btnMergeRemoveAllFiles.Name = "btnMergeRemoveAllFiles";
+            this.btnMergeRemoveAllFiles.Size = new System.Drawing.Size(36, 23);
+            this.btnMergeRemoveAllFiles.TabIndex = 7;
+            this.btnMergeRemoveAllFiles.Text = "<<";
+            this.btnMergeRemoveAllFiles.UseVisualStyleBackColor = true;
+            this.btnMergeRemoveAllFiles.Click += new System.EventHandler(this.btnMergeRemoveAllFiles_Click);
+            // 
+            // btnMergeAddAllFiles
+            // 
+            this.btnMergeAddAllFiles.Location = new System.Drawing.Point(272, 89);
+            this.btnMergeAddAllFiles.Name = "btnMergeAddAllFiles";
+            this.btnMergeAddAllFiles.Size = new System.Drawing.Size(36, 23);
+            this.btnMergeAddAllFiles.TabIndex = 6;
+            this.btnMergeAddAllFiles.Text = ">>";
+            this.btnMergeAddAllFiles.UseVisualStyleBackColor = true;
+            this.btnMergeAddAllFiles.Click += new System.EventHandler(this.btnMergeAddAllFiles_Click);
+            // 
+            // btnMergeAddFile
+            // 
+            this.btnMergeAddFile.Location = new System.Drawing.Point(272, 120);
+            this.btnMergeAddFile.Name = "btnMergeAddFile";
+            this.btnMergeAddFile.Size = new System.Drawing.Size(36, 23);
+            this.btnMergeAddFile.TabIndex = 5;
+            this.btnMergeAddFile.Text = ">";
+            this.btnMergeAddFile.UseVisualStyleBackColor = true;
+            this.btnMergeAddFile.Click += new System.EventHandler(this.btnMergeAddFile_Click);
+            // 
+            // btnMergeRemoveFile
+            // 
+            this.btnMergeRemoveFile.Location = new System.Drawing.Point(272, 151);
+            this.btnMergeRemoveFile.Name = "btnMergeRemoveFile";
+            this.btnMergeRemoveFile.Size = new System.Drawing.Size(36, 23);
+            this.btnMergeRemoveFile.TabIndex = 4;
+            this.btnMergeRemoveFile.Text = "<";
+            this.btnMergeRemoveFile.UseVisualStyleBackColor = true;
+            this.btnMergeRemoveFile.Click += new System.EventHandler(this.btnMergeRemoveFile_Click);
+            // 
+            // lstMergeFileToProcess
+            // 
+            this.lstMergeFileToProcess.FormattingEnabled = true;
+            this.lstMergeFileToProcess.Location = new System.Drawing.Point(344, 54);
+            this.lstMergeFileToProcess.Name = "lstMergeFileToProcess";
+            this.lstMergeFileToProcess.SelectionMode = System.Windows.Forms.SelectionMode.MultiSimple;
+            this.lstMergeFileToProcess.Size = new System.Drawing.Size(222, 212);
+            this.lstMergeFileToProcess.TabIndex = 3;
+            // 
+            // lstMergeFileList
+            // 
+            this.lstMergeFileList.FormattingEnabled = true;
+            this.lstMergeFileList.Location = new System.Drawing.Point(6, 53);
+            this.lstMergeFileList.Name = "lstMergeFileList";
+            this.lstMergeFileList.SelectionMode = System.Windows.Forms.SelectionMode.MultiSimple;
+            this.lstMergeFileList.Size = new System.Drawing.Size(222, 212);
+            this.lstMergeFileList.TabIndex = 2;
+            // 
+            // txtMergeRawFile
+            // 
+            this.txtMergeRawFile.Location = new System.Drawing.Point(71, 12);
+            this.txtMergeRawFile.Name = "txtMergeRawFile";
+            this.txtMergeRawFile.Size = new System.Drawing.Size(464, 20);
+            this.txtMergeRawFile.TabIndex = 0;
+            // 
+            // btnMergeBrowseRaw
+            // 
+            this.btnMergeBrowseRaw.Location = new System.Drawing.Point(541, 12);
+            this.btnMergeBrowseRaw.Name = "btnMergeBrowseRaw";
+            this.btnMergeBrowseRaw.Size = new System.Drawing.Size(25, 23);
+            this.btnMergeBrowseRaw.TabIndex = 1;
+            this.btnMergeBrowseRaw.Text = "...";
+            this.btnMergeBrowseRaw.UseVisualStyleBackColor = true;
+            this.btnMergeBrowseRaw.Click += new System.EventHandler(this.btnMergeBrowseRaw_Click);
+            // 
+            // btnReMerge
+            // 
+            this.btnReMerge.Location = new System.Drawing.Point(562, 314);
+            this.btnReMerge.Name = "btnReMerge";
+            this.btnReMerge.Size = new System.Drawing.Size(75, 23);
+            this.btnReMerge.TabIndex = 10;
+            this.btnReMerge.Text = "Merge";
+            this.btnReMerge.UseVisualStyleBackColor = true;
+            this.btnReMerge.Click += new System.EventHandler(this.btnReMerge_Click);
+            // 
             // frmBatch
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -1183,6 +1332,9 @@
             this.grpDRAG.PerformLayout();
             this.grpMultiplexPreM.ResumeLayout(false);
             this.grpMultiplexPreM.PerformLayout();
+            this.tabMerge.ResumeLayout(false);
+            this.groupBox9.ResumeLayout(false);
+            this.groupBox9.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -1284,5 +1436,18 @@
         private System.Windows.Forms.TextBox txtMinPeakHeight;
         private System.Windows.Forms.Label label13;
         private System.Windows.Forms.CheckBox chkProtonatedResult;
+        private System.Windows.Forms.TabPage tabMerge;
+        private System.Windows.Forms.GroupBox groupBox9;
+        private System.Windows.Forms.Label label14;
+        private System.Windows.Forms.Label label15;
+        private System.Windows.Forms.Button btnMergeRemoveAllFiles;
+        private System.Windows.Forms.Button btnMergeAddAllFiles;
+        private System.Windows.Forms.Button btnMergeAddFile;
+        private System.Windows.Forms.Button btnMergeRemoveFile;
+        private System.Windows.Forms.ListBox lstMergeFileToProcess;
+        private System.Windows.Forms.ListBox lstMergeFileList;
+        private System.Windows.Forms.TextBox txtMergeRawFile;
+        private System.Windows.Forms.Button btnMergeBrowseRaw;
+        private System.Windows.Forms.Button btnReMerge;
     }
 }

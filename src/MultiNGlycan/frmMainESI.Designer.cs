@@ -131,6 +131,8 @@
             this.btnQuan = new System.Windows.Forms.Button();
             this.label9 = new System.Windows.Forms.Label();
             this.directoryEntry1 = new System.DirectoryServices.DirectoryEntry();
+            this.rdoPositive = new System.Windows.Forms.RadioButton();
+            this.rdoNegative = new System.Windows.Forms.RadioButton();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox5.SuspendLayout();
@@ -613,6 +615,8 @@
             // 
             // tabIden
             // 
+            this.tabIden.Controls.Add(this.rdoNegative);
+            this.tabIden.Controls.Add(this.rdoPositive);
             this.tabIden.Controls.Add(this.txtMinPeakHeight);
             this.tabIden.Controls.Add(this.groupBox8);
             this.tabIden.Controls.Add(this.btnNext);
@@ -777,7 +781,7 @@
             // pictureBox1
             // 
             this.pictureBox1.Image = global::COL.MultiGlycan.Properties.Resources.Peak;
-            this.pictureBox1.Location = new System.Drawing.Point(450, 136);
+            this.pictureBox1.Location = new System.Drawing.Point(450, 153);
             this.pictureBox1.Name = "pictureBox1";
             this.pictureBox1.Size = new System.Drawing.Size(241, 178);
             this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
@@ -1220,6 +1224,29 @@
             this.label9.Text = "Signal/Noise:";
             this.label9.Visible = false;
             // 
+            // rdoPositive
+            // 
+            this.rdoPositive.AutoSize = true;
+            this.rdoPositive.Checked = true;
+            this.rdoPositive.Location = new System.Drawing.Point(481, 130);
+            this.rdoPositive.Name = "rdoPositive";
+            this.rdoPositive.Size = new System.Drawing.Size(99, 17);
+            this.rdoPositive.TabIndex = 49;
+            this.rdoPositive.TabStop = true;
+            this.rdoPositive.Text = "Positive Charge";
+            this.rdoPositive.UseVisualStyleBackColor = true;
+            this.rdoPositive.CheckedChanged += new System.EventHandler(this.rdoPositive_CheckedChanged);
+            // 
+            // rdoNegative
+            // 
+            this.rdoNegative.AutoSize = true;
+            this.rdoNegative.Location = new System.Drawing.Point(586, 130);
+            this.rdoNegative.Name = "rdoNegative";
+            this.rdoNegative.Size = new System.Drawing.Size(105, 17);
+            this.rdoNegative.TabIndex = 50;
+            this.rdoNegative.Text = "Negative Charge";
+            this.rdoNegative.UseVisualStyleBackColor = true;
+            // 
             // frmMainESI
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -1381,5 +1408,7 @@
         private System.Windows.Forms.TextBox txtMinPeakHeight;
         private System.DirectoryServices.DirectoryEntry directoryEntry1;
         private System.Windows.Forms.CheckBox chkForceProtonated;
+        private System.Windows.Forms.RadioButton rdoNegative;
+        private System.Windows.Forms.RadioButton rdoPositive;
     }
 }

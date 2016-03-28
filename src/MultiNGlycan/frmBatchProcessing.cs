@@ -12,7 +12,7 @@ using COL.GlycoLib;
 using COL.MassLib;
 using System.Threading.Tasks;
 using System.Linq;
-using ZedGraph;
+
 
 namespace COL.MultiGlycan
 {
@@ -75,7 +75,7 @@ namespace COL.MultiGlycan
                 }
             }
             MultiGlycanESI multiGlycan = null;
-            ZedGraphControl zedGraphControl = new ZedGraphControl();
+            //ZedGraphControl zedGraphControl = new ZedGraphControl();
             try
             {
                 //debugWriter.WriteLine("---------------------Process file:" + argFile + "------------------------");
@@ -151,22 +151,20 @@ namespace COL.MultiGlycan
                 {
                     multiGlycan.ApplyLCordrer();
                 }
-                if (!Directory.Exists(multiGlycan.ExportFilePath + "\\Pic"))
+                if (!Directory.Exists(multiGlycan.ExportFilePath + "\\Pic") && (multiGlycan.IndividualImgs || multiGlycan.QuantificationImgs))
                 {
                     Directory.CreateDirectory(multiGlycan.ExportFilePath + "\\Pic");
                 }
                 if (multiGlycan.LabelingMethod == GlycoLib.enumGlycanLabelingMethod.MultiplexPermethylated)
                 {
                     multiGlycan.EstimatePurity();
-                    ZedGraphControl zedGraph = new ZedGraphControl();
+                    
                     foreach (GlycoLib.enumLabelingTag tag in multiGlycan.LabelingRatio.Keys)
                     {
                         if (tag == enumLabelingTag.MP_CH3 || !multiGlycan.HasEstimatePurity((tag)))
                             continue;
-                        multiGlycan.GetPurityEstimateImage(ref zedGraph, tag).Save(multiGlycan.ExportFilePath + "\\Pic\\EstimatePurity_" + tag.ToString() + ".png", System.Drawing.Imaging.ImageFormat.Png);
+                        multiGlycan.GetPurityEstimateImage(tag,multiGlycan.ExportFilePath + "\\Pic\\EstimatePurity_" + tag.ToString() + ".png");
                     }
-                    zedGraph.Dispose();
-                    zedGraph = null;
                 }
                 ProcessingStatus[runningSlot] = "Status:  Waiting for Export";
                 bgWorker_Process.ReportProgress(0);
@@ -178,6 +176,17 @@ namespace COL.MultiGlycan
                 multiGlycan.ExportToCSV();
                 ProcessingStatus[runningSlot] = "Export completed";
                 //debugWriter.WriteLine("Export completed");
+                ProcessingStatus[runningSlot] = "Generate Pics";
+                if (multiGlycan.IndividualImgs &&
+                   File.Exists(multiGlycan.ExportFilePath+"\\" +Path.GetFileNameWithoutExtension(argFile)+ "_FullList.csv"))
+                {
+                    //GenerateImages.GenGlycanLcImg(
+                    //    _MultiNGlycan.ExportFilePath + "\\" + Path.GetFileName(_MultiNGlycan.ExportFilePath) +"_FullList.csv",
+                    //    _MultiNGlycan.ExportFilePath);
+                    GenerateImages.GenGlycanLcImg(multiGlycan);
+                }           
+
+
                 bgWorker_Process.ReportProgress(0);
                 SucceedFileCount = SucceedFileCount + 1;
                 //debugWriter.WriteLine("Finish");
@@ -422,11 +431,14 @@ namespace COL.MultiGlycan
             progressBar3.Value = 0;
             lblPercentage3.Text = "0%";
 
-            MessageBox.Show("Finish jobs; Start merge");
+            //MessageBox.Show("Finish jobs; Start merge");
 
             #region Export Merge result
+
+
             //Fetch Files
-            List<string> ResultFiles = new List<string>();
+            List<string> ResultFilesFull = new List<string>();
+           
             List<string> AllGlycans = new List<string>();
             foreach (string filename in _RawFilesList)
             {
@@ -442,209 +454,25 @@ namespace COL.MultiGlycan
                 {
                     if (files.EndsWith(".csv") && files.Contains("_FullLis") && !files.Contains("_Quant"))
                     {
-                        ResultFiles.Add(files);
+                        ResultFilesFull.Add(files);
                     }
                 }
             }
-            //Read Files  
-            // Dictionary<GlycanKey, List<QuantitationPeak>>
-            Dictionary<string, List<QuantitationPeak>> AllResult = new Dictionary<string,List<QuantitationPeak>>();
-            for (int i = 0; i < ResultFiles.Count; i++)
+            MergeQuantitationResults.MergeFullList(ResultFilesFull, _MultiNGlycan.ExportFilePath + "\\MergeResult_FullList.csv");
+           List<string> ResultFile = new List<string>();
+            foreach (string str in ResultFilesFull)
             {
-                //Glycan, Adduct
-               Dictionary<string, Dictionary<string, List<Tuple<float, float>>>> Result = ReadFullResultCSV(ResultFiles[i]);
-               //Impute data 
-
-               ImputationData(Result);
-               foreach (string glycanKey in Result.Keys)
-               {
-                   if(!AllGlycans.Contains(glycanKey))
-                   {
-                       AllGlycans.Add(glycanKey);
-                   }
-                   if (!AllResult.ContainsKey(glycanKey))
-                   {
-                       AllResult.Add(glycanKey, new List<QuantitationPeak>());
-                   }
-                   QuantitationPeak qPeak = new QuantitationPeak(Path.GetFileNameWithoutExtension(ResultFiles[i]).Replace("_FullList", ""),glycanKey);
-                   qPeak.AssignPeaks(Result[glycanKey]);
-
-                   if (!AllResult.ContainsKey(glycanKey))
-                   {
-                       AllResult.Add(glycanKey, new List<QuantitationPeak>());
-                   }
-                   AllResult[glycanKey].Add(qPeak);
-               }              
+                ResultFile.Add(str.Replace("_FullList.csv", ".csv"));
             }
-           
-            //Debug
-            if (_protonatedResult)
-            {
-                StreamWriter swDebug = new StreamWriter(_MultiNGlycan.ExportFilePath + "\\MergeResult_Debug.csv");
-                string tmpDebugStr = "";
-                tmpDebugStr = "Glycan,";
-                //Title
-                foreach (string filename in _RawFilesList)
-                {
-                    tmpDebugStr = tmpDebugStr + Path.GetFileNameWithoutExtension(filename) + "_Time," + Path.GetFileNameWithoutExtension(filename) + "_Intensity,";
-                }
-                swDebug.WriteLine(tmpDebugStr);
-                foreach (string GlycanKey in AllResult.Keys)
-                {
-                    GetBalanceData(AllResult[GlycanKey]);
-                    swDebug.WriteLine(GlycanKey+" Protonated");
-                    int ProtonatedPeakCount = AllResult[GlycanKey][0].ProtonatedPeaks.Count;
-
-                    
-                    for (int i = 0; i < ProtonatedPeakCount; i++)
-                    {
-                        tmpDebugStr = ",";
-                        int fileIdx = 0;
-                        for (int j = 0; j < ResultFiles.Count; j++)
-                        {
-                            if (AllResult[GlycanKey].Count <=fileIdx   || AllResult[GlycanKey][fileIdx].DataSetName != Path.GetFileNameWithoutExtension(ResultFiles[fileIdx]).Replace("_FullList", "") || AllResult[GlycanKey][fileIdx].ProtonatedPeaks.Count==0)
-                            {
-                                tmpDebugStr += "N/A,N/A,";
-                            }
-                            else
-                            {
-                                tmpDebugStr += AllResult[GlycanKey][fileIdx].ProtonatedPeaks[i].Item1.ToString("0.00") + "," + AllResult[GlycanKey][fileIdx].ProtonatedPeaks[i].Item2.ToString("0.00") + ",";
-                                fileIdx++;
-                            }
-                        }
-                        swDebug.WriteLine(tmpDebugStr);
-                    }
-                }
-                swDebug.Close();
-            }
+            MergeQuantitationResults.MergeConservedList(ResultFile, _MultiNGlycan.ExportFilePath + "\\MergeResult.csv");
 
 
-            //Export File
-            StreamWriter sw = new StreamWriter(_MultiNGlycan.ExportFilePath + "\\MergeResult.csv");
-            string tmpStr = "";
-            tmpStr = "Glycan,";
-            //Title
-            foreach (string filename in _RawFilesList)
-            {
-                tmpStr = tmpStr + Path.GetFileNameWithoutExtension(filename) + ",";
-            }
-            sw.WriteLine(tmpStr);
-
-            foreach (string GlycanKey in AllResult.Keys)
-            {
-                GetBalanceData(AllResult[GlycanKey]);
-                //Protonated
-                tmpStr = GlycanKey + " Protonated,";
-                int ZeroAndNACount = 0;
-                double smallestIntensity = 9999999999999;
-                int fileIdx = 0;
-                for(int i = 0;i< AllResult[GlycanKey].Count;i++)
-                {
-                    while (AllResult[GlycanKey][i].DataSetName != Path.GetFileNameWithoutExtension(ResultFiles[fileIdx]).Replace("_FullList", ""))
-                    {
-                        tmpStr = tmpStr + "N/A,";
-                        fileIdx++;
-                        ZeroAndNACount++;
-                    }
-                    tmpStr = tmpStr + AllResult[GlycanKey][i].TotalProtonatedIntensity.ToString("0.00") + ",";
-                    if (AllResult[GlycanKey][i].TotalProtonatedIntensity == 0)
-                    {
-                        ZeroAndNACount++;
-                    }
-                    fileIdx++;
-
-                    if (smallestIntensity >= AllResult[GlycanKey][i].TotalProtonatedIntensity && AllResult[GlycanKey][i].TotalProtonatedIntensity>0)
-                    {
-                        smallestIntensity = AllResult[GlycanKey][i].TotalProtonatedIntensity;
-                    }
-                }
-                while (tmpStr.Count(t => t == ',') < ResultFiles.Count + 1)
-                {
-                    tmpStr += "N/A,";
-                    ZeroAndNACount++;
-                }
-                if (ZeroAndNACount == ResultFiles.Count)
-                {
-                    continue;
-                }
-                sw.WriteLine(tmpStr);
-                tmpStr = GlycanKey + " Protonated Ratio,";
-                fileIdx = 0;
-                for (int i = 0; i < AllResult[GlycanKey].Count; i++)
-                {
-                    while (AllResult[GlycanKey][i].DataSetName != Path.GetFileNameWithoutExtension(ResultFiles[fileIdx]).Replace("_FullList", ""))
-                    {
-                        tmpStr = tmpStr + "N/A,";
-                        fileIdx++;
-                    }
-                    tmpStr = tmpStr + (AllResult[GlycanKey][i].TotalProtonatedIntensity / smallestIntensity).ToString("0.00") + ",";
-                    fileIdx++;
-                }
-                while (tmpStr.Count(t => t == ',') < ResultFiles.Count + 1)
-                {
-                    tmpStr += "N/A,";
-                }
-                sw.WriteLine(tmpStr);
-                //All
-                tmpStr = GlycanKey + " All Adducts,";
-
-                smallestIntensity = 9999999999999;
-                fileIdx = 0;
-                for (int i = 0; i < AllResult[GlycanKey].Count; i++)
-                {
-                    while (AllResult[GlycanKey][i].DataSetName != Path.GetFileNameWithoutExtension(ResultFiles[fileIdx]).Replace("_FullList", ""))
-                    {
-                        tmpStr = tmpStr + "N/A,";
-                        fileIdx++;
-                    }
-                    tmpStr = tmpStr + AllResult[GlycanKey][i].TotalIntensity.ToString("0.00") + ",";
-                    fileIdx++;
-
-                    if (smallestIntensity >= AllResult[GlycanKey][i].TotalIntensity && AllResult[GlycanKey][i].TotalIntensity>0)
-                    {
-                        smallestIntensity = AllResult[GlycanKey][i].TotalIntensity;
-                    }
-                }
-                while (tmpStr.Count(t => t == ',') < ResultFiles.Count + 1)
-                {
-                    tmpStr += "N/A,";
-                }
-                sw.WriteLine(tmpStr);
-                tmpStr = GlycanKey + " All Ratio,";
-                fileIdx = 0;
-                for (int i = 0; i < AllResult[GlycanKey].Count; i++)
-                {
-                    while (AllResult[GlycanKey][i].DataSetName != Path.GetFileNameWithoutExtension(ResultFiles[fileIdx]).Replace("_FullList", ""))
-                    {
-                        tmpStr = tmpStr + "N/A,";
-                        fileIdx++;
-                    }
-                    tmpStr = tmpStr + (AllResult[GlycanKey][i].TotalIntensity / smallestIntensity).ToString("0.00") + ",";
-                    fileIdx++;
-                }
-                while (tmpStr.Count(t => t == ',') < ResultFiles.Count + 1)
-                {
-                    tmpStr += "N/A,";
-                }
-                sw.WriteLine(tmpStr);
-
-
-            }
-            sw.Close();
             #endregion
-            #region Get Images
-            MessageBox.Show("Finish merge; Start generate pictures");
-            frmBatchGenImg frmBatchGenerateImages = new frmBatchGenImg(
-                ResultFiles,
-                _MultiNGlycan.ExportFilePath,
-                _MultiNGlycan.LabelingMethod,
-                _MultiNGlycan.IndividualImgs,
-                _MultiNGlycan.QuantificationImgs);
-            frmBatchGenerateImages.ShowDialog();
-            #endregion
+
             MessageBox.Show("Finished files:" + SucceedFileCount.ToString() + Environment.NewLine + ErrMsg);
             this.Close();
         }
+        /*
         private void GetBalanceData(List<QuantitationPeak> argQuantPeaks)
         {
             QuantitationPeak processingGlycan =null;
@@ -776,6 +604,7 @@ namespace COL.MultiGlycan
                 }
             }
         }
+         
         private Dictionary<string, Dictionary<string, float>> ReadResultCSV(string argFile)
         {
             StreamReader sr = null;
@@ -860,7 +689,7 @@ namespace COL.MultiGlycan
             }
 
         }
-
+        */
         //private void bgWorker_Process_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         //{
         //    try

@@ -7,7 +7,7 @@ using System.Text;
 using System.Windows.Forms;
 using System.IO;
 using COL.GlycoLib;
-using ZedGraph;
+
 
 namespace COL.MultiGlycan
 {
@@ -153,20 +153,20 @@ namespace COL.MultiGlycan
                     _MultiNGlycan.ApplyLCordrer();
                 }
 
-                if(!Directory.Exists(_MultiNGlycan.ExportFilePath + "\\Pic"))
+                if (!Directory.Exists(_MultiNGlycan.ExportFilePath + "\\Pic") && (_MultiNGlycan.IndividualImgs || _MultiNGlycan.QuantificationImgs))
                 {
                     Directory.CreateDirectory(_MultiNGlycan.ExportFilePath + "\\Pic");
                 }
 
+
                 if (_MultiNGlycan.LabelingMethod == GlycoLib.enumGlycanLabelingMethod.MultiplexPermethylated)
                 {
                     _MultiNGlycan.EstimatePurity();
-                    ZedGraphControl zedGraph = new ZedGraphControl();
                     foreach (GlycoLib.enumLabelingTag tag in _MultiNGlycan.LabelingRatio.Keys)
                     {
                         if (tag == enumLabelingTag.MP_CH3 || !_MultiNGlycan.HasEstimatePurity((tag)))
                             continue;
-                        _MultiNGlycan.GetPurityEstimateImage(ref zedGraph, tag).Save(_MultiNGlycan.ExportFilePath + "\\Pic\\EstimatePurity_" + tag.ToString() + ".png", System.Drawing.Imaging.ImageFormat.Png); 
+                        _MultiNGlycan.GetPurityEstimateImage(tag,_MultiNGlycan.ExportFilePath + "\\Pic\\EstimatePurity_" + tag.ToString() + ".png"); 
                     }          
           
                     //Correct Intensity;
