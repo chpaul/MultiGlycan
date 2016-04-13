@@ -129,7 +129,10 @@ namespace COL.MultiGlycan
                     Logger.WriteLog("Start merge peaks");
                 }
                 lblStatus.Text = "Mergeing Peaks";
-              
+                if (_MultiNGlycan.LabelingMethod == enumGlycanLabelingMethod.MultiplexPermethylated)
+                {
+                    SecondPassedForMultiplexPermethylated.Processing(ref _MultiNGlycan);
+                }
                 //if (_MultiNGlycan.TwoPassedID)
                 //{
                 //   // _MultiNGlycan.Merge2PassedCluster();

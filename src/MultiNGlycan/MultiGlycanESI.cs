@@ -200,6 +200,11 @@ namespace COL.MultiGlycan
             get { return _glycanFile; }
         }
 
+        public List<GlycanCompound> IdentifiedGlycanCompounds
+        {
+            get { return _identifiedGlycan; }
+            set { _identifiedGlycan = value; }
+        }
         public float MinPeakHeightPrecentage
         {
             get { return _minPeakHeightPrecentage; }
