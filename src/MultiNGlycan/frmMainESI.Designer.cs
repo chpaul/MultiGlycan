@@ -76,6 +76,8 @@
             this.chkLog = new System.Windows.Forms.CheckBox();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabIden = new System.Windows.Forms.TabPage();
+            this.rdoNegative = new System.Windows.Forms.RadioButton();
+            this.rdoPositive = new System.Windows.Forms.RadioButton();
             this.txtMinPeakHeight = new System.Windows.Forms.TextBox();
             this.groupBox8 = new System.Windows.Forms.GroupBox();
             this.chkApplyLinearRegLC = new System.Windows.Forms.CheckBox();
@@ -93,6 +95,12 @@
             this.label8 = new System.Windows.Forms.Label();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.tabQuan = new System.Windows.Forms.TabPage();
+            this.rdoHDEAT = new System.Windows.Forms.RadioButton();
+            this.grpHDEAT = new System.Windows.Forms.GroupBox();
+            this.txtHDEATLight = new System.Windows.Forms.TextBox();
+            this.txtHDEATHeavy = new System.Windows.Forms.TextBox();
+            this.chkHDEAT_Light = new System.Windows.Forms.CheckBox();
+            this.chkHDEAT_Heavy = new System.Windows.Forms.CheckBox();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
             this.chkAdductProton = new System.Windows.Forms.CheckBox();
@@ -131,8 +139,6 @@
             this.btnQuan = new System.Windows.Forms.Button();
             this.label9 = new System.Windows.Forms.Label();
             this.directoryEntry1 = new System.DirectoryServices.DirectoryEntry();
-            this.rdoPositive = new System.Windows.Forms.RadioButton();
-            this.rdoNegative = new System.Windows.Forms.RadioButton();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox5.SuspendLayout();
@@ -144,6 +150,7 @@
             this.groupBox7.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.tabQuan.SuspendLayout();
+            this.grpHDEAT.SuspendLayout();
             this.groupBox3.SuspendLayout();
             this.groupBox4.SuspendLayout();
             this.grpDRAG.SuspendLayout();
@@ -634,6 +641,29 @@
             this.tabIden.Text = "Identification";
             this.tabIden.UseVisualStyleBackColor = true;
             // 
+            // rdoNegative
+            // 
+            this.rdoNegative.AutoSize = true;
+            this.rdoNegative.Location = new System.Drawing.Point(586, 130);
+            this.rdoNegative.Name = "rdoNegative";
+            this.rdoNegative.Size = new System.Drawing.Size(105, 17);
+            this.rdoNegative.TabIndex = 50;
+            this.rdoNegative.Text = "Negative Charge";
+            this.rdoNegative.UseVisualStyleBackColor = true;
+            // 
+            // rdoPositive
+            // 
+            this.rdoPositive.AutoSize = true;
+            this.rdoPositive.Checked = true;
+            this.rdoPositive.Location = new System.Drawing.Point(481, 130);
+            this.rdoPositive.Name = "rdoPositive";
+            this.rdoPositive.Size = new System.Drawing.Size(99, 17);
+            this.rdoPositive.TabIndex = 49;
+            this.rdoPositive.TabStop = true;
+            this.rdoPositive.Text = "Positive Charge";
+            this.rdoPositive.UseVisualStyleBackColor = true;
+            this.rdoPositive.CheckedChanged += new System.EventHandler(this.rdoPositive_CheckedChanged);
+            // 
             // txtMinPeakHeight
             // 
             this.txtMinPeakHeight.Location = new System.Drawing.Point(389, 168);
@@ -790,6 +820,8 @@
             // 
             // tabQuan
             // 
+            this.tabQuan.Controls.Add(this.rdoHDEAT);
+            this.tabQuan.Controls.Add(this.grpHDEAT);
             this.tabQuan.Controls.Add(this.groupBox3);
             this.tabQuan.Controls.Add(this.chkIndividualImg);
             this.tabQuan.Controls.Add(this.chkQuantImgs);
@@ -805,6 +837,72 @@
             this.tabQuan.TabIndex = 0;
             this.tabQuan.Text = "Quantification";
             this.tabQuan.UseVisualStyleBackColor = true;
+            // 
+            // rdoHDEAT
+            // 
+            this.rdoHDEAT.AutoSize = true;
+            this.rdoHDEAT.Location = new System.Drawing.Point(195, 133);
+            this.rdoHDEAT.Name = "rdoHDEAT";
+            this.rdoHDEAT.Size = new System.Drawing.Size(62, 17);
+            this.rdoHDEAT.TabIndex = 41;
+            this.rdoHDEAT.TabStop = true;
+            this.rdoHDEAT.Text = "HDEAT";
+            this.rdoHDEAT.UseVisualStyleBackColor = true;
+            this.rdoHDEAT.CheckedChanged += new System.EventHandler(this.rdoHDEAT_CheckedChanged);
+            // 
+            // grpHDEAT
+            // 
+            this.grpHDEAT.Controls.Add(this.txtHDEATLight);
+            this.grpHDEAT.Controls.Add(this.txtHDEATHeavy);
+            this.grpHDEAT.Controls.Add(this.chkHDEAT_Light);
+            this.grpHDEAT.Controls.Add(this.chkHDEAT_Heavy);
+            this.grpHDEAT.Enabled = false;
+            this.grpHDEAT.Location = new System.Drawing.Point(195, 156);
+            this.grpHDEAT.Name = "grpHDEAT";
+            this.grpHDEAT.Size = new System.Drawing.Size(163, 78);
+            this.grpHDEAT.TabIndex = 40;
+            this.grpHDEAT.TabStop = false;
+            this.grpHDEAT.Text = "HDEAT";
+            // 
+            // txtHDEATLight
+            // 
+            this.txtHDEATLight.Location = new System.Drawing.Point(91, 22);
+            this.txtHDEATLight.Name = "txtHDEATLight";
+            this.txtHDEATLight.Size = new System.Drawing.Size(55, 20);
+            this.txtHDEATLight.TabIndex = 7;
+            this.txtHDEATLight.Text = "1.0";
+            // 
+            // txtHDEATHeavy
+            // 
+            this.txtHDEATHeavy.Location = new System.Drawing.Point(91, 46);
+            this.txtHDEATHeavy.Name = "txtHDEATHeavy";
+            this.txtHDEATHeavy.Size = new System.Drawing.Size(57, 20);
+            this.txtHDEATHeavy.TabIndex = 6;
+            this.txtHDEATHeavy.Text = "1.0";
+            // 
+            // chkHDEAT_Light
+            // 
+            this.chkHDEAT_Light.AutoSize = true;
+            this.chkHDEAT_Light.Checked = true;
+            this.chkHDEAT_Light.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.chkHDEAT_Light.Location = new System.Drawing.Point(15, 25);
+            this.chkHDEAT_Light.Name = "chkHDEAT_Light";
+            this.chkHDEAT_Light.Size = new System.Drawing.Size(49, 17);
+            this.chkHDEAT_Light.TabIndex = 5;
+            this.chkHDEAT_Light.Text = "Light";
+            this.chkHDEAT_Light.UseVisualStyleBackColor = true;
+            // 
+            // chkHDEAT_Heavy
+            // 
+            this.chkHDEAT_Heavy.AutoSize = true;
+            this.chkHDEAT_Heavy.Checked = true;
+            this.chkHDEAT_Heavy.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.chkHDEAT_Heavy.Location = new System.Drawing.Point(15, 48);
+            this.chkHDEAT_Heavy.Name = "chkHDEAT_Heavy";
+            this.chkHDEAT_Heavy.Size = new System.Drawing.Size(57, 17);
+            this.chkHDEAT_Heavy.TabIndex = 4;
+            this.chkHDEAT_Heavy.Text = "Heavy";
+            this.chkHDEAT_Heavy.UseVisualStyleBackColor = true;
             // 
             // groupBox3
             // 
@@ -1172,7 +1270,7 @@
             // 
             this.rdoLabelFree.AutoSize = true;
             this.rdoLabelFree.Checked = true;
-            this.rdoLabelFree.Location = new System.Drawing.Point(195, 174);
+            this.rdoLabelFree.Location = new System.Drawing.Point(195, 243);
             this.rdoLabelFree.Name = "rdoLabelFree";
             this.rdoLabelFree.Size = new System.Drawing.Size(106, 17);
             this.rdoLabelFree.TabIndex = 17;
@@ -1224,29 +1322,6 @@
             this.label9.Text = "Signal/Noise:";
             this.label9.Visible = false;
             // 
-            // rdoPositive
-            // 
-            this.rdoPositive.AutoSize = true;
-            this.rdoPositive.Checked = true;
-            this.rdoPositive.Location = new System.Drawing.Point(481, 130);
-            this.rdoPositive.Name = "rdoPositive";
-            this.rdoPositive.Size = new System.Drawing.Size(99, 17);
-            this.rdoPositive.TabIndex = 49;
-            this.rdoPositive.TabStop = true;
-            this.rdoPositive.Text = "Positive Charge";
-            this.rdoPositive.UseVisualStyleBackColor = true;
-            this.rdoPositive.CheckedChanged += new System.EventHandler(this.rdoPositive_CheckedChanged);
-            // 
-            // rdoNegative
-            // 
-            this.rdoNegative.AutoSize = true;
-            this.rdoNegative.Location = new System.Drawing.Point(586, 130);
-            this.rdoNegative.Name = "rdoNegative";
-            this.rdoNegative.Size = new System.Drawing.Size(105, 17);
-            this.rdoNegative.TabIndex = 50;
-            this.rdoNegative.Text = "Negative Charge";
-            this.rdoNegative.UseVisualStyleBackColor = true;
-            // 
             // frmMainESI
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -1287,6 +1362,8 @@
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.tabQuan.ResumeLayout(false);
             this.tabQuan.PerformLayout();
+            this.grpHDEAT.ResumeLayout(false);
+            this.grpHDEAT.PerformLayout();
             this.groupBox3.ResumeLayout(false);
             this.groupBox3.PerformLayout();
             this.groupBox4.ResumeLayout(false);
@@ -1410,5 +1487,11 @@
         private System.Windows.Forms.CheckBox chkForceProtonated;
         private System.Windows.Forms.RadioButton rdoNegative;
         private System.Windows.Forms.RadioButton rdoPositive;
+        private System.Windows.Forms.GroupBox grpHDEAT;
+        private System.Windows.Forms.TextBox txtHDEATLight;
+        private System.Windows.Forms.TextBox txtHDEATHeavy;
+        private System.Windows.Forms.CheckBox chkHDEAT_Light;
+        private System.Windows.Forms.CheckBox chkHDEAT_Heavy;
+        private System.Windows.Forms.RadioButton rdoHDEAT;
     }
 }

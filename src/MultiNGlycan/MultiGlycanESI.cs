@@ -2288,14 +2288,21 @@ namespace COL.MultiGlycan
             _dicCandidateGlycan = new Dictionary<float, List<GlycanCompound>>();
             foreach (GlycanCompound comp in argGlycanComList)
             {
-                if (!_dicCandidateGlycan.ContainsKey(Convert.ToSingle(comp.MZ)))
+                try
                 {
-                    _dicCandidateGlycan.Add(Convert.ToSingle(comp.MZ), new List<GlycanCompound>());
+                    if (!_dicCandidateGlycan.ContainsKey(Convert.ToSingle(comp.MZ)))
+                    {
+                        _dicCandidateGlycan.Add(Convert.ToSingle(comp.MZ), new List<GlycanCompound>());
+                    }
+                    _dicCandidateGlycan[Convert.ToSingle(comp.MZ)].Add(comp);
+                    if (!CandidateMzList.Contains(Convert.ToSingle(comp.MZ)))
+                    {
+                        CandidateMzList.Add(Convert.ToSingle(comp.MZ));
+                    }
                 }
-                _dicCandidateGlycan[Convert.ToSingle(comp.MZ)].Add(comp);
-                if (!CandidateMzList.Contains(Convert.ToSingle(comp.MZ)))
+                catch(Exception ex)
                 {
-                    CandidateMzList.Add(Convert.ToSingle(comp.MZ));
+
                 }
             }
             CandidateMzList.Sort();

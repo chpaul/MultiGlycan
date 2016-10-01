@@ -157,6 +157,10 @@ namespace COL.MultiGlycan
                 {
                     ESI.LabelingMethod = GlycoLib.enumGlycanLabelingMethod.MultiplexPermethylated;
                 }
+                else if(rdoHDEAT.Checked)
+                {
+                    ESI.LabelingMethod = enumGlycanLabelingMethod.HDEAT;
+                }
                 ESI.PositiveChargeMode = rdoPositive.Checked;
                 ESI.MergeDifferentChargeIntoOne = chkMergeDffCharge.Checked;  
                 ESI.ExportFilePath = saveFileDialog1.FileName;
@@ -599,6 +603,27 @@ namespace COL.MultiGlycan
                     labelingRatio.Add(GlycoLib.enumLabelingTag.DRAG_Heavy, Convert.ToSingle(txtDRAGHeavy.Text));
                 }
             }
+            else if(rdoHDEAT.Checked)
+            {
+                if (chkPermethylated.Checked)
+                {
+                    MessageBox.Show("Permethylated check box should not be checked");
+                    chkPermethylated.Checked = false;
+                }
+                if (chkReducedReducingEnd.Checked)
+                {
+                    MessageBox.Show("Reduced reducing end check box should not be checked");
+                    chkReducedReducingEnd.Checked = false;
+                }
+                if (chkHDEAT_Light.Checked)
+                {
+                    labelingRatio.Add(GlycoLib.enumLabelingTag.HDEAT_Light, Convert.ToSingle(txtHDEATLight.Text));
+                }
+                if (chkHDEAT_Heavy.Checked)
+                {
+                    labelingRatio.Add(GlycoLib.enumLabelingTag.HDEAT_Heavy, Convert.ToSingle(txtHDEATHeavy.Text));
+                }
+            }
             else if (rdoMultiplePemrthylated.Checked) // MP
             {
                 if (!chkPermethylated.Checked)
@@ -724,12 +749,13 @@ namespace COL.MultiGlycan
             chkAdductUser.Enabled = rdoPositive.Checked;
         }
 
-       
-
-
-
-
-
-      
+        private void rdoHDEAT_CheckedChanged(object sender, EventArgs e)
+        {
+            grpHDEAT.Enabled = rdoHDEAT.Checked;
+            chkReducedReducingEnd.Checked = false;
+            chkPermethylated.Checked = false;
+            chkQuantImgs.Checked = true;
+            chkQuantImgs.Enabled = true;
+        }
     }
 }
