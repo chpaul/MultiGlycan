@@ -23,8 +23,8 @@ namespace COL.MultiGlycan
         private string ErrMsg = "";
         private MultiGlycanESI _MultiNGlycan;
         private List<string> _RawFilesList;
-        private int CurrentScan = 0;
-        DateTime Start;
+        //private int CurrentScan = 0;
+        //DateTime Start;
         bool DoLog = false;
         private int ProcessedFileCount = 0;
         private int SucceedFileCount = 0;

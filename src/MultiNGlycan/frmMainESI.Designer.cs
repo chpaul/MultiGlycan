@@ -71,11 +71,14 @@
             this.massCalculatorToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem2 = new System.Windows.Forms.ToolStripMenuItem();
             this.batchModeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.glycanUnitGUToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.txtGlycanPPM = new System.Windows.Forms.TextBox();
             this.label2 = new System.Windows.Forms.Label();
             this.chkLog = new System.Windows.Forms.CheckBox();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabIden = new System.Windows.Forms.TabPage();
+            this.rdoNegative = new System.Windows.Forms.RadioButton();
+            this.rdoPositive = new System.Windows.Forms.RadioButton();
             this.txtMinPeakHeight = new System.Windows.Forms.TextBox();
             this.groupBox8 = new System.Windows.Forms.GroupBox();
             this.chkApplyLinearRegLC = new System.Windows.Forms.CheckBox();
@@ -111,6 +114,8 @@
             this.chkDRAG_Light = new System.Windows.Forms.CheckBox();
             this.chkDRAG_Heavy = new System.Windows.Forms.CheckBox();
             this.grpMultiplexPreM = new System.Windows.Forms.GroupBox();
+            this.txtQuan13CH2D = new System.Windows.Forms.TextBox();
+            this.chkQuan13CH2D = new System.Windows.Forms.CheckBox();
             this.chkQuanCH3 = new System.Windows.Forms.CheckBox();
             this.chkQuanCH2D = new System.Windows.Forms.CheckBox();
             this.chkQuanCHD2 = new System.Windows.Forms.CheckBox();
@@ -131,8 +136,6 @@
             this.btnQuan = new System.Windows.Forms.Button();
             this.label9 = new System.Windows.Forms.Label();
             this.directoryEntry1 = new System.DirectoryServices.DirectoryEntry();
-            this.rdoPositive = new System.Windows.Forms.RadioButton();
-            this.rdoNegative = new System.Windows.Forms.RadioButton();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox5.SuspendLayout();
@@ -152,9 +155,9 @@
             // 
             // btnBrowseRaw
             // 
-            this.btnBrowseRaw.Location = new System.Drawing.Point(535, 11);
+            this.btnBrowseRaw.Location = new System.Drawing.Point(535, 10);
             this.btnBrowseRaw.Name = "btnBrowseRaw";
-            this.btnBrowseRaw.Size = new System.Drawing.Size(25, 23);
+            this.btnBrowseRaw.Size = new System.Drawing.Size(25, 21);
             this.btnBrowseRaw.TabIndex = 1;
             this.btnBrowseRaw.Text = "...";
             this.btnBrowseRaw.UseVisualStyleBackColor = true;
@@ -163,17 +166,17 @@
             // lblFile
             // 
             this.lblFile.AutoSize = true;
-            this.lblFile.Location = new System.Drawing.Point(8, 17);
+            this.lblFile.Location = new System.Drawing.Point(8, 16);
             this.lblFile.Name = "lblFile";
-            this.lblFile.Size = new System.Drawing.Size(51, 13);
+            this.lblFile.Size = new System.Drawing.Size(49, 12);
             this.lblFile.TabIndex = 1;
             this.lblFile.Text = "Raw File:";
             // 
             // txtRawFile
             // 
-            this.txtRawFile.Location = new System.Drawing.Point(65, 14);
+            this.txtRawFile.Location = new System.Drawing.Point(65, 13);
             this.txtRawFile.Name = "txtRawFile";
-            this.txtRawFile.Size = new System.Drawing.Size(464, 20);
+            this.txtRawFile.Size = new System.Drawing.Size(464, 22);
             this.txtRawFile.TabIndex = 0;
             // 
             // openFileDialog1
@@ -187,9 +190,9 @@
             this.groupBox1.Controls.Add(this.rdoDefaultList);
             this.groupBox1.Controls.Add(this.rdoUserList);
             this.groupBox1.Controls.Add(this.btnBrowseGlycan);
-            this.groupBox1.Location = new System.Drawing.Point(3, 80);
+            this.groupBox1.Location = new System.Drawing.Point(3, 74);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(686, 44);
+            this.groupBox1.Size = new System.Drawing.Size(686, 41);
             this.groupBox1.TabIndex = 3;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Glycan List";
@@ -202,26 +205,26 @@
             "NeuAc",
             "NeuGc",
             "NeuAc+NeuGc"});
-            this.cboSia.Location = new System.Drawing.Point(587, 17);
+            this.cboSia.Location = new System.Drawing.Point(587, 16);
             this.cboSia.Name = "cboSia";
-            this.cboSia.Size = new System.Drawing.Size(93, 21);
+            this.cboSia.Size = new System.Drawing.Size(93, 20);
             this.cboSia.TabIndex = 10;
             // 
             // txtGlycanList
             // 
             this.txtGlycanList.Enabled = false;
-            this.txtGlycanList.Location = new System.Drawing.Point(201, 17);
+            this.txtGlycanList.Location = new System.Drawing.Point(201, 16);
             this.txtGlycanList.Name = "txtGlycanList";
-            this.txtGlycanList.Size = new System.Drawing.Size(349, 20);
+            this.txtGlycanList.Size = new System.Drawing.Size(349, 22);
             this.txtGlycanList.TabIndex = 8;
             // 
             // rdoDefaultList
             // 
             this.rdoDefaultList.AutoSize = true;
             this.rdoDefaultList.Checked = true;
-            this.rdoDefaultList.Location = new System.Drawing.Point(12, 19);
+            this.rdoDefaultList.Location = new System.Drawing.Point(12, 18);
             this.rdoDefaultList.Name = "rdoDefaultList";
-            this.rdoDefaultList.Size = new System.Drawing.Size(78, 17);
+            this.rdoDefaultList.Size = new System.Drawing.Size(77, 16);
             this.rdoDefaultList.TabIndex = 6;
             this.rdoDefaultList.TabStop = true;
             this.rdoDefaultList.Text = "Default List";
@@ -231,9 +234,9 @@
             // rdoUserList
             // 
             this.rdoUserList.AutoSize = true;
-            this.rdoUserList.Location = new System.Drawing.Point(96, 19);
+            this.rdoUserList.Location = new System.Drawing.Point(96, 18);
             this.rdoUserList.Name = "rdoUserList";
-            this.rdoUserList.Size = new System.Drawing.Size(99, 17);
+            this.rdoUserList.Size = new System.Drawing.Size(99, 16);
             this.rdoUserList.TabIndex = 7;
             this.rdoUserList.Text = "Glycan List File:";
             this.rdoUserList.UseVisualStyleBackColor = true;
@@ -241,9 +244,9 @@
             // btnBrowseGlycan
             // 
             this.btnBrowseGlycan.Enabled = false;
-            this.btnBrowseGlycan.Location = new System.Drawing.Point(556, 16);
+            this.btnBrowseGlycan.Location = new System.Drawing.Point(556, 15);
             this.btnBrowseGlycan.Name = "btnBrowseGlycan";
-            this.btnBrowseGlycan.Size = new System.Drawing.Size(25, 22);
+            this.btnBrowseGlycan.Size = new System.Drawing.Size(25, 20);
             this.btnBrowseGlycan.TabIndex = 9;
             this.btnBrowseGlycan.Text = "...";
             this.btnBrowseGlycan.UseVisualStyleBackColor = true;
@@ -252,53 +255,53 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(6, 18);
+            this.label1.Location = new System.Drawing.Point(6, 17);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(78, 13);
+            this.label1.Size = new System.Drawing.Size(76, 12);
             this.label1.TabIndex = 5;
             this.label1.Text = "Mass tol(PPM):";
             // 
             // txtPPM
             // 
-            this.txtPPM.Location = new System.Drawing.Point(103, 14);
+            this.txtPPM.Location = new System.Drawing.Point(103, 13);
             this.txtPPM.Name = "txtPPM";
-            this.txtPPM.Size = new System.Drawing.Size(21, 20);
+            this.txtPPM.Size = new System.Drawing.Size(21, 22);
             this.txtPPM.TabIndex = 10;
             this.txtPPM.Text = "5";
             // 
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(239, 46);
+            this.label3.Location = new System.Drawing.Point(239, 42);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(60, 13);
+            this.label3.Size = new System.Drawing.Size(54, 12);
             this.label3.TabIndex = 11;
             this.label3.Text = "Start Scan:";
             // 
             // txtStartScan
             // 
             this.txtStartScan.Enabled = false;
-            this.txtStartScan.Location = new System.Drawing.Point(309, 42);
+            this.txtStartScan.Location = new System.Drawing.Point(309, 39);
             this.txtStartScan.Name = "txtStartScan";
-            this.txtStartScan.Size = new System.Drawing.Size(53, 20);
+            this.txtStartScan.Size = new System.Drawing.Size(53, 22);
             this.txtStartScan.TabIndex = 4;
             this.txtStartScan.Text = "1";
             // 
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(368, 47);
+            this.label4.Location = new System.Drawing.Point(368, 43);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(57, 13);
+            this.label4.Size = new System.Drawing.Size(52, 12);
             this.label4.TabIndex = 13;
             this.label4.Text = "End Scan:";
             // 
             // txtEndScan
             // 
             this.txtEndScan.Enabled = false;
-            this.txtEndScan.Location = new System.Drawing.Point(431, 43);
+            this.txtEndScan.Location = new System.Drawing.Point(431, 40);
             this.txtEndScan.Name = "txtEndScan";
-            this.txtEndScan.Size = new System.Drawing.Size(53, 20);
+            this.txtEndScan.Size = new System.Drawing.Size(53, 22);
             this.txtEndScan.TabIndex = 5;
             this.txtEndScan.Text = "99999";
             // 
@@ -306,9 +309,9 @@
             // 
             this.rdoAllRaw.AutoSize = true;
             this.rdoAllRaw.Checked = true;
-            this.rdoAllRaw.Location = new System.Drawing.Point(11, 45);
+            this.rdoAllRaw.Location = new System.Drawing.Point(11, 42);
             this.rdoAllRaw.Name = "rdoAllRaw";
-            this.rdoAllRaw.Size = new System.Drawing.Size(83, 17);
+            this.rdoAllRaw.Size = new System.Drawing.Size(81, 16);
             this.rdoAllRaw.TabIndex = 2;
             this.rdoAllRaw.TabStop = true;
             this.rdoAllRaw.Text = "All MS Scan";
@@ -318,9 +321,9 @@
             // rdoScanNum
             // 
             this.rdoScanNum.AutoSize = true;
-            this.rdoScanNum.Location = new System.Drawing.Point(140, 45);
+            this.rdoScanNum.Location = new System.Drawing.Point(140, 42);
             this.rdoScanNum.Name = "rdoScanNum";
-            this.rdoScanNum.Size = new System.Drawing.Size(85, 17);
+            this.rdoScanNum.Size = new System.Drawing.Size(78, 16);
             this.rdoScanNum.TabIndex = 3;
             this.rdoScanNum.Text = "Scan Range";
             this.rdoScanNum.UseVisualStyleBackColor = true;
@@ -339,7 +342,7 @@
             this.groupBox2.Controls.Add(this.lblFile);
             this.groupBox2.Location = new System.Drawing.Point(3, 3);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(686, 71);
+            this.groupBox2.Size = new System.Drawing.Size(686, 66);
             this.groupBox2.TabIndex = 17;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Raw File";
@@ -347,9 +350,9 @@
             // lblLastScanTime
             // 
             this.lblLastScanTime.AutoSize = true;
-            this.lblLastScanTime.Location = new System.Drawing.Point(509, 45);
+            this.lblLastScanTime.Location = new System.Drawing.Point(509, 42);
             this.lblLastScanTime.Name = "lblLastScanTime";
-            this.lblLastScanTime.Size = new System.Drawing.Size(84, 13);
+            this.lblLastScanTime.Size = new System.Drawing.Size(79, 12);
             this.lblLastScanTime.TabIndex = 5;
             this.lblLastScanTime.Text = "Last Scan Time:";
             // 
@@ -358,9 +361,9 @@
             this.chkMergeDffCharge.AutoSize = true;
             this.chkMergeDffCharge.Checked = true;
             this.chkMergeDffCharge.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.chkMergeDffCharge.Location = new System.Drawing.Point(15, 61);
+            this.chkMergeDffCharge.Location = new System.Drawing.Point(15, 56);
             this.chkMergeDffCharge.Name = "chkMergeDffCharge";
-            this.chkMergeDffCharge.Size = new System.Drawing.Size(167, 17);
+            this.chkMergeDffCharge.Size = new System.Drawing.Size(165, 16);
             this.chkMergeDffCharge.TabIndex = 20;
             this.chkMergeDffCharge.Text = "Merge different charge glycan";
             this.chkMergeDffCharge.UseVisualStyleBackColor = true;
@@ -369,7 +372,7 @@
             // 
             this.btnMergeTest.Location = new System.Drawing.Point(501, 1);
             this.btnMergeTest.Name = "btnMergeTest";
-            this.btnMergeTest.Size = new System.Drawing.Size(75, 23);
+            this.btnMergeTest.Size = new System.Drawing.Size(75, 21);
             this.btnMergeTest.TabIndex = 28;
             this.btnMergeTest.Text = "MergeTest";
             this.btnMergeTest.UseVisualStyleBackColor = true;
@@ -383,9 +386,9 @@
             this.groupBox5.Controls.Add(this.chkMonoOnly);
             this.groupBox5.Controls.Add(this.label1);
             this.groupBox5.Controls.Add(this.txtPPM);
-            this.groupBox5.Location = new System.Drawing.Point(286, 128);
+            this.groupBox5.Location = new System.Drawing.Point(286, 118);
             this.groupBox5.Name = "groupBox5";
-            this.groupBox5.Size = new System.Drawing.Size(154, 134);
+            this.groupBox5.Size = new System.Drawing.Size(154, 124);
             this.groupBox5.TabIndex = 39;
             this.groupBox5.TabStop = false;
             this.groupBox5.Text = "Search Threshold";
@@ -395,9 +398,9 @@
             this.chkForceProtonated.AutoSize = true;
             this.chkForceProtonated.Checked = true;
             this.chkForceProtonated.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.chkForceProtonated.Location = new System.Drawing.Point(6, 94);
+            this.chkForceProtonated.Location = new System.Drawing.Point(6, 87);
             this.chkForceProtonated.Name = "chkForceProtonated";
-            this.chkForceProtonated.Size = new System.Drawing.Size(114, 30);
+            this.chkForceProtonated.Size = new System.Drawing.Size(110, 28);
             this.chkForceProtonated.TabIndex = 13;
             this.chkForceProtonated.Text = "Glycan must have \r\nprotonated adduct";
             this.chkForceProtonated.UseVisualStyleBackColor = true;
@@ -405,9 +408,9 @@
             // label13
             // 
             this.label13.AutoSize = true;
-            this.label13.Location = new System.Drawing.Point(6, 42);
+            this.label13.Location = new System.Drawing.Point(6, 39);
             this.label13.Name = "label13";
-            this.label13.Size = new System.Drawing.Size(139, 13);
+            this.label13.Size = new System.Drawing.Size(138, 12);
             this.label13.TabIndex = 12;
             this.label13.Text = "Min peak height: >            %";
             // 
@@ -416,9 +419,9 @@
             this.chkMonoOnly.AutoSize = true;
             this.chkMonoOnly.Checked = true;
             this.chkMonoOnly.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.chkMonoOnly.Location = new System.Drawing.Point(6, 71);
+            this.chkMonoOnly.Location = new System.Drawing.Point(6, 66);
             this.chkMonoOnly.Name = "chkMonoOnly";
-            this.chkMonoOnly.Size = new System.Drawing.Size(140, 17);
+            this.chkMonoOnly.Size = new System.Drawing.Size(139, 16);
             this.chkMonoOnly.TabIndex = 11;
             this.chkMonoOnly.Text = "only monoisotopic peak ";
             this.chkMonoOnly.UseVisualStyleBackColor = true;
@@ -428,7 +431,7 @@
             this.chkMZMatch.AutoSize = true;
             this.chkMZMatch.Location = new System.Drawing.Point(290, 0);
             this.chkMZMatch.Name = "chkMZMatch";
-            this.chkMZMatch.Size = new System.Drawing.Size(183, 30);
+            this.chkMZMatch.Size = new System.Drawing.Size(182, 28);
             this.chkMZMatch.TabIndex = 42;
             this.chkMZMatch.Text = "Include m/z match only peak\r\n(low threshold; no isotope cluster)";
             this.chkMZMatch.UseVisualStyleBackColor = true;
@@ -437,34 +440,34 @@
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(15, 17);
+            this.label5.Location = new System.Drawing.Point(15, 16);
             this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(168, 13);
+            this.label5.Size = new System.Drawing.Size(174, 12);
             this.label5.TabIndex = 47;
             this.label5.Text = "Max minute in front of LC apex  (a)";
             // 
             // label6
             // 
             this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(15, 39);
+            this.label6.Location = new System.Drawing.Point(15, 36);
             this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(171, 13);
+            this.label6.Size = new System.Drawing.Size(174, 12);
             this.label6.TabIndex = 48;
             this.label6.Text = "Max minute in back of LC apex  (b)";
             // 
             // txtMinLCTime
             // 
-            this.txtMinLCTime.Location = new System.Drawing.Point(193, 13);
+            this.txtMinLCTime.Location = new System.Drawing.Point(193, 12);
             this.txtMinLCTime.Name = "txtMinLCTime";
-            this.txtMinLCTime.Size = new System.Drawing.Size(38, 20);
+            this.txtMinLCTime.Size = new System.Drawing.Size(38, 22);
             this.txtMinLCTime.TabIndex = 44;
             this.txtMinLCTime.Text = "5.0";
             // 
             // txtMaxLCTime
             // 
-            this.txtMaxLCTime.Location = new System.Drawing.Point(193, 36);
+            this.txtMaxLCTime.Location = new System.Drawing.Point(193, 33);
             this.txtMaxLCTime.Name = "txtMaxLCTime";
-            this.txtMaxLCTime.Size = new System.Drawing.Size(38, 20);
+            this.txtMaxLCTime.Size = new System.Drawing.Size(38, 22);
             this.txtMaxLCTime.TabIndex = 43;
             this.txtMaxLCTime.Text = "5.0";
             // 
@@ -479,27 +482,27 @@
             this.groupBox6.Controls.Add(this.txtMinLCTime);
             this.groupBox6.Controls.Add(this.chkMergeDffCharge);
             this.groupBox6.Controls.Add(this.txtMaxLCTime);
-            this.groupBox6.Location = new System.Drawing.Point(8, 232);
+            this.groupBox6.Location = new System.Drawing.Point(8, 214);
             this.groupBox6.Name = "groupBox6";
-            this.groupBox6.Size = new System.Drawing.Size(267, 145);
+            this.groupBox6.Size = new System.Drawing.Size(267, 134);
             this.groupBox6.TabIndex = 40;
             this.groupBox6.TabStop = false;
             this.groupBox6.Text = "Filter and export (Merg scans into peak)";
             // 
             // txtScanCount
             // 
-            this.txtScanCount.Location = new System.Drawing.Point(208, 85);
+            this.txtScanCount.Location = new System.Drawing.Point(208, 78);
             this.txtScanCount.Name = "txtScanCount";
-            this.txtScanCount.Size = new System.Drawing.Size(38, 20);
+            this.txtScanCount.Size = new System.Drawing.Size(38, 22);
             this.txtScanCount.TabIndex = 39;
             this.txtScanCount.Text = "4";
             // 
             // chkMinLengthOfLC
             // 
             this.chkMinLengthOfLC.AutoSize = true;
-            this.chkMinLengthOfLC.Location = new System.Drawing.Point(15, 87);
+            this.chkMinLengthOfLC.Location = new System.Drawing.Point(15, 80);
             this.chkMinLengthOfLC.Name = "chkMinLengthOfLC";
-            this.chkMinLengthOfLC.Size = new System.Drawing.Size(191, 17);
+            this.chkMinLengthOfLC.Size = new System.Drawing.Size(194, 16);
             this.chkMinLengthOfLC.TabIndex = 38;
             this.chkMinLengthOfLC.Text = "Min length of LC Peak in minute (c)";
             this.chkMinLengthOfLC.UseVisualStyleBackColor = true;
@@ -507,18 +510,18 @@
             // 
             // txtAbundanceMin
             // 
-            this.txtAbundanceMin.Location = new System.Drawing.Point(173, 111);
+            this.txtAbundanceMin.Location = new System.Drawing.Point(173, 102);
             this.txtAbundanceMin.Name = "txtAbundanceMin";
-            this.txtAbundanceMin.Size = new System.Drawing.Size(73, 20);
+            this.txtAbundanceMin.Size = new System.Drawing.Size(73, 22);
             this.txtAbundanceMin.TabIndex = 37;
             this.txtAbundanceMin.Text = "1000000";
             // 
             // chkAbundance
             // 
             this.chkAbundance.AutoSize = true;
-            this.chkAbundance.Location = new System.Drawing.Point(15, 113);
+            this.chkAbundance.Location = new System.Drawing.Point(15, 104);
             this.chkAbundance.Name = "chkAbundance";
-            this.chkAbundance.Size = new System.Drawing.Size(124, 17);
+            this.chkAbundance.Size = new System.Drawing.Size(123, 16);
             this.chkAbundance.TabIndex = 36;
             this.chkAbundance.Text = "Minimum abundance";
             this.chkAbundance.UseVisualStyleBackColor = true;
@@ -528,7 +531,8 @@
             // 
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolsToolStripMenuItem,
-            this.batchModeToolStripMenuItem});
+            this.batchModeToolStripMenuItem,
+            this.glycanUnitGUToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.Size = new System.Drawing.Size(707, 24);
@@ -571,11 +575,18 @@
             this.batchModeToolStripMenuItem.Text = "Batch Mode";
             this.batchModeToolStripMenuItem.Click += new System.EventHandler(this.batchModeToolStripMenuItem_Click);
             // 
+            // glycanUnitGUToolStripMenuItem
+            // 
+            this.glycanUnitGUToolStripMenuItem.Name = "glycanUnitGUToolStripMenuItem";
+            this.glycanUnitGUToolStripMenuItem.Size = new System.Drawing.Size(101, 20);
+            this.glycanUnitGUToolStripMenuItem.Text = "GlycanUnit(GU)";
+            this.glycanUnitGUToolStripMenuItem.Click += new System.EventHandler(this.glycanUnitGUToolStripMenuItem_Click);
+            // 
             // txtGlycanPPM
             // 
-            this.txtGlycanPPM.Location = new System.Drawing.Point(679, 7);
+            this.txtGlycanPPM.Location = new System.Drawing.Point(679, 6);
             this.txtGlycanPPM.Name = "txtGlycanPPM";
-            this.txtGlycanPPM.Size = new System.Drawing.Size(21, 20);
+            this.txtGlycanPPM.Size = new System.Drawing.Size(21, 22);
             this.txtGlycanPPM.TabIndex = 11;
             this.txtGlycanPPM.Text = "10";
             this.txtGlycanPPM.Visible = false;
@@ -583,9 +594,9 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(591, 9);
+            this.label2.Location = new System.Drawing.Point(591, 8);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(86, 13);
+            this.label2.Size = new System.Drawing.Size(86, 12);
             this.label2.TabIndex = 9;
             this.label2.Text = "Glycan tol(PPM):";
             this.label2.Visible = false;
@@ -593,9 +604,9 @@
             // chkLog
             // 
             this.chkLog.AutoSize = true;
-            this.chkLog.Location = new System.Drawing.Point(483, 351);
+            this.chkLog.Location = new System.Drawing.Point(483, 324);
             this.chkLog.Name = "chkLog";
-            this.chkLog.Size = new System.Drawing.Size(124, 17);
+            this.chkLog.Size = new System.Drawing.Size(122, 16);
             this.chkLog.TabIndex = 40;
             this.chkLog.Text = "Log entire procedure";
             this.chkLog.UseVisualStyleBackColor = true;
@@ -609,7 +620,7 @@
             this.tabControl1.Location = new System.Drawing.Point(0, 24);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(707, 421);
+            this.tabControl1.Size = new System.Drawing.Size(707, 387);
             this.tabControl1.TabIndex = 0;
             this.tabControl1.SelectedIndexChanged += new System.EventHandler(this.tabControl1_SelectedIndexChanged);
             // 
@@ -629,16 +640,39 @@
             this.tabIden.Controls.Add(this.groupBox5);
             this.tabIden.Location = new System.Drawing.Point(4, 22);
             this.tabIden.Name = "tabIden";
-            this.tabIden.Size = new System.Drawing.Size(699, 395);
+            this.tabIden.Size = new System.Drawing.Size(699, 361);
             this.tabIden.TabIndex = 0;
             this.tabIden.Text = "Identification";
             this.tabIden.UseVisualStyleBackColor = true;
             // 
+            // rdoNegative
+            // 
+            this.rdoNegative.AutoSize = true;
+            this.rdoNegative.Location = new System.Drawing.Point(586, 120);
+            this.rdoNegative.Name = "rdoNegative";
+            this.rdoNegative.Size = new System.Drawing.Size(101, 16);
+            this.rdoNegative.TabIndex = 50;
+            this.rdoNegative.Text = "Negative Charge";
+            this.rdoNegative.UseVisualStyleBackColor = true;
+            // 
+            // rdoPositive
+            // 
+            this.rdoPositive.AutoSize = true;
+            this.rdoPositive.Checked = true;
+            this.rdoPositive.Location = new System.Drawing.Point(481, 120);
+            this.rdoPositive.Name = "rdoPositive";
+            this.rdoPositive.Size = new System.Drawing.Size(96, 16);
+            this.rdoPositive.TabIndex = 49;
+            this.rdoPositive.TabStop = true;
+            this.rdoPositive.Text = "Positive Charge";
+            this.rdoPositive.UseVisualStyleBackColor = true;
+            this.rdoPositive.CheckedChanged += new System.EventHandler(this.rdoPositive_CheckedChanged);
+            // 
             // txtMinPeakHeight
             // 
-            this.txtMinPeakHeight.Location = new System.Drawing.Point(389, 168);
+            this.txtMinPeakHeight.Location = new System.Drawing.Point(389, 155);
             this.txtMinPeakHeight.Name = "txtMinPeakHeight";
-            this.txtMinPeakHeight.Size = new System.Drawing.Size(25, 20);
+            this.txtMinPeakHeight.Size = new System.Drawing.Size(25, 22);
             this.txtMinPeakHeight.TabIndex = 13;
             this.txtMinPeakHeight.Text = "5";
             // 
@@ -649,9 +683,9 @@
             this.groupBox8.Controls.Add(this.txtLCTime);
             this.groupBox8.Controls.Add(this.label11);
             this.groupBox8.Controls.Add(this.label12);
-            this.groupBox8.Location = new System.Drawing.Point(286, 268);
+            this.groupBox8.Location = new System.Drawing.Point(286, 247);
             this.groupBox8.Name = "groupBox8";
-            this.groupBox8.Size = new System.Drawing.Size(158, 104);
+            this.groupBox8.Size = new System.Drawing.Size(158, 96);
             this.groupBox8.TabIndex = 48;
             this.groupBox8.TabStop = false;
             this.groupBox8.Text = "Glycan Linear Regression";
@@ -661,52 +695,52 @@
             this.chkApplyLinearRegLC.AutoSize = true;
             this.chkApplyLinearRegLC.Checked = true;
             this.chkApplyLinearRegLC.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.chkApplyLinearRegLC.Location = new System.Drawing.Point(9, 20);
+            this.chkApplyLinearRegLC.Location = new System.Drawing.Point(9, 18);
             this.chkApplyLinearRegLC.Name = "chkApplyLinearRegLC";
-            this.chkApplyLinearRegLC.Size = new System.Drawing.Size(140, 17);
+            this.chkApplyLinearRegLC.Size = new System.Drawing.Size(140, 16);
             this.chkApplyLinearRegLC.TabIndex = 4;
             this.chkApplyLinearRegLC.Text = "Apply Linear Regression";
             this.chkApplyLinearRegLC.UseVisualStyleBackColor = true;
             // 
             // txtLCTolerance
             // 
-            this.txtLCTolerance.Location = new System.Drawing.Point(83, 66);
+            this.txtLCTolerance.Location = new System.Drawing.Point(83, 61);
             this.txtLCTolerance.Name = "txtLCTolerance";
-            this.txtLCTolerance.Size = new System.Drawing.Size(41, 20);
+            this.txtLCTolerance.Size = new System.Drawing.Size(41, 22);
             this.txtLCTolerance.TabIndex = 3;
             this.txtLCTolerance.Text = "5";
             // 
             // txtLCTime
             // 
-            this.txtLCTime.Location = new System.Drawing.Point(83, 43);
+            this.txtLCTime.Location = new System.Drawing.Point(83, 40);
             this.txtLCTime.Name = "txtLCTime";
-            this.txtLCTime.Size = new System.Drawing.Size(41, 20);
+            this.txtLCTime.Size = new System.Drawing.Size(41, 22);
             this.txtLCTime.TabIndex = 0;
             this.txtLCTime.Text = "120";
             // 
             // label11
             // 
             this.label11.AutoSize = true;
-            this.label11.Location = new System.Drawing.Point(3, 46);
+            this.label11.Location = new System.Drawing.Point(3, 42);
             this.label11.Name = "label11";
-            this.label11.Size = new System.Drawing.Size(154, 13);
+            this.label11.Size = new System.Drawing.Size(156, 12);
             this.label11.TabIndex = 1;
             this.label11.Text = "Total LC Time:                   mins";
             // 
             // label12
             // 
             this.label12.AutoSize = true;
-            this.label12.Location = new System.Drawing.Point(6, 69);
+            this.label12.Location = new System.Drawing.Point(6, 64);
             this.label12.Name = "label12";
-            this.label12.Size = new System.Drawing.Size(147, 13);
+            this.label12.Size = new System.Drawing.Size(144, 12);
             this.label12.TabIndex = 2;
             this.label12.Text = "Tolerance:                           %";
             // 
             // btnNext
             // 
-            this.btnNext.Location = new System.Drawing.Point(626, 334);
+            this.btnNext.Location = new System.Drawing.Point(626, 308);
             this.btnNext.Name = "btnNext";
-            this.btnNext.Size = new System.Drawing.Size(63, 34);
+            this.btnNext.Size = new System.Drawing.Size(63, 31);
             this.btnNext.TabIndex = 47;
             this.btnNext.Text = "Next";
             this.btnNext.UseVisualStyleBackColor = true;
@@ -720,9 +754,9 @@
             this.groupBox7.Controls.Add(this.label7);
             this.groupBox7.Controls.Add(this.txtIsotopeEnvTolerence);
             this.groupBox7.Controls.Add(this.label8);
-            this.groupBox7.Location = new System.Drawing.Point(8, 128);
+            this.groupBox7.Location = new System.Drawing.Point(8, 118);
             this.groupBox7.Name = "groupBox7";
-            this.groupBox7.Size = new System.Drawing.Size(267, 98);
+            this.groupBox7.Size = new System.Drawing.Size(267, 90);
             this.groupBox7.TabIndex = 46;
             this.groupBox7.TabStop = false;
             this.groupBox7.Text = "Peak Processing";
@@ -730,60 +764,60 @@
             // label10
             // 
             this.label10.AutoSize = true;
-            this.label10.Location = new System.Drawing.Point(13, 71);
+            this.label10.Location = new System.Drawing.Point(13, 66);
             this.label10.Name = "label10";
-            this.label10.Size = new System.Drawing.Size(124, 13);
+            this.label10.Size = new System.Drawing.Size(117, 12);
             this.label10.TabIndex = 53;
             this.label10.Text = "Single / Noise tolerence:";
             // 
             // txtSN
             // 
-            this.txtSN.Location = new System.Drawing.Point(147, 67);
+            this.txtSN.Location = new System.Drawing.Point(147, 62);
             this.txtSN.Name = "txtSN";
-            this.txtSN.Size = new System.Drawing.Size(34, 20);
+            this.txtSN.Size = new System.Drawing.Size(34, 22);
             this.txtSN.TabIndex = 49;
             this.txtSN.Text = "2";
             // 
             // txtIsotopeEnvMinPeakCount
             // 
-            this.txtIsotopeEnvMinPeakCount.Location = new System.Drawing.Point(181, 42);
+            this.txtIsotopeEnvMinPeakCount.Location = new System.Drawing.Point(181, 39);
             this.txtIsotopeEnvMinPeakCount.Name = "txtIsotopeEnvMinPeakCount";
-            this.txtIsotopeEnvMinPeakCount.Size = new System.Drawing.Size(27, 20);
+            this.txtIsotopeEnvMinPeakCount.Size = new System.Drawing.Size(27, 22);
             this.txtIsotopeEnvMinPeakCount.TabIndex = 52;
             this.txtIsotopeEnvMinPeakCount.Text = "3";
             // 
             // label7
             // 
             this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(13, 46);
+            this.label7.Location = new System.Drawing.Point(13, 42);
             this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(160, 13);
+            this.label7.Size = new System.Drawing.Size(160, 12);
             this.label7.TabIndex = 51;
             this.label7.Text = "Minimum No. of Peak as Cluster:";
             // 
             // txtIsotopeEnvTolerence
             // 
-            this.txtIsotopeEnvTolerence.Location = new System.Drawing.Point(147, 17);
+            this.txtIsotopeEnvTolerence.Location = new System.Drawing.Point(147, 16);
             this.txtIsotopeEnvTolerence.Name = "txtIsotopeEnvTolerence";
-            this.txtIsotopeEnvTolerence.Size = new System.Drawing.Size(32, 20);
+            this.txtIsotopeEnvTolerence.Size = new System.Drawing.Size(32, 22);
             this.txtIsotopeEnvTolerence.TabIndex = 50;
             this.txtIsotopeEnvTolerence.Text = "6";
             // 
             // label8
             // 
             this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(13, 21);
+            this.label8.Location = new System.Drawing.Point(13, 19);
             this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(201, 13);
+            this.label8.Size = new System.Drawing.Size(198, 12);
             this.label8.TabIndex = 47;
             this.label8.Text = "Isotope envelop tolerence:              (ppm)";
             // 
             // pictureBox1
             // 
             this.pictureBox1.Image = global::COL.MultiGlycan.Properties.Resources.Peak;
-            this.pictureBox1.Location = new System.Drawing.Point(450, 153);
+            this.pictureBox1.Location = new System.Drawing.Point(450, 141);
             this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(241, 178);
+            this.pictureBox1.Size = new System.Drawing.Size(241, 164);
             this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
             this.pictureBox1.TabIndex = 45;
             this.pictureBox1.TabStop = false;
@@ -801,7 +835,7 @@
             this.tabQuan.Controls.Add(this.btnQuan);
             this.tabQuan.Location = new System.Drawing.Point(4, 22);
             this.tabQuan.Name = "tabQuan";
-            this.tabQuan.Size = new System.Drawing.Size(699, 395);
+            this.tabQuan.Size = new System.Drawing.Size(699, 361);
             this.tabQuan.TabIndex = 0;
             this.tabQuan.Text = "Quantification";
             this.tabQuan.UseVisualStyleBackColor = true;
@@ -811,9 +845,9 @@
             this.groupBox3.Controls.Add(this.groupBox4);
             this.groupBox3.Controls.Add(this.chkReducedReducingEnd);
             this.groupBox3.Controls.Add(this.chkPermethylated);
-            this.groupBox3.Location = new System.Drawing.Point(511, 16);
+            this.groupBox3.Location = new System.Drawing.Point(511, 15);
             this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size(164, 199);
+            this.groupBox3.Size = new System.Drawing.Size(164, 184);
             this.groupBox3.TabIndex = 39;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Experiment";
@@ -826,9 +860,9 @@
             this.groupBox4.Controls.Add(this.chkAdductK);
             this.groupBox4.Controls.Add(this.txtAdductMass);
             this.groupBox4.Controls.Add(this.chkAdductUser);
-            this.groupBox4.Location = new System.Drawing.Point(12, 67);
+            this.groupBox4.Location = new System.Drawing.Point(12, 62);
             this.groupBox4.Name = "groupBox4";
-            this.groupBox4.Size = new System.Drawing.Size(142, 123);
+            this.groupBox4.Size = new System.Drawing.Size(142, 114);
             this.groupBox4.TabIndex = 39;
             this.groupBox4.TabStop = false;
             this.groupBox4.Text = "Adduct";
@@ -839,9 +873,9 @@
             this.chkAdductProton.Checked = true;
             this.chkAdductProton.CheckState = System.Windows.Forms.CheckState.Checked;
             this.chkAdductProton.Enabled = false;
-            this.chkAdductProton.Location = new System.Drawing.Point(7, 19);
+            this.chkAdductProton.Location = new System.Drawing.Point(7, 18);
             this.chkAdductProton.Name = "chkAdductProton";
-            this.chkAdductProton.Size = new System.Drawing.Size(74, 17);
+            this.chkAdductProton.Size = new System.Drawing.Size(74, 16);
             this.chkAdductProton.TabIndex = 37;
             this.chkAdductProton.Text = "Proton (H)";
             this.chkAdductProton.UseVisualStyleBackColor = true;
@@ -849,9 +883,9 @@
             // chkAdductNH4
             // 
             this.chkAdductNH4.AutoSize = true;
-            this.chkAdductNH4.Location = new System.Drawing.Point(7, 40);
+            this.chkAdductNH4.Location = new System.Drawing.Point(7, 37);
             this.chkAdductNH4.Name = "chkAdductNH4";
-            this.chkAdductNH4.Size = new System.Drawing.Size(108, 17);
+            this.chkAdductNH4.Size = new System.Drawing.Size(113, 16);
             this.chkAdductNH4.TabIndex = 32;
             this.chkAdductNH4.Text = "Ammonium (NH4)";
             this.chkAdductNH4.UseVisualStyleBackColor = true;
@@ -859,9 +893,9 @@
             // chkAdductNa
             // 
             this.chkAdductNa.AutoSize = true;
-            this.chkAdductNa.Location = new System.Drawing.Point(7, 61);
+            this.chkAdductNa.Location = new System.Drawing.Point(7, 56);
             this.chkAdductNa.Name = "chkAdductNa";
-            this.chkAdductNa.Size = new System.Drawing.Size(84, 17);
+            this.chkAdductNa.Size = new System.Drawing.Size(84, 16);
             this.chkAdductNa.TabIndex = 33;
             this.chkAdductNa.Text = "Sodium (Na)";
             this.chkAdductNa.UseVisualStyleBackColor = true;
@@ -869,9 +903,9 @@
             // chkAdductK
             // 
             this.chkAdductK.AutoSize = true;
-            this.chkAdductK.Location = new System.Drawing.Point(7, 82);
+            this.chkAdductK.Location = new System.Drawing.Point(7, 76);
             this.chkAdductK.Name = "chkAdductK";
-            this.chkAdductK.Size = new System.Drawing.Size(90, 17);
+            this.chkAdductK.Size = new System.Drawing.Size(89, 16);
             this.chkAdductK.TabIndex = 34;
             this.chkAdductK.Text = "Potassium (K)";
             this.chkAdductK.UseVisualStyleBackColor = true;
@@ -879,17 +913,17 @@
             // txtAdductMass
             // 
             this.txtAdductMass.Enabled = false;
-            this.txtAdductMass.Location = new System.Drawing.Point(92, 100);
+            this.txtAdductMass.Location = new System.Drawing.Point(92, 92);
             this.txtAdductMass.Name = "txtAdductMass";
-            this.txtAdductMass.Size = new System.Drawing.Size(38, 20);
+            this.txtAdductMass.Size = new System.Drawing.Size(38, 22);
             this.txtAdductMass.TabIndex = 36;
             // 
             // chkAdductUser
             // 
             this.chkAdductUser.AutoSize = true;
-            this.chkAdductUser.Location = new System.Drawing.Point(7, 103);
+            this.chkAdductUser.Location = new System.Drawing.Point(7, 95);
             this.chkAdductUser.Name = "chkAdductUser";
-            this.chkAdductUser.Size = new System.Drawing.Size(87, 17);
+            this.chkAdductUser.Size = new System.Drawing.Size(82, 16);
             this.chkAdductUser.TabIndex = 35;
             this.chkAdductUser.Text = "User adduct:";
             this.chkAdductUser.UseVisualStyleBackColor = true;
@@ -900,9 +934,9 @@
             this.chkReducedReducingEnd.AutoSize = true;
             this.chkReducedReducingEnd.Checked = true;
             this.chkReducedReducingEnd.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.chkReducedReducingEnd.Location = new System.Drawing.Point(13, 19);
+            this.chkReducedReducingEnd.Location = new System.Drawing.Point(13, 18);
             this.chkReducedReducingEnd.Name = "chkReducedReducingEnd";
-            this.chkReducedReducingEnd.Size = new System.Drawing.Size(141, 17);
+            this.chkReducedReducingEnd.Size = new System.Drawing.Size(135, 16);
             this.chkReducedReducingEnd.TabIndex = 12;
             this.chkReducedReducingEnd.Text = "Reduced Reducing End";
             this.chkReducedReducingEnd.UseVisualStyleBackColor = true;
@@ -912,9 +946,9 @@
             this.chkPermethylated.AutoSize = true;
             this.chkPermethylated.Checked = true;
             this.chkPermethylated.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.chkPermethylated.Location = new System.Drawing.Point(13, 44);
+            this.chkPermethylated.Location = new System.Drawing.Point(13, 41);
             this.chkPermethylated.Name = "chkPermethylated";
-            this.chkPermethylated.Size = new System.Drawing.Size(93, 17);
+            this.chkPermethylated.Size = new System.Drawing.Size(90, 16);
             this.chkPermethylated.TabIndex = 13;
             this.chkPermethylated.Text = "Permethylated";
             // 
@@ -923,9 +957,9 @@
             this.chkIndividualImg.AutoSize = true;
             this.chkIndividualImg.Checked = true;
             this.chkIndividualImg.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.chkIndividualImg.Location = new System.Drawing.Point(524, 221);
+            this.chkIndividualImg.Location = new System.Drawing.Point(524, 204);
             this.chkIndividualImg.Name = "chkIndividualImg";
-            this.chkIndividualImg.Size = new System.Drawing.Size(136, 17);
+            this.chkIndividualImg.Size = new System.Drawing.Size(137, 16);
             this.chkIndividualImg.TabIndex = 20;
             this.chkIndividualImg.Text = "Individual glycan image";
             this.chkIndividualImg.UseVisualStyleBackColor = true;
@@ -936,9 +970,9 @@
             this.chkQuantImgs.Checked = true;
             this.chkQuantImgs.CheckState = System.Windows.Forms.CheckState.Checked;
             this.chkQuantImgs.Enabled = false;
-            this.chkQuantImgs.Location = new System.Drawing.Point(524, 244);
+            this.chkQuantImgs.Location = new System.Drawing.Point(524, 225);
             this.chkQuantImgs.Name = "chkQuantImgs";
-            this.chkQuantImgs.Size = new System.Drawing.Size(122, 17);
+            this.chkQuantImgs.Size = new System.Drawing.Size(121, 16);
             this.chkQuantImgs.TabIndex = 19;
             this.chkQuantImgs.Text = "Quantification image";
             this.chkQuantImgs.UseVisualStyleBackColor = true;
@@ -950,26 +984,26 @@
             this.grpDRAG.Controls.Add(this.chkDRAG_Light);
             this.grpDRAG.Controls.Add(this.chkDRAG_Heavy);
             this.grpDRAG.Enabled = false;
-            this.grpDRAG.Location = new System.Drawing.Point(195, 47);
+            this.grpDRAG.Location = new System.Drawing.Point(195, 43);
             this.grpDRAG.Name = "grpDRAG";
-            this.grpDRAG.Size = new System.Drawing.Size(163, 72);
+            this.grpDRAG.Size = new System.Drawing.Size(163, 66);
             this.grpDRAG.TabIndex = 0;
             this.grpDRAG.TabStop = false;
             this.grpDRAG.Text = "DRAG";
             // 
             // txtDRAGLight
             // 
-            this.txtDRAGLight.Location = new System.Drawing.Point(92, 16);
+            this.txtDRAGLight.Location = new System.Drawing.Point(92, 15);
             this.txtDRAGLight.Name = "txtDRAGLight";
-            this.txtDRAGLight.Size = new System.Drawing.Size(55, 20);
+            this.txtDRAGLight.Size = new System.Drawing.Size(55, 22);
             this.txtDRAGLight.TabIndex = 3;
             this.txtDRAGLight.Text = "1.0";
             // 
             // txtDRAGHeavy
             // 
-            this.txtDRAGHeavy.Location = new System.Drawing.Point(92, 40);
+            this.txtDRAGHeavy.Location = new System.Drawing.Point(92, 37);
             this.txtDRAGHeavy.Name = "txtDRAGHeavy";
-            this.txtDRAGHeavy.Size = new System.Drawing.Size(57, 20);
+            this.txtDRAGHeavy.Size = new System.Drawing.Size(57, 22);
             this.txtDRAGHeavy.TabIndex = 2;
             this.txtDRAGHeavy.Text = "1.0";
             // 
@@ -978,9 +1012,9 @@
             this.chkDRAG_Light.AutoSize = true;
             this.chkDRAG_Light.Checked = true;
             this.chkDRAG_Light.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.chkDRAG_Light.Location = new System.Drawing.Point(16, 19);
+            this.chkDRAG_Light.Location = new System.Drawing.Point(16, 18);
             this.chkDRAG_Light.Name = "chkDRAG_Light";
-            this.chkDRAG_Light.Size = new System.Drawing.Size(49, 17);
+            this.chkDRAG_Light.Size = new System.Drawing.Size(49, 16);
             this.chkDRAG_Light.TabIndex = 1;
             this.chkDRAG_Light.Text = "Light";
             this.chkDRAG_Light.UseVisualStyleBackColor = true;
@@ -990,15 +1024,17 @@
             this.chkDRAG_Heavy.AutoSize = true;
             this.chkDRAG_Heavy.Checked = true;
             this.chkDRAG_Heavy.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.chkDRAG_Heavy.Location = new System.Drawing.Point(16, 42);
+            this.chkDRAG_Heavy.Location = new System.Drawing.Point(16, 39);
             this.chkDRAG_Heavy.Name = "chkDRAG_Heavy";
-            this.chkDRAG_Heavy.Size = new System.Drawing.Size(57, 17);
+            this.chkDRAG_Heavy.Size = new System.Drawing.Size(54, 16);
             this.chkDRAG_Heavy.TabIndex = 0;
             this.chkDRAG_Heavy.Text = "Heavy";
             this.chkDRAG_Heavy.UseVisualStyleBackColor = true;
             // 
             // grpMultiplexPreM
             // 
+            this.grpMultiplexPreM.Controls.Add(this.txtQuan13CH2D);
+            this.grpMultiplexPreM.Controls.Add(this.chkQuan13CH2D);
             this.grpMultiplexPreM.Controls.Add(this.chkQuanCH3);
             this.grpMultiplexPreM.Controls.Add(this.chkQuanCH2D);
             this.grpMultiplexPreM.Controls.Add(this.chkQuanCHD2);
@@ -1014,21 +1050,41 @@
             this.grpMultiplexPreM.Controls.Add(this.txtQuanCD3);
             this.grpMultiplexPreM.Controls.Add(this.txtQuanCHD2);
             this.grpMultiplexPreM.Enabled = false;
-            this.grpMultiplexPreM.Location = new System.Drawing.Point(23, 47);
+            this.grpMultiplexPreM.Location = new System.Drawing.Point(23, 43);
             this.grpMultiplexPreM.Name = "grpMultiplexPreM";
-            this.grpMultiplexPreM.Size = new System.Drawing.Size(157, 289);
+            this.grpMultiplexPreM.Size = new System.Drawing.Size(157, 303);
             this.grpMultiplexPreM.TabIndex = 18;
             this.grpMultiplexPreM.TabStop = false;
             this.grpMultiplexPreM.Text = "Multiplex Permethylated";
+            // 
+            // txtQuan13CH2D
+            // 
+            this.txtQuan13CH2D.Location = new System.Drawing.Point(91, 191);
+            this.txtQuan13CH2D.Name = "txtQuan13CH2D";
+            this.txtQuan13CH2D.Size = new System.Drawing.Size(47, 22);
+            this.txtQuan13CH2D.TabIndex = 15;
+            this.txtQuan13CH2D.Text = "1.0";
+            // 
+            // chkQuan13CH2D
+            // 
+            this.chkQuan13CH2D.AutoSize = true;
+            this.chkQuan13CH2D.Checked = true;
+            this.chkQuan13CH2D.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.chkQuan13CH2D.Location = new System.Drawing.Point(19, 194);
+            this.chkQuan13CH2D.Name = "chkQuan13CH2D";
+            this.chkQuan13CH2D.Size = new System.Drawing.Size(66, 16);
+            this.chkQuan13CH2D.TabIndex = 14;
+            this.chkQuan13CH2D.Text = "13CH2D";
+            this.chkQuan13CH2D.UseVisualStyleBackColor = true;
             // 
             // chkQuanCH3
             // 
             this.chkQuanCH3.AutoSize = true;
             this.chkQuanCH3.Checked = true;
             this.chkQuanCH3.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.chkQuanCH3.Location = new System.Drawing.Point(19, 31);
+            this.chkQuanCH3.Location = new System.Drawing.Point(19, 29);
             this.chkQuanCH3.Name = "chkQuanCH3";
-            this.chkQuanCH3.Size = new System.Drawing.Size(47, 17);
+            this.chkQuanCH3.Size = new System.Drawing.Size(46, 16);
             this.chkQuanCH3.TabIndex = 0;
             this.chkQuanCH3.Text = "CH3";
             this.chkQuanCH3.UseVisualStyleBackColor = true;
@@ -1039,9 +1095,9 @@
             this.chkQuanCH2D.AutoSize = true;
             this.chkQuanCH2D.Checked = true;
             this.chkQuanCH2D.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.chkQuanCH2D.Location = new System.Drawing.Point(19, 70);
+            this.chkQuanCH2D.Location = new System.Drawing.Point(19, 62);
             this.chkQuanCH2D.Name = "chkQuanCH2D";
-            this.chkQuanCH2D.Size = new System.Drawing.Size(55, 17);
+            this.chkQuanCH2D.Size = new System.Drawing.Size(54, 16);
             this.chkQuanCH2D.TabIndex = 1;
             this.chkQuanCH2D.Text = "CH2D";
             this.chkQuanCH2D.UseVisualStyleBackColor = true;
@@ -1052,9 +1108,9 @@
             this.chkQuanCHD2.AutoSize = true;
             this.chkQuanCHD2.Checked = true;
             this.chkQuanCHD2.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.chkQuanCHD2.Location = new System.Drawing.Point(19, 109);
+            this.chkQuanCHD2.Location = new System.Drawing.Point(19, 95);
             this.chkQuanCHD2.Name = "chkQuanCHD2";
-            this.chkQuanCHD2.Size = new System.Drawing.Size(55, 17);
+            this.chkQuanCHD2.Size = new System.Drawing.Size(54, 16);
             this.chkQuanCHD2.TabIndex = 2;
             this.chkQuanCHD2.Text = "CHD2";
             this.chkQuanCHD2.UseVisualStyleBackColor = true;
@@ -1065,9 +1121,9 @@
             this.chkQuanCD3.AutoSize = true;
             this.chkQuanCD3.Checked = true;
             this.chkQuanCD3.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.chkQuanCD3.Location = new System.Drawing.Point(19, 148);
+            this.chkQuanCD3.Location = new System.Drawing.Point(19, 128);
             this.chkQuanCD3.Name = "chkQuanCD3";
-            this.chkQuanCD3.Size = new System.Drawing.Size(47, 17);
+            this.chkQuanCD3.Size = new System.Drawing.Size(46, 16);
             this.chkQuanCD3.TabIndex = 3;
             this.chkQuanCD3.Text = "CD3";
             this.chkQuanCD3.UseVisualStyleBackColor = true;
@@ -1078,9 +1134,9 @@
             this.chkQuan13CH3.AutoSize = true;
             this.chkQuan13CH3.Checked = true;
             this.chkQuan13CH3.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.chkQuan13CH3.Location = new System.Drawing.Point(19, 187);
+            this.chkQuan13CH3.Location = new System.Drawing.Point(19, 161);
             this.chkQuan13CH3.Name = "chkQuan13CH3";
-            this.chkQuan13CH3.Size = new System.Drawing.Size(59, 17);
+            this.chkQuan13CH3.Size = new System.Drawing.Size(58, 16);
             this.chkQuan13CH3.TabIndex = 4;
             this.chkQuan13CH3.Text = "13CH3";
             this.chkQuan13CH3.UseVisualStyleBackColor = true;
@@ -1091,9 +1147,9 @@
             this.chkQuan13CD3.AutoSize = true;
             this.chkQuan13CD3.Checked = true;
             this.chkQuan13CD3.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.chkQuan13CD3.Location = new System.Drawing.Point(19, 254);
+            this.chkQuan13CD3.Location = new System.Drawing.Point(19, 260);
             this.chkQuan13CD3.Name = "chkQuan13CD3";
-            this.chkQuan13CD3.Size = new System.Drawing.Size(59, 17);
+            this.chkQuan13CD3.Size = new System.Drawing.Size(58, 16);
             this.chkQuan13CD3.TabIndex = 5;
             this.chkQuan13CD3.Text = "13CD3";
             this.chkQuan13CD3.UseVisualStyleBackColor = true;
@@ -1101,9 +1157,9 @@
             // 
             // txtQuan13CHD2
             // 
-            this.txtQuan13CHD2.Location = new System.Drawing.Point(91, 218);
+            this.txtQuan13CHD2.Location = new System.Drawing.Point(91, 224);
             this.txtQuan13CHD2.Name = "txtQuan13CHD2";
-            this.txtQuan13CHD2.Size = new System.Drawing.Size(47, 20);
+            this.txtQuan13CHD2.Size = new System.Drawing.Size(47, 22);
             this.txtQuan13CHD2.TabIndex = 12;
             this.txtQuan13CHD2.Text = "1.0";
             // 
@@ -1112,9 +1168,9 @@
             this.chkQuan13CHD2.AutoSize = true;
             this.chkQuan13CHD2.Checked = true;
             this.chkQuan13CHD2.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.chkQuan13CHD2.Location = new System.Drawing.Point(19, 220);
+            this.chkQuan13CHD2.Location = new System.Drawing.Point(19, 227);
             this.chkQuan13CHD2.Name = "chkQuan13CHD2";
-            this.chkQuan13CHD2.Size = new System.Drawing.Size(67, 17);
+            this.chkQuan13CHD2.Size = new System.Drawing.Size(66, 16);
             this.chkQuan13CHD2.TabIndex = 6;
             this.chkQuan13CHD2.Text = "13CHD2";
             this.chkQuan13CHD2.UseVisualStyleBackColor = true;
@@ -1122,49 +1178,49 @@
             // 
             // txtQuan13CD3
             // 
-            this.txtQuan13CD3.Location = new System.Drawing.Point(91, 251);
+            this.txtQuan13CD3.Location = new System.Drawing.Point(91, 257);
             this.txtQuan13CD3.Name = "txtQuan13CD3";
-            this.txtQuan13CD3.Size = new System.Drawing.Size(47, 20);
+            this.txtQuan13CD3.Size = new System.Drawing.Size(47, 22);
             this.txtQuan13CD3.TabIndex = 13;
             this.txtQuan13CD3.Text = "1.0";
             // 
             // txtQuanCH3
             // 
-            this.txtQuanCH3.Location = new System.Drawing.Point(91, 29);
+            this.txtQuanCH3.Location = new System.Drawing.Point(91, 26);
             this.txtQuanCH3.Name = "txtQuanCH3";
-            this.txtQuanCH3.Size = new System.Drawing.Size(47, 20);
+            this.txtQuanCH3.Size = new System.Drawing.Size(47, 22);
             this.txtQuanCH3.TabIndex = 7;
             this.txtQuanCH3.Text = "1.0";
             // 
             // txtQuan13CH3
             // 
-            this.txtQuan13CH3.Location = new System.Drawing.Point(91, 184);
+            this.txtQuan13CH3.Location = new System.Drawing.Point(91, 158);
             this.txtQuan13CH3.Name = "txtQuan13CH3";
-            this.txtQuan13CH3.Size = new System.Drawing.Size(47, 20);
+            this.txtQuan13CH3.Size = new System.Drawing.Size(47, 22);
             this.txtQuan13CH3.TabIndex = 11;
             this.txtQuan13CH3.Text = "1.0";
             // 
             // txtQuanCH2D
             // 
-            this.txtQuanCH2D.Location = new System.Drawing.Point(91, 67);
+            this.txtQuanCH2D.Location = new System.Drawing.Point(91, 59);
             this.txtQuanCH2D.Name = "txtQuanCH2D";
-            this.txtQuanCH2D.Size = new System.Drawing.Size(47, 20);
+            this.txtQuanCH2D.Size = new System.Drawing.Size(47, 22);
             this.txtQuanCH2D.TabIndex = 8;
             this.txtQuanCH2D.Text = "1.0";
             // 
             // txtQuanCD3
             // 
-            this.txtQuanCD3.Location = new System.Drawing.Point(91, 145);
+            this.txtQuanCD3.Location = new System.Drawing.Point(91, 125);
             this.txtQuanCD3.Name = "txtQuanCD3";
-            this.txtQuanCD3.Size = new System.Drawing.Size(47, 20);
+            this.txtQuanCD3.Size = new System.Drawing.Size(47, 22);
             this.txtQuanCD3.TabIndex = 10;
             this.txtQuanCD3.Text = "1.0";
             // 
             // txtQuanCHD2
             // 
-            this.txtQuanCHD2.Location = new System.Drawing.Point(91, 106);
+            this.txtQuanCHD2.Location = new System.Drawing.Point(91, 92);
             this.txtQuanCHD2.Name = "txtQuanCHD2";
-            this.txtQuanCHD2.Size = new System.Drawing.Size(47, 20);
+            this.txtQuanCHD2.Size = new System.Drawing.Size(47, 22);
             this.txtQuanCHD2.TabIndex = 9;
             this.txtQuanCHD2.Text = "1.0";
             // 
@@ -1172,9 +1228,9 @@
             // 
             this.rdoLabelFree.AutoSize = true;
             this.rdoLabelFree.Checked = true;
-            this.rdoLabelFree.Location = new System.Drawing.Point(195, 174);
+            this.rdoLabelFree.Location = new System.Drawing.Point(195, 161);
             this.rdoLabelFree.Name = "rdoLabelFree";
-            this.rdoLabelFree.Size = new System.Drawing.Size(106, 17);
+            this.rdoLabelFree.Size = new System.Drawing.Size(105, 16);
             this.rdoLabelFree.TabIndex = 17;
             this.rdoLabelFree.TabStop = true;
             this.rdoLabelFree.Text = "Label-free glycan";
@@ -1184,9 +1240,9 @@
             // rdoDRAG
             // 
             this.rdoDRAG.AutoSize = true;
-            this.rdoDRAG.Location = new System.Drawing.Point(195, 16);
+            this.rdoDRAG.Location = new System.Drawing.Point(195, 15);
             this.rdoDRAG.Name = "rdoDRAG";
-            this.rdoDRAG.Size = new System.Drawing.Size(212, 17);
+            this.rdoDRAG.Size = new System.Drawing.Size(212, 16);
             this.rdoDRAG.TabIndex = 16;
             this.rdoDRAG.Text = "Dual Reactions for Analytical Glycomics";
             this.rdoDRAG.UseVisualStyleBackColor = true;
@@ -1195,9 +1251,9 @@
             // rdoMultiplePemrthylated
             // 
             this.rdoMultiplePemrthylated.AutoSize = true;
-            this.rdoMultiplePemrthylated.Location = new System.Drawing.Point(23, 16);
+            this.rdoMultiplePemrthylated.Location = new System.Drawing.Point(23, 15);
             this.rdoMultiplePemrthylated.Name = "rdoMultiplePemrthylated";
-            this.rdoMultiplePemrthylated.Size = new System.Drawing.Size(141, 17);
+            this.rdoMultiplePemrthylated.Size = new System.Drawing.Size(144, 16);
             this.rdoMultiplePemrthylated.TabIndex = 15;
             this.rdoMultiplePemrthylated.Text = "Multiplex Permethylation ";
             this.rdoMultiplePemrthylated.UseVisualStyleBackColor = true;
@@ -1206,9 +1262,9 @@
             // btnQuan
             // 
             this.btnQuan.Font = new System.Drawing.Font("Microsoft Sans Serif", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnQuan.Location = new System.Drawing.Point(558, 301);
+            this.btnQuan.Location = new System.Drawing.Point(558, 278);
             this.btnQuan.Name = "btnQuan";
-            this.btnQuan.Size = new System.Drawing.Size(133, 74);
+            this.btnQuan.Size = new System.Drawing.Size(133, 68);
             this.btnQuan.TabIndex = 14;
             this.btnQuan.Text = "Search";
             this.btnQuan.UseVisualStyleBackColor = true;
@@ -1217,42 +1273,19 @@
             // label9
             // 
             this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(217, 9);
+            this.label9.Location = new System.Drawing.Point(217, 8);
             this.label9.Name = "label9";
-            this.label9.Size = new System.Drawing.Size(71, 13);
+            this.label9.Size = new System.Drawing.Size(66, 12);
             this.label9.TabIndex = 48;
             this.label9.Text = "Signal/Noise:";
-            this.label9.Visible = false;
-            // 
-            // rdoPositive
-            // 
-            this.rdoPositive.AutoSize = true;
-            this.rdoPositive.Checked = true;
-            this.rdoPositive.Location = new System.Drawing.Point(481, 130);
-            this.rdoPositive.Name = "rdoPositive";
-            this.rdoPositive.Size = new System.Drawing.Size(99, 17);
-            this.rdoPositive.TabIndex = 49;
-            this.rdoPositive.TabStop = true;
-            this.rdoPositive.Text = "Positive Charge";
-            this.rdoPositive.UseVisualStyleBackColor = true;
-            this.rdoPositive.CheckedChanged += new System.EventHandler(this.rdoPositive_CheckedChanged);
-            // 
-            // rdoNegative
-            // 
-            this.rdoNegative.AutoSize = true;
-            this.rdoNegative.Location = new System.Drawing.Point(586, 130);
-            this.rdoNegative.Name = "rdoNegative";
-            this.rdoNegative.Size = new System.Drawing.Size(105, 17);
-            this.rdoNegative.TabIndex = 50;
-            this.rdoNegative.Text = "Negative Charge";
-            this.rdoNegative.UseVisualStyleBackColor = true;
+            this.label9.Visible = false;            
             // 
             // frmMainESI
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
-            this.ClientSize = new System.Drawing.Size(707, 445);
+            this.ClientSize = new System.Drawing.Size(707, 411);
             this.Controls.Add(this.tabControl1);
             this.Controls.Add(this.chkMZMatch);
             this.Controls.Add(this.label9);
@@ -1336,8 +1369,6 @@
         private System.Windows.Forms.ToolStripMenuItem massCalculatorToolStripMenuItem;
         private System.Windows.Forms.CheckBox chkLog;
         private System.Windows.Forms.CheckBox chkMZMatch;
-        private System.Windows.Forms.Button button1;
-        private System.Windows.Forms.Button button2;
         private System.Windows.Forms.TextBox txtMinLCTime;
         private System.Windows.Forms.TextBox txtMaxLCTime;
         private System.Windows.Forms.Label label5;
@@ -1392,7 +1423,6 @@
         private System.Windows.Forms.CheckBox chkAdductUser;
         private System.Windows.Forms.CheckBox chkReducedReducingEnd;
         private System.Windows.Forms.CheckBox chkPermethylated;
-        private System.Windows.Forms.Button button3;
         private System.Windows.Forms.ToolStripMenuItem eluctionProfileViewerToolStripMenuItem;
         private System.Windows.Forms.PictureBox pictureBox1;
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem2;
@@ -1410,5 +1440,8 @@
         private System.Windows.Forms.CheckBox chkForceProtonated;
         private System.Windows.Forms.RadioButton rdoNegative;
         private System.Windows.Forms.RadioButton rdoPositive;
+        private System.Windows.Forms.TextBox txtQuan13CH2D;
+        private System.Windows.Forms.CheckBox chkQuan13CH2D;
+        private System.Windows.Forms.ToolStripMenuItem glycanUnitGUToolStripMenuItem;
     }
 }

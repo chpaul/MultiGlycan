@@ -13,8 +13,7 @@ namespace COL.MultiGlycan
         private int _ScanNum;
         List<MSPoint> _Points;
         private GlycanCompound _glycanComposition;
-        //private double _MergedIntensity;
-
+        //private double _MergedIntensity;        
         private double _CorrectedIntensity = 0;
 
         public MatchedGlycanPeak(int argScanNum, double argTime, MSPeak argPeak, GlycanCompound argGlycanComp)

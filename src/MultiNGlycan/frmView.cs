@@ -337,7 +337,7 @@ namespace COL.MultiGlycan
             cht.Series["Merge Smooth"].Enabled =chkboxlstPeak.CheckedItems.Contains("Merge Smooth");
 
             //Add Each Charge and adduct
-            int ColorIdx = 0;
+            //int ColorIdx = 0;
             foreach (float mz in lstmz)
             {
                 string Key = "";

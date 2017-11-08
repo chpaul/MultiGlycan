@@ -12,8 +12,8 @@ namespace COL.MultiGlycan
     {
         private List<MatchedGlycanPeak> _MatchedPeaksInScan;
         private LCPeak _LCPeak;
-        private List<MSPoint> _RawPoint;
-        private float _ApexTime = 0;
+        //private List<MSPoint> _RawPoint;
+        //private float _ApexTime = 0;
 
         //private List<MSPeak> _MSPeak;
         //private double _StatrTime;
@@ -24,6 +24,7 @@ namespace COL.MultiGlycan
         //private GlycanCompound _glycanComposition;
         //private double _MergedIntensity;
         //private string _adduct;
+        public double GU { get; set; } = double.NaN;
         public ClusteredPeak()
         {
             _MatchedPeaksInScan = new List<MatchedGlycanPeak>();

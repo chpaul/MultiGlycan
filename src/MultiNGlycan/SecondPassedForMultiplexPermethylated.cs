@@ -16,9 +16,7 @@ namespace COL.MultiGlycan
     public static class SecondPassedForMultiplexPermethylated
     {
         public static void Processing(ref MultiGlycanESI argMultiGlycan)
-        {
-            
-            GlycanCompound processed;
+        {            
             try
             {
 

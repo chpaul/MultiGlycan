@@ -10,6 +10,7 @@ using System.IO;
 using System.Reflection;
 using COL.GlycoLib;
 using COL.MassLib;
+
 namespace COL.MultiGlycan
 {
     public partial class frmMainESI : Form
@@ -29,7 +30,20 @@ namespace COL.MultiGlycan
             //    cboCPU.Items.Add(i); 
             //}
             //cboCPU.SelectedIndex = (int)Math.Floor(cboCPU.Items.Count / 2.0f)-1;   
-          
+            lstGU = new List<clsGlycanUnit>();
+            if (File.Exists(Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location) + "\\GU.txt"))
+            {
+                using (StreamReader sr = new StreamReader((Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location) + "\\GU.txt")))
+                {
+                    sr.ReadLine();
+                    do
+                    {
+                        string[] tmpAry = sr.ReadLine().Split(',');
+                        lstGU.Add(new clsGlycanUnit(Convert.ToInt32(tmpAry[0]), Convert.ToDouble(tmpAry[1])));
+                    } while (!sr.EndOfStream);
+                }
+            }
+
         }
 
 
@@ -195,6 +209,14 @@ namespace COL.MultiGlycan
                 ESI.QuantificationImgs = chkQuantImgs.Checked;
                 ESI.TotalLCTime = Convert.ToSingle(txtLCTime.Text);
                 ESI.LCTimeTolerance = Convert.ToSingle(txtLCTolerance.Text)/100.0f;
+
+                if (lstGU != null && lstGU.Count > 0)
+                {
+                    ESI.GlycanUnits = lstGU;
+                    double[] x = lstGU.Select(ti => Convert.ToDouble(ti.EluctionTime)).ToArray();
+                    double[] y = lstGU.Select(gu => Convert.ToDouble(gu.GU)).ToArray();
+                    ESI.GUFitFunction = new ViliPetek.LinearAlgebra.PolyFit(x, y, 5);                  
+                }
                 if (DoLog)
                 {
                     Logger.WriteLog("Initial program complete");
@@ -400,7 +422,6 @@ namespace COL.MultiGlycan
                 _Intensity = argIntensity;
                 _Adduct = argAdduct;
             }
-
         }
 
         private void button2_Click(object sender, EventArgs e)
@@ -606,40 +627,28 @@ namespace COL.MultiGlycan
                     MessageBox.Show("Permethylated check box should be checked");
                     chkPermethylated.Checked = true;
                 }
-                if (chkQuan13CD3.Checked)
-                {
-                    labelingRatio.Add(GlycoLib.enumLabelingTag.MP_13CD3, Convert.ToSingle(txtQuan13CD3.Text));
-                }
-                if (chkQuan13CH3.Checked)
-                {
-                    labelingRatio.Add(GlycoLib.enumLabelingTag.MP_13CH3, Convert.ToSingle(txtQuan13CH3.Text));
-                }
-                if (chkQuan13CHD2.Checked)
-                {
-                    labelingRatio.Add(GlycoLib.enumLabelingTag.MP_13CHD2, Convert.ToSingle(txtQuan13CHD2.Text));
-                }
-                if (chkQuanCD3.Checked)
-                {
-                    labelingRatio.Add(GlycoLib.enumLabelingTag.MP_CD3, Convert.ToSingle(txtQuanCD3.Text));
-                }
-                if (chkQuanCH2D.Checked)
-                {
-                    labelingRatio.Add(GlycoLib.enumLabelingTag.MP_CH2D, Convert.ToSingle(txtQuanCH2D.Text));
-                }
-                if (chkQuanCH3.Checked)
-                {
-                    labelingRatio.Add(GlycoLib.enumLabelingTag.MP_CH3, Convert.ToSingle(txtQuanCH3.Text));
-                }
-                if (chkQuanCHD2.Checked)
-                {
-                    labelingRatio.Add(GlycoLib.enumLabelingTag.MP_CHD2, Convert.ToSingle(txtQuanCHD2.Text));
-                }
+              
+                if (chkQuan13CH3.Checked)                
+                    labelingRatio.Add(GlycoLib.enumLabelingTag.MP_13CH3, Convert.ToSingle(txtQuan13CH3.Text));                
+                if (chkQuan13CH2D.Checked)                
+                    labelingRatio.Add(GlycoLib.enumLabelingTag.MP_13CH2D, Convert.ToSingle(txtQuan13CH2D.Text));                
+                if (chkQuan13CHD2.Checked)                
+                    labelingRatio.Add(GlycoLib.enumLabelingTag.MP_13CHD2, Convert.ToSingle(txtQuan13CHD2.Text));                
+                if (chkQuan13CD3.Checked)                
+                    labelingRatio.Add(GlycoLib.enumLabelingTag.MP_13CD3, Convert.ToSingle(txtQuan13CD3.Text));                
+                if (chkQuanCH3.Checked)                
+                    labelingRatio.Add(GlycoLib.enumLabelingTag.MP_CH3, Convert.ToSingle(txtQuanCH3.Text));                
+                if (chkQuanCH2D.Checked)                
+                    labelingRatio.Add(GlycoLib.enumLabelingTag.MP_CH2D, Convert.ToSingle(txtQuanCH2D.Text));                
+                if (chkQuanCHD2.Checked)                
+                    labelingRatio.Add(GlycoLib.enumLabelingTag.MP_CHD2, Convert.ToSingle(txtQuanCHD2.Text));                
+                if (chkQuanCD3.Checked)                
+                    labelingRatio.Add(GlycoLib.enumLabelingTag.MP_CD3, Convert.ToSingle(txtQuanCD3.Text));                            
             }
             else
             {
                 labelingRatio.Add(GlycoLib.enumLabelingTag.None,1.0f);
-            }
-   
+            }  
 
             PreparingMultiGlycan(labelingRatio);
         }
@@ -697,7 +706,7 @@ namespace COL.MultiGlycan
                     if (p.ChargeState == 2)
                     {
                         Peaks.Add(p);
-                        ;
+                        
                     }
                     //if (p.MonoisotopicMZ >= 834.62 && p.MonoisotopicMZ <= 834.65)
                     //{
@@ -705,7 +714,6 @@ namespace COL.MultiGlycan
                     //}
                 }
             }
-
         }
 
         private void batchModeToolStripMenuItem_Click(object sender, EventArgs e)
@@ -723,13 +731,14 @@ namespace COL.MultiGlycan
             chkAdductNH4.Enabled = rdoPositive.Checked;
             chkAdductUser.Enabled = rdoPositive.Checked;
         }
+        List<clsGlycanUnit> lstGU;
+        private void glycanUnitGUToolStripMenuItem_Click(object sender, EventArgs e)
+        {                 
+            frmGlycanUnits frmGU = new frmGlycanUnits(ref lstGU);
+            this.Visible = false;
+            frmGU.ShowDialog();
+            this.Visible = true;            
+        }
 
-       
-
-
-
-
-
-      
     }
 }

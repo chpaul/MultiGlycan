@@ -14,10 +14,10 @@ namespace COL.MultiGlycan
 {
     public partial class frmBatch : Form
     {
-        frmPeakParameters frmPeakpara;
+        //frmPeakParameters frmPeakpara;
         bool DoLog = false;
-        private int _endScan = 0;
-        ThermoRawReader raw;
+        //private int _endScan = 0;
+        //ThermoRawReader raw;
         public frmBatch()
         {
             InitializeComponent();
@@ -76,7 +76,7 @@ namespace COL.MultiGlycan
             //saveFileDialog1.Filter = "CSV Files (*.csv)|*.csv";
 
             DateTime time = DateTime.Now;             // Use current time
-            string TimeFormat = "yyMMdd HHmm";            // Use this format
+            //string TimeFormat = "yyMMdd HHmm";            // Use this format
             if (DoLog)
             {
                 Logger.WriteLog(System.Environment.NewLine + System.Environment.NewLine + "-----------------------------------------------------------");

@@ -14,7 +14,7 @@ namespace COL.MultiGlycan
         Dictionary<string, List<Tuple<float, float>>> _otherAdductsPeaks;
         int _protonatedApexIdx = -1;
         float _totalProtonatedIntensity =0;
-        float _totalOtherAdductIntensity = 0;        
+        //float _totalOtherAdductIntensity = 0;        
         public QuantitationPeak(string argDataSetName, string argGlycanKey)
         {
             _glycanKey = argGlycanKey;

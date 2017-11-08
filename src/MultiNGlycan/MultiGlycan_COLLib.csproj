@@ -83,6 +83,24 @@
   <PropertyGroup>
     <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x64\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <OutputPath>bin\x64\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="CSMSL">
       <HintPath>..\..\lib\CSMSL.dll</HintPath>
@@ -94,11 +112,15 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\lib\EPPlus.dll</HintPath>
     </Reference>
-    <Reference Include="GlycoLib">
-      <HintPath>..\..\lib\GlycoLib.dll</HintPath>
+    <Reference Include="GlycoLib, Version=1.0.0.14, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\COL_Lib\src\GlycoLib\bin\Release\GlycoLib.dll</HintPath>
     </Reference>
     <Reference Include="MassLib">
-      <HintPath>..\..\..\COL_Lib\src\MassLibNative\bin\Release\MassLib.dll</HintPath>
+      <HintPath>..\..\lib\MassLib.dll</HintPath>
+    </Reference>
+    <Reference Include="PolynomialRegression">
+      <HintPath>..\..\PolyFitCSharp\PolynomialRegression\bin\Release\PolynomialRegression.dll</HintPath>
     </Reference>
     <Reference Include="ProtLib">
       <HintPath>..\..\lib\ProtLib.dll</HintPath>
@@ -114,6 +136,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CheckRegistry.cs" />
+    <Compile Include="clsGlycanUnit.cs" />
     <Compile Include="ClusteredPeak.cs" />
     <Compile Include="Combinations\Combinations.cs" />
     <Compile Include="Combinations\GenerateOption.cs" />
@@ -121,6 +144,12 @@
     <Compile Include="Combinations\Permutations.cs" />
     <Compile Include="Combinations\SmallPrimeUtility.cs" />
     <Compile Include="Combinations\Variations.cs" />
+    <Compile Include="frmGlycanUnits.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmGlycanUnits.Designer.cs">
+      <DependentUpon>frmGlycanUnits.cs</DependentUpon>
+    </Compile>
     <Compile Include="SecondPassedForMultiplexPermethylated.cs" />
     <None Include="Copy of GenerateImages.cs.bak" />
     <Compile Include="frmBatchGenImg.cs">
@@ -197,6 +226,9 @@
       <DependentUpon>frmCalculator.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
+    <EmbeddedResource Include="frmGlycanUnits.resx">
+      <DependentUpon>frmGlycanUnits.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="frmMainESI.resx">
       <DependentUpon>frmMainESI.cs</DependentUpon>
       <SubType>Designer</SubType>
@@ -254,13 +286,14 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="icon.ico" />
+    <Content Include="Resources\GU.txt" />
     <EmbeddedResource Include="Resources\Default_Combination.csv" />
     <None Include="Resources\Peak-01.jpg" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties BuildVersion_UpdateAssemblyVersion="True" BuildVersion_BuildVersioningStyle="None.None.Increment.None" />
+      <UserProperties BuildVersion_BuildVersioningStyle="None.None.Increment.None" BuildVersion_UpdateAssemblyVersion="True" />
     </VisualStudio>
   </ProjectExtensions>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -426,13 +426,13 @@ namespace COL.MultiGlycan
             Dictionary<string, int> dictTitle = new Dictionary<string, int>();
             StreamReader sr = new StreamReader(argQuantFile);
             string tmp = "";
-            bool isLabeling = false;
+            //bool isLabeling = false;
             tmp = sr.ReadLine();
 
             #region Read Title
 
             string[] tmpAry = tmp.Split(',');
-            string LabelTitle = "";
+            //string LabelTitle = "";
             dictTitle.Add("Glycan", 0);
             List<string> lstLabelingTag = new List<string>();
             if (argLabelingMethod == enumGlycanLabelingMethod.DRAG)
@@ -447,6 +447,7 @@ namespace COL.MultiGlycan
                 lstLabelingTag.Add("MP_CHD2");
                 lstLabelingTag.Add("MP_CD3");
                 lstLabelingTag.Add("MP_13CH3");
+                lstLabelingTag.Add("MP_13CH2D");
                 lstLabelingTag.Add("MP_13CHD2");
                 lstLabelingTag.Add("MP_13CD3");
             }
