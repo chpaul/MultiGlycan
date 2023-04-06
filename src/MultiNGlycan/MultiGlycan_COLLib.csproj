@@ -115,8 +115,9 @@
     <Reference Include="GlycoLib">
       <HintPath>..\..\lib\GlycoLib.dll</HintPath>
     </Reference>
-    <Reference Include="MassLib">
-      <HintPath>..\..\lib\MassLib.dll</HintPath>
+    <Reference Include="MassLib, Version=1.0.0.9, Culture=neutral, processorArchitecture=AMD64">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\COL_Lib\src\MassLibNative\bin\x64\Release\MassLib.dll</HintPath>
     </Reference>
     <Reference Include="ProtLib">
       <HintPath>..\..\lib\ProtLib.dll</HintPath>
@@ -129,6 +130,12 @@
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Windows.Forms.DataVisualization" />
     <Reference Include="System.Xml" />
+    <Reference Include="ThermoFisher.CommonCore.Data, Version=5.0.0.88, Culture=neutral, PublicKeyToken=1aef06afb5abd953, processorArchitecture=MSIL">
+      <HintPath>..\packages\ThermoFisher.CommonCore.Data.5.0.0.88\lib\ThermoFisher.CommonCore.Data.dll</HintPath>
+    </Reference>
+    <Reference Include="ThermoFisher.CommonCore.RawFileReader, Version=5.0.0.88, Culture=neutral, PublicKeyToken=1aef06afb5abd953, processorArchitecture=MSIL">
+      <HintPath>..\packages\ThermoFisher.CommonCore.RawFileReader.5.0.0.88\lib\ThermoFisher.CommonCore.RawFileReader.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CheckRegistry.cs" />
@@ -243,6 +250,7 @@
     </Compile>
     <None Include="app.config" />
     <None Include="app.manifest" />
+    <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -272,14 +280,13 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="icon.ico" />
-    <Content Include="Resources\GU.txt" />
     <EmbeddedResource Include="Resources\Default_Combination.csv" />
     <None Include="Resources\Peak-01.jpg" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties BuildVersion_BuildVersioningStyle="None.None.Increment.None" BuildVersion_UpdateAssemblyVersion="True" />
+      <UserProperties BuildVersion_UpdateAssemblyVersion="True" BuildVersion_BuildVersioningStyle="None.None.Increment.None" />
     </VisualStudio>
   </ProjectExtensions>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
