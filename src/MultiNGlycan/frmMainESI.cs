@@ -29,20 +29,7 @@ namespace COL.MultiGlycan
             //{
             //    cboCPU.Items.Add(i); 
             //}
-            //cboCPU.SelectedIndex = (int)Math.Floor(cboCPU.Items.Count / 2.0f)-1;   
-            lstGU = new List<clsGlycanUnit>();
-            if (File.Exists(Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location) + "\\GU.txt"))
-            {
-                using (StreamReader sr = new StreamReader((Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location) + "\\GU.txt")))
-                {
-                    sr.ReadLine();
-                    do
-                    {
-                        string[] tmpAry = sr.ReadLine().Split(',');
-                        lstGU.Add(new clsGlycanUnit(Convert.ToInt32(tmpAry[0]), Convert.ToDouble(tmpAry[1])));
-                    } while (!sr.EndOfStream);
-                }
-            }
+            //cboCPU.SelectedIndex = (int)Math.Floor(cboCPU.Items.Count / 2.0f)-1;                           
 
         }
 
@@ -210,13 +197,6 @@ namespace COL.MultiGlycan
                 ESI.TotalLCTime = Convert.ToSingle(txtLCTime.Text);
                 ESI.LCTimeTolerance = Convert.ToSingle(txtLCTolerance.Text)/100.0f;
 
-                if (lstGU != null && lstGU.Count > 0)
-                {
-                    ESI.GlycanUnits = lstGU;
-                    double[] x = lstGU.Select(ti => Convert.ToDouble(ti.EluctionTime)).ToArray();
-                    double[] y = lstGU.Select(gu => Convert.ToDouble(gu.GU)).ToArray();
-                    ESI.GUFitFunction = new ViliPetek.LinearAlgebra.PolyFit(x, y, 5);                  
-                }
                 if (DoLog)
                 {
                     Logger.WriteLog("Initial program complete");
@@ -629,9 +609,7 @@ namespace COL.MultiGlycan
                 }
               
                 if (chkQuan13CH3.Checked)                
-                    labelingRatio.Add(GlycoLib.enumLabelingTag.MP_13CH3, Convert.ToSingle(txtQuan13CH3.Text));                
-                if (chkQuan13CH2D.Checked)                
-                    labelingRatio.Add(GlycoLib.enumLabelingTag.MP_13CH2D, Convert.ToSingle(txtQuan13CH2D.Text));                
+                    labelingRatio.Add(GlycoLib.enumLabelingTag.MP_13CH3, Convert.ToSingle(txtQuan13CH3.Text));                               
                 if (chkQuan13CHD2.Checked)                
                     labelingRatio.Add(GlycoLib.enumLabelingTag.MP_13CHD2, Convert.ToSingle(txtQuan13CHD2.Text));                
                 if (chkQuan13CD3.Checked)                
@@ -730,15 +708,7 @@ namespace COL.MultiGlycan
             chkAdductNa.Enabled = rdoPositive.Checked;
             chkAdductNH4.Enabled = rdoPositive.Checked;
             chkAdductUser.Enabled = rdoPositive.Checked;
-        }
-        List<clsGlycanUnit> lstGU;
-        private void glycanUnitGUToolStripMenuItem_Click(object sender, EventArgs e)
-        {                 
-            frmGlycanUnits frmGU = new frmGlycanUnits(ref lstGU);
-            this.Visible = false;
-            frmGU.ShowDialog();
-            this.Visible = true;            
-        }
+        }       
 
     }
 }

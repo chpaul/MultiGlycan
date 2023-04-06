@@ -86,8 +86,7 @@ namespace COL.MultiGlycan
         private Dictionary<string, Dictionary<enumLabelingTag, double>> _NormalizedFactor;
         private Dictionary<string, Dictionary<enumLabelingTag, List<double>>> MergeIntensities;
         private bool _PositiveChargeMode =true;
-        public List<clsGlycanUnit> GlycanUnits { get; set; }
-        public ViliPetek.LinearAlgebra.PolyFit GUFitFunction { get; set; }
+        
         public MultiGlycanESI(string argRawFile, int argStartScan, int argEndScan, string argGlycanList, double argMassPPM, double argGlycanMass, bool argPermenthylated, bool argReducedReducingEnd, int argSia, Dictionary<enumLabelingTag, float> argLabelingRatio, Dictionary<float, string> argAdductLabel, List<float> argAdductMass, bool argLog, bool argPositiveChargeMode=true)
         {
             DoLog = argLog;
@@ -999,19 +998,7 @@ namespace COL.MultiGlycan
             sw.WriteLine("Merge different charge glycan:" + _MergeDifferentCharge.ToString());
             sw.WriteLine("Min length of LC Peak in minute (c):" + _minLengthOfLC.ToString());
             sw.WriteLine("Minimum abundance:" + _minAbundance.ToString());
-            sw.WriteLine("GU:" + string.Join(";", GlycanUnits.Select(x => x.GU + "=" + x.EluctionTime).ToArray()));
-
-            string RegressFunction = $"Y = {GUFitFunction.Coeff[0]}";
-
-            for (int i = 1; i < GUFitFunction.Coeff.Length; i++)
-                RegressFunction += $"+ {GUFitFunction.Coeff[i]} X * {i} ";
-            
-
-            sw.WriteLine($"Regression:{RegressFunction}");
-            if (_ApplyLinearRegLC)
-            {
-                sw.WriteLine("Glycan Linear Regression/Total LC Time/Time Tolerance:" + _ApplyLinearRegLC.ToString()+"/"+_totalLCTime.ToString() +"/" + _LCTimeTolerance.ToString());
-            }
+          
             //sw.WriteLine("Signal to noise ratio" + _peakParameter.SignalToNoiseThreshold.ToString());
             //sw.WriteLine("Peak background ratio" + _peakParameter.PeakBackgroundRatio.ToString());
             //sw.WriteLine("Use absolute peptide intensity" + _transformParameters.UseAbsolutePeptideIntensity.ToString());
@@ -3213,10 +3200,6 @@ namespace COL.MultiGlycan
                                 tmpMergedPeak.TimeInterval >= _minLengthOfLC &&
                                LCTimeWithinTolerance)
                             {
-                                if(GUFitFunction!=null && tmpMergedPeak.LCPeak !=null)
-                                {
-                                    tmpMergedPeak.GU = GUFitFunction.Fit(new double[] { tmpMergedPeak.LCPeak.Apex.Mass })[0];
-                                }
                                 MergedPeaks.Add(tmpMergedPeak);
                             }
                         }
@@ -3225,11 +3208,6 @@ namespace COL.MultiGlycan
                             if (tmpMergedPeak.MonoIntensity >= _minAbundance &&
                            tmpMergedPeak.TimeInterval >= _minLengthOfLC)
                             {
-                                if (GUFitFunction != null && tmpMergedPeak.LCPeak != null)
-                                {
-                                    tmpMergedPeak.GU = GUFitFunction.Fit(new double[] { tmpMergedPeak.LCPeak.Apex.Mass })[0];
-                                }
-
                                 MergedPeaks.Add(tmpMergedPeak);
                             }
                         }

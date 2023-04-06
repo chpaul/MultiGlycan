@@ -112,15 +112,11 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\lib\EPPlus.dll</HintPath>
     </Reference>
-    <Reference Include="GlycoLib, Version=1.0.0.14, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\COL_Lib\src\GlycoLib\bin\Release\GlycoLib.dll</HintPath>
+    <Reference Include="GlycoLib">
+      <HintPath>..\..\lib\GlycoLib.dll</HintPath>
     </Reference>
     <Reference Include="MassLib">
       <HintPath>..\..\lib\MassLib.dll</HintPath>
-    </Reference>
-    <Reference Include="PolynomialRegression">
-      <HintPath>..\..\PolyFitCSharp\PolynomialRegression\bin\Release\PolynomialRegression.dll</HintPath>
     </Reference>
     <Reference Include="ProtLib">
       <HintPath>..\..\lib\ProtLib.dll</HintPath>
@@ -136,7 +132,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CheckRegistry.cs" />
-    <Compile Include="clsGlycanUnit.cs" />
     <Compile Include="ClusteredPeak.cs" />
     <Compile Include="Combinations\Combinations.cs" />
     <Compile Include="Combinations\GenerateOption.cs" />
@@ -144,12 +139,6 @@
     <Compile Include="Combinations\Permutations.cs" />
     <Compile Include="Combinations\SmallPrimeUtility.cs" />
     <Compile Include="Combinations\Variations.cs" />
-    <Compile Include="frmGlycanUnits.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="frmGlycanUnits.Designer.cs">
-      <DependentUpon>frmGlycanUnits.cs</DependentUpon>
-    </Compile>
     <Compile Include="SecondPassedForMultiplexPermethylated.cs" />
     <None Include="Copy of GenerateImages.cs.bak" />
     <Compile Include="frmBatchGenImg.cs">
@@ -226,9 +215,6 @@
       <DependentUpon>frmCalculator.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="frmGlycanUnits.resx">
-      <DependentUpon>frmGlycanUnits.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="frmMainESI.resx">
       <DependentUpon>frmMainESI.cs</DependentUpon>
       <SubType>Designer</SubType>
@@ -293,7 +279,7 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties BuildVersion_UpdateAssemblyVersion="True" BuildVersion_BuildVersioningStyle="None.None.Increment.None" />
+      <UserProperties BuildVersion_BuildVersioningStyle="None.None.Increment.None" BuildVersion_UpdateAssemblyVersion="True" />
     </VisualStudio>
   </ProjectExtensions>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

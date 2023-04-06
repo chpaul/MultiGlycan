@@ -575,13 +575,6 @@
             this.batchModeToolStripMenuItem.Text = "Batch Mode";
             this.batchModeToolStripMenuItem.Click += new System.EventHandler(this.batchModeToolStripMenuItem_Click);
             // 
-            // glycanUnitGUToolStripMenuItem
-            // 
-            this.glycanUnitGUToolStripMenuItem.Name = "glycanUnitGUToolStripMenuItem";
-            this.glycanUnitGUToolStripMenuItem.Size = new System.Drawing.Size(101, 20);
-            this.glycanUnitGUToolStripMenuItem.Text = "GlycanUnit(GU)";
-            this.glycanUnitGUToolStripMenuItem.Click += new System.EventHandler(this.glycanUnitGUToolStripMenuItem_Click);
-            // 
             // txtGlycanPPM
             // 
             this.txtGlycanPPM.Location = new System.Drawing.Point(679, 6);
